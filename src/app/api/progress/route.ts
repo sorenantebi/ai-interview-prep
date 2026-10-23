@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logActivity, progress, review, setProgress, type ReviewAction } from "@/lib/content";
+import { completeTasks } from "@/lib/plan";
 
 const ACTIONS: ReviewAction[] = ["enable", "disable", "again", "hard", "good", "easy", "set"];
 
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(await review(path, action, new Date(), due));
     }
     await setProgress(path, status);
-    if (status === "solved") await logActivity();
+    if (status === "solved") await Promise.all([logActivity(), completeTasks(path)]);
     return NextResponse.json(await progress());
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });

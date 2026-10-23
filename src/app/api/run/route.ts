@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logActivity, read, safePath, setProgress, write } from "@/lib/content";
 import { claude, files, prompt } from "@/lib/claude";
 import { runCases, runPython } from "@/lib/run";
+import { completeTasks } from "@/lib/plan";
 import { codeBlock, starterFrom } from "@/lib/starter";
 
 /**
@@ -31,7 +32,10 @@ export async function POST(req: NextRequest) {
       await write(`${path}/tests.py`, tests);
     }
     const r = await runPython({ "attempt.py": code, "tests.py": tests }, "tests.py");
-    if (r.ok) await write(`${path}/solved.py`, code); // snapshot of your passing code, shown in the cheat sheet
+    if (r.ok) {
+      await write(`${path}/solved.py`, code); // snapshot of your passing code, shown in the cheat sheet
+      await completeTasks(path);
+    }
     await setProgress(path, r.ok ? "solved" : "attempted");
     // Hidden tests: show the summary and the first failure only, never the passing cases.
     const lines = r.output.split("\n");

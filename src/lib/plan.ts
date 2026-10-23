@@ -61,5 +61,23 @@ export async function generatePlan(s: PlanSettings): Promise<Plan> {
   return validatePlan(raw, titles, s.start, end);
 }
 
-/** A task counts as done when ticked, or (for new problems) when the problem is solved. Reviews need a tick. */
-export const taskDone = (t: Task, solved: Set<string>) => !!t.done || ((t.type === "leetcode" || t.type === "system-design") && solved.has(t.path));
+/** Your tick or untick (`done`) wins; untouched new-problem tasks count as done once the problem is solved. */
+export const taskDone = (t: Task, solved: Set<string>) => t.done ?? ((t.type === "leetcode" || t.type === "system-design") && solved.has(t.path));
+
+/**
+ * Solving a problem completes its plan tasks: new-problem tasks on any day, and reviews due today or earlier
+ * (a review planned for later isn't done by solving it now). Overrides an earlier untick.
+ */
+export async function completeTasks(problemPath: string) {
+  const plan = await readPlan();
+  if (!plan) return;
+  const today = localDate(new Date());
+  let changed = false;
+  for (const d of plan.days)
+    for (const t of d.tasks)
+      if (t.type !== "note" && t.path === problemPath && !t.done && (t.type !== "review" || d.date <= today)) {
+        t.done = true;
+        changed = true;
+      }
+  if (changed) await savePlan(plan);
+}

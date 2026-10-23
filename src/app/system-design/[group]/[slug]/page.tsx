@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "@/components/Markdown";
 import ExcalidrawView, { parseScene } from "@/components/ExcalidrawView";
+import SDNotes from "@/components/SDNotes";
 import Difficulty from "@/components/Difficulty";
 import SolvedToggle from "@/components/SolvedToggle";
 import { parse, progress, read } from "@/lib/content";
@@ -14,8 +15,8 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
   const { group: g, slug } = await params;
   const group = decodeURIComponent(g);
   const path = `system-design/${group}/${decodeURIComponent(slug)}`;
-  const [question, solution, notes, diagramFile, deepDiveFile] = await Promise.all(
-    ["question.md", "solution.md", "notes.md", "diagram.excalidraw", "deep-dive.excalidraw"].map((f) => read(`${path}/${f}`)),
+  const [question, solution, notes, diagramFile, deepDiveFile, notesDrawing] = await Promise.all(
+    ["question.md", "solution.md", "notes.md", "diagram.excalidraw", "deep-dive.excalidraw", "notes.excalidraw"].map((f) => read(`${path}/${f}`)),
   );
   const diagrams = [["Solution diagram", parseScene(diagramFile)], ["Deep dive", parseScene(deepDiveFile)]] as const;
   if (question === null) notFound();
@@ -60,14 +61,9 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
           </div>
         </details>
       )}
-      {notes && (
-        <details className="card" open>
-          <summary className="cursor-pointer select-none px-6 py-4 font-medium">My notes</summary>
-          <div className="border-t border-border p-6"><Markdown>{notes}</Markdown></div>
-        </details>
-      )}
+      <SDNotes path={path} notes={notes ?? ""} scene={parseScene(notesDrawing)} />
       <p className="text-xs text-muted">
-        Edit these files under <Link className="underline" href={`/files?path=${encodeURIComponent(path)}`}>Files</Link> (add a <code>notes.md</code> for your own summary).
+        Edit these files under <Link className="underline" href={`/files?path=${encodeURIComponent(path)}`}>Files</Link>.
       </p>
     </div>
   );

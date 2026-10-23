@@ -4,7 +4,7 @@ import { generatePlan, readPlan, savePlan } from "@/lib/plan";
 
 const fail = (e: unknown, status = 400) => NextResponse.json({ error: (e as Error).message }, { status });
 
-/** generate { start, weeks, hours, focus[], notes } · toggle { date, index } */
+/** generate { start, weeks, hours, focus[], notes } · toggle { date, index, done } */
 export async function POST(req: NextRequest) {
   const b = await req.json();
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       const plan = await readPlan();
       const task = plan?.days.find((d) => d.date === b.date)?.tasks[Number(b.index)];
       if (!plan || !task) throw new Error("No such task");
-      task.done = !task.done;
+      task.done = typeof b.done === "boolean" ? b.done : !task.done; // explicit value, so unticking a solved problem sticks
       await savePlan(plan);
       if (task.done) await logActivity();
       return NextResponse.json(plan);

@@ -10,9 +10,11 @@
     "test": "node --test --experimental-strip-types src/lib/*.test.ts",
     "seed": "node scripts/seed-from-vault.mjs",
     "fetch": "node scripts/fetch-neetcode.ts",
-    "import-diagrams": "node scripts/import-excalidraw.mjs"
+    "import-diagrams": "node scripts/import-excalidraw.mjs",
+    "app": "next build && next start -H 127.0.0.1"
   },
   "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.0",
     "@monaco-editor/react": "^4.7.0",
     "@xyflow/react": "^12.8.6",
     "gray-matter": "^4.0.3",

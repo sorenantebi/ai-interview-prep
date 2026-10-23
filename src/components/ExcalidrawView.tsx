@@ -40,7 +40,7 @@ function Shape({ e }: { e: El }) {
     const { x, y, width: w, height: h } = e;
     return <polygon points={`${x + w / 2},${y} ${x + w},${y + h / 2} ${x + w / 2},${y + h} ${x},${y + h / 2}`} fill={fill(e.backgroundColor)} transform={rot} {...common} />;
   }
-  if ((e.type === "arrow" || e.type === "line") && e.points?.length) {
+  if ((e.type === "arrow" || e.type === "line" || e.type === "freedraw") && e.points?.length) {
     const pts = e.points.map(([px, py]) => [e.x + px, e.y + py]);
     const [a, b] = [pts[pts.length - 2] ?? pts[0], pts[pts.length - 1]];
     return (
@@ -74,7 +74,7 @@ function Text({ e, byId }: { e: El; byId: Map<string, El> }) {
     top = e.y;
   }
   return (
-    <text x={x} fontSize={size} textAnchor={anchor} fill={e.strokeColor ?? "#1e1e1e"} opacity={(e.opacity ?? 100) / 100} fontFamily={e.fontFamily === 3 ? "var(--font-jetbrains), monospace" : "var(--font-inter), sans-serif"}>
+    <text x={x} fontSize={size} textAnchor={anchor} fill={e.strokeColor ?? "#1e1e1e"} opacity={(e.opacity ?? 100) / 100} fontFamily={e.fontFamily === 3 ? "var(--font-jetbrains, 'JetBrains Mono'), ui-monospace, monospace" : "var(--font-inter, Inter), Helvetica, Arial, sans-serif"}>
       {lines.map((l, i) => <tspan key={i} x={x} y={top + i * lh + size * 0.9}>{l || " "}</tspan>)}
     </text>
   );
@@ -86,7 +86,7 @@ export default function ExcalidrawView({ scene, className = "", title }: { scene
   const byId = new Map(els.map((e) => [e.id, e]));
   const b = bounds(els), pad = 20;
   return (
-    <svg viewBox={`${b.minX - pad} ${b.minY - pad} ${b.w + 2 * pad} ${b.h + 2 * pad}`} className={`bg-white ${className}`} role="img" aria-label={title}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={`${b.minX - pad} ${b.minY - pad} ${b.w + 2 * pad} ${b.h + 2 * pad}`} className={`bg-white ${className}`} style={{ background: "#fff" }} role="img" aria-label={title}>
       {els.map((e) => (e.type === "text" ? <Text key={e.id} e={e} byId={byId} /> : <Shape key={e.id} e={e} />))}
     </svg>
   );

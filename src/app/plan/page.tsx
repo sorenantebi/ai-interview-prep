@@ -1,3 +1,4 @@
+import RefreshOnShow from "@/components/RefreshOnShow";
 import PlanForm from "@/components/PlanForm";
 import PlanTasks from "@/components/PlanTasks";
 import DeletePlan from "@/components/DeletePlan";
@@ -25,6 +26,7 @@ export default async function PlanPage() {
   }
   return (
     <div className="space-y-6">
+      <RefreshOnShow />
       <h1 className="page-title">Study plan</h1>
       {plan && (
         <section className="space-y-4">

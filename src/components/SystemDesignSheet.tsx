@@ -7,7 +7,7 @@ import { NotesCell } from "./CheatSheet";
 import { problemHref } from "./ProblemList";
 import { fmtDate } from "@/lib/format";
 
-export type SDEntry = { path: string; title: string; difficulty?: string; done?: string; diagram: Scene | null; notes: string };
+export type SDEntry = { path: string; title: string; difficulty?: string; done?: string; diagram: Scene | null; notes: string; drawing: Scene | null };
 
 // Problem | Solution diagram | Your notes
 const COLS = "grid-cols-1 lg:grid-cols-[minmax(200px,0.8fr)_minmax(0,2.4fr)_minmax(240px,1.2fr)]";
@@ -55,7 +55,14 @@ export default function SystemDesignSheet({ groups }: { groups: { name: string; 
                 )}
               </div>
               <div className={cell}>
-                <NotesCell path={e.path} initial={e.notes} />
+                <div className={e.drawing?.elements?.length ? "h-36" : "h-full"}>
+                  <NotesCell path={e.path} initial={e.notes} />
+                </div>
+                {e.drawing?.elements?.length ? (
+                  <Link href={problemHref(e.path)} className="mt-2 block border border-border hover:border-fg" title="Open your drawing">
+                    <ExcalidrawView scene={e.drawing} title={`${e.title}: your notes drawing`} className="max-h-60 w-full" />
+                  </Link>
+                ) : null}
               </div>
             </div>
           ))}

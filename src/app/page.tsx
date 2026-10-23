@@ -39,24 +39,26 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   ]);
   const sum = (g: typeof lc, k: "total" | "solved") => g.reduce((a, x) => a + x[k], 0);
   const today = localDate(new Date());
-  const patterns = await read("patterns.md");
+  const view = (await searchParams).view;
+  const tab = view === "system-design" ? 1 : view === "patterns" ? 2 : 0;
+  const patterns = tab === 2 ? await read("patterns.md") : null;
   const [plan, activity] = await Promise.all([readPlan(), activityDays()]);
   const streak = streaks(activity, today);
   const solvedPaths = Object.keys(prog).filter((k) => prog[k].status === "solved");
-  const sdSheet = await Promise.all(
+  const sdSheet = tab !== 1 ? [] : await Promise.all(
     sd.map(async (g) => ({
       name: g.name,
       entries: await Promise.all(
         g.problems.map(async (p): Promise<SDEntry> => {
-          const [diagram, notes] = await Promise.all([read(`${p.path}/diagram.excalidraw`), read(`${p.path}/notes.md`)]);
-          return { path: p.path, title: p.title, difficulty: p.difficulty, done: prog[p.path]?.status === "solved" ? prog[p.path].at : undefined, diagram: parseScene(diagram), notes: notes ?? "" };
+          const [diagram, notes, drawing] = await Promise.all(["diagram.excalidraw", "notes.md", "notes.excalidraw"].map((f) => read(`${p.path}/${f}`)));
+          return { path: p.path, title: p.title, difficulty: p.difficulty, done: prog[p.path]?.status === "solved" ? prog[p.path].at : undefined, diagram: parseScene(diagram), notes: notes ?? "", drawing: parseScene(drawing) };
         }),
       ),
     })),
   );
 
   // Cheat sheet: solved LeetCode problems per topic, summarised from their solution.md.
-  const cheat = (
+  const cheat = tab !== 0 ? [] : (
     await Promise.all(
       lc.map(async (g) => ({
         name: g.name,
@@ -112,13 +114,13 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </section>
       )}
       <DashboardTabs
-        initial={{ "system-design": 1, patterns: 2 }[(await searchParams).view ?? ""] ?? 0}
-        tabs={[
-          { label: "LeetCode", content: <CheatSheet groups={cheat} today={today} /> },
-          { label: "System design", content: <SystemDesignSheet groups={sdSheet} /> },
-          { label: "Patterns", content: <Patterns markdown={patterns ?? ""} /> },
-        ]}
-      />
+        active={tab}
+        tabs={[{ label: "LeetCode", href: "/" }, { label: "System design", href: "/?view=system-design" }, { label: "Patterns", href: "/?view=patterns" }]}
+      >
+        {tab === 0 && <CheatSheet groups={cheat} today={today} />}
+        {tab === 1 && <SystemDesignSheet groups={sdSheet} />}
+        {tab === 2 && <Patterns markdown={patterns ?? ""} />}
+      </DashboardTabs>
       <section>
         <h2 className="tag mb-2">Recent activity</h2>
         {recent.length === 0 ? (

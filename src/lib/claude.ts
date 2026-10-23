@@ -9,12 +9,13 @@ export async function prompt(name: string, vars: Record<string, string> = {}) {
 }
 
 /** Runs the local Claude Code CLI headlessly. Uses whatever account `claude` is logged into. */
-export function claude(input: string, opts: { sessionId?: string; tools?: string[] } = {}): Promise<{ text: string; sessionId: string }> {
+export function claude(input: string, opts: { sessionId?: string; tools?: string[]; model?: string } = {}): Promise<{ text: string; sessionId: string }> {
   // Only the listed tools exist (e.g. WebFetch); the app writes all files itself.
   // Empty setting sources + strict MCP keep the user's own hooks/plugins/MCP servers out.
   const args = ["-p", "--output-format", "json", "--tools", (opts.tools ?? []).join(","), "--setting-sources", "", "--strict-mcp-config"];
   if (opts.tools?.length) args.push("--allowedTools", opts.tools.join(","));
   if (opts.sessionId) args.push("--resume", opts.sessionId);
+  if (opts.model) args.push("--model", opts.model);
 
   return new Promise((resolve, reject) => {
     const child = spawn(process.env.CLAUDE_BIN ?? "claude", args, { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["pipe", "pipe", "pipe"] });

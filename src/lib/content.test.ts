@@ -172,5 +172,20 @@ test("study plans keep only real problems and in-range days", async () => {
   const solved = new Set(["leetcode/02 Two Pointers/valid-palindrome"]);
   assert.equal(taskDone(plan.days[1].tasks[0], solved), true);   // new problem: done once solved
   assert.equal(taskDone(plan.days[1].tasks[2], solved), false);  // review: needs a tick
+  assert.equal(taskDone({ ...plan.days[1].tasks[0], done: false }, solved), false); // an untick wins over "solved"
   assert.throws(() => validatePlan({ days: [] }, titles, "2026-10-24", "2026-11-20"));
+});
+
+test("solving a problem completes its plan tasks (reviews only once due)", async () => {
+  const { completeTasks, readPlan, savePlan } = await import("./plan.ts");
+  const { localDate } = await import("./content.ts");
+  const p = "leetcode/01 T/a", today = localDate(new Date()), later = "2999-01-01";
+  await savePlan({ title: "t", created: "", days: [
+    { date: today, tasks: [{ type: "leetcode", path: p, title: "A", done: false }, { type: "review", path: p, title: "A" }, { type: "note", text: "x" }] },
+    { date: later, tasks: [{ type: "review", path: p, title: "A" }, { type: "leetcode", path: "leetcode/01 T/b", title: "B" }] },
+  ] });
+  await completeTasks(p);
+  const plan = (await readPlan())!;
+  assert.deepEqual(plan.days[0].tasks.map((t) => t.done), [true, true, undefined]); // even after an earlier untick
+  assert.deepEqual(plan.days[1].tasks.map((t) => t.done), [undefined, undefined]);  // future review and other problems untouched
 });

@@ -59,6 +59,8 @@ content/**/attempt.py
 content/**/solved.py
 content/**/notes.md
 content/**/drawing.json
+content/**/notes.excalidraw
 content/**/testcases.json
 content/**/tests.py
 content/**/my_tests.py
+/.next-test/

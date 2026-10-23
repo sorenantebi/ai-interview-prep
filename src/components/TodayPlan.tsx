@@ -1,3 +1,4 @@
+import RefreshOnShow from "./RefreshOnShow";
 import Link from "next/link";
 import PlanTasks from "./PlanTasks";
 import { taskDone, type Plan } from "@/lib/plan";
@@ -20,6 +21,7 @@ export default function TodayPlan({ plan, solved, today }: { plan: Plan | null; 
   const next = !todayDay ? plan.days.find((d) => d.date > today) : undefined;
   return (
     <section className="card space-y-3 p-4">
+      <RefreshOnShow />
       <div className="flex flex-wrap items-baseline gap-x-3">
         <h2 className="font-medium">Today&apos;s plan</h2>
         <span className="font-mono text-xs text-muted">{plan.title} · {done}/{all.length} done</span>
