@@ -4,7 +4,10 @@
 
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-1e1e1e) ![Python 3](https://img.shields.io/badge/Python-3-1e1e1e) ![Claude Code](https://img.shields.io/badge/AI-Claude%20Code-09aea1) ![Local first](https://img.shields.io/badge/data-local%20files-abbab9)
 
-![LeetCode roadmap](docs/roadmap.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/roadmap-dark.png">
+  <img alt="LeetCode roadmap" src="docs/roadmap.png">
+</picture>
 
 ## Features
 
@@ -16,9 +19,12 @@
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
 | **Review** | A dashboard cheat sheet of your solved problems (your code, notes, drawings), spaced repetition and a patterns sheet. |
 | **Plan** | Claude writes a day-by-day study plan from your progress, including reviews. Streak calendar on the dashboard. |
-| **Extras** | Job application tracker, git repo browser, file browser, timer, Claude usage left, a mantra and a pettable cat. |
+| **Extras** | Light/dark switch, job application tracker, git repo browser, file browser, timer, Claude usage left, a mantra and a pettable cat. |
 
-![Problem page](docs/problem.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/problem-dark.png">
+  <img alt="Problem page" src="docs/problem.png">
+</picture>
 
 ## Quick start
 

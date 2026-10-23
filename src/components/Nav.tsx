@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Timer from "./Timer";
+import ThemeToggle from "./ThemeToggle";
 
 const links = [
   ["/", "Dashboard"],
@@ -33,6 +34,7 @@ export default function Nav({ authEnabled }: { authEnabled: boolean }) {
           usage
         </Link>
         <Timer />
+        <ThemeToggle />
         {authEnabled && (
           <Link href="/api/auth/signout" prefetch={false} className={`${box} bg-panel text-muted hover:text-fg`}>Sign out</Link>
         )}

@@ -2,9 +2,10 @@
 import Editor, { type EditorProps } from "@monaco-editor/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Markdown from "./Markdown";
 import ReviewControls from "./ReviewControls";
+import { isDark } from "./ThemeToggle";
 import SketchPad, { type Stroke } from "./SketchPad";
 import { api, putFile } from "@/lib/client";
 import type { Review } from "@/lib/content";
@@ -144,8 +145,13 @@ export default function Workspace(props: {
   const [coach, setCoach] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [status, setStatus] = useState(props.status);
-  const dark = useRef(false);
-  if (typeof window !== "undefined") dark.current = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const update = () => setDark(isDark());
+    update();
+    window.addEventListener("prep-theme", update);
+    return () => window.removeEventListener("prep-theme", update);
+  }, []);
   const [mode, setMode] = useState<"doc" | "ide">("doc");
   useEffect(() => {
     try { if (localStorage.getItem("editorMode") === "ide") setMode("ide"); } catch {}
@@ -281,7 +287,7 @@ export default function Workspace(props: {
                 language={mode === "doc" ? "plaintext" : "python"}
                 value={code}
                 onChange={(v) => setCode(v ?? "")}
-                theme={mode === "doc" ? "light" : dark.current ? "vs-dark" : "light"}
+                theme={mode === "doc" ? "light" : dark ? "vs-dark" : "light"}
                 options={mode === "doc" ? DOC : NO_ASSIST}
               />
             </div>

@@ -15,7 +15,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply the saved theme before the first paint, so there's no flash of the other one. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}` }} />
+      </head>
       <body className={`${inter.variable} ${interTight.variable} ${jetbrains.variable} font-sans antialiased`}>
         <Nav authEnabled={!!process.env.GOOGLE_CLIENT_ID} />
         <main className="mx-auto max-w-[1400px] px-4 py-8 md:px-8">{children}</main>

@@ -15,8 +15,9 @@
   --code-bg: #1e1e1e;
 }
 
+/* Dark: follows the system unless the theme switch picked one (data-theme on <html>) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #161616;
     --panel: #1e1e1e;
     --fg: #fefefe;
@@ -24,6 +25,14 @@
     --border: #ffffff29;
     --code-bg: #111111;
   }
+}
+:root[data-theme="dark"] {
+  --bg: #161616;
+  --panel: #1e1e1e;
+  --fg: #fefefe;
+  --muted: #abbab9;
+  --border: #ffffff29;
+  --code-bg: #111111;
 }
 
 @theme inline {
