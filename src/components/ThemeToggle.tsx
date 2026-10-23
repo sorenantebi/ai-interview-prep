@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 
-/** The theme in effect: your pick if you made one, otherwise the system setting. */
-export const isDark = () =>
-  document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+/** Dark only when you picked it; light is the default. */
+export const isDark = () => document.documentElement.dataset.theme === "dark";
 
 /** Light/dark switch in the top bar; the choice is remembered in this browser. */
 export default function ThemeToggle() {

@@ -19,7 +19,7 @@
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
 | **Review** | A dashboard cheat sheet of your solved problems (your code, notes, drawings), spaced repetition and a patterns sheet. |
 | **Plan** | Claude writes a day-by-day study plan from your progress, including reviews. Streak calendar on the dashboard. |
-| **Extras** | Light/dark switch, job application tracker, git repo browser, file browser, timer, Claude usage left, a mantra and a pettable cat. |
+| **Extras** | Light/dark switch, job application tracker, git repo browser, file browser, timer, Claude model picker and usage, a mantra and a pettable cat. |
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/problem-dark.png">
@@ -28,13 +28,34 @@
 
 ## Quick start
 
-Needs **Node 20+**, **Python 3** and **[Claude Code](https://claude.com/claude-code)** installed and logged in (AI features only, and no API key is needed).
+Needs **Node 20+** and **Python 3**. For the AI features, [set up Claude](#set-up-claude) too.
 
 ```bash
 npm install
 npm run app    # builds once, then opens fast at http://localhost:3000
 npm run dev    # while editing the code (each page compiles on first visit)
 ```
+
+## Set up Claude
+
+The AI features (adding and generating problems, hidden tests, hints, mock interviews, study plans and the Claude page) run through **Claude Code** on your machine. Everything else works without it.
+
+1. **Install Claude Code**
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
+   Other install options are in the [Claude Code docs](https://docs.claude.com/en/docs/claude-code/setup).
+
+2. **Log in once**: run `claude auth login` and finish signing in in your browser. Or open the app's **claude** page and click **Log in to Claude**, which opens a terminal with that command for you on macOS, Windows or Linux. A Claude Pro or Max subscription works, and so does an Anthropic API key (`ANTHROPIC_API_KEY`).
+
+3. **Check it works**
+   ```bash
+   claude -p "say hi"
+   ```
+   If that prints a reply, the app can use Claude. The **claude** page also shows whether Claude Code is connected, lets you pick the model, and shows how much of your plan is used.
+
+> If `claude` isn't on your `PATH`, point the app at it in `.env.local`: `CLAUDE_BIN=/full/path/to/claude`.
+> The app uses whatever account Claude Code is logged into. It never asks for or stores a key, and usage counts against that account. Check how much is used with the **claude** button.
 
 ## How it works
 

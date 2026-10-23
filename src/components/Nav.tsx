@@ -30,8 +30,8 @@ export default function Nav({ authEnabled }: { authEnabled: boolean }) {
             {label}
           </Link>
         ))}
-        <Link href="/usage" aria-current={active("/usage") ? "page" : undefined} className={`${box} ml-auto font-mono text-sm ${active("/usage") ? "bg-fg text-panel" : "bg-panel hover:bg-fg hover:text-panel"}`} title="Claude Code token usage">
-          usage
+        <Link href="/claude" aria-current={active("/claude") ? "page" : undefined} className={`${box} ml-auto font-mono text-sm ${active("/claude") ? "bg-fg text-panel" : "bg-panel hover:bg-fg hover:text-panel"}`} title="Claude: connection, model and usage">
+          claude
         </Link>
         <Timer />
         <ThemeToggle />

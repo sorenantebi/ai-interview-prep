@@ -47,6 +47,7 @@ content/jobs.json
 content/plan.json
 content/activity.json
 content/mantra.txt
+content/settings.json
 content/interviews/*
 !content/interviews/.gitkeep
 content/notes/*

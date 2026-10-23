@@ -189,3 +189,27 @@ test("solving a problem completes its plan tasks (reviews only once due)", async
   assert.deepEqual(plan.days[0].tasks.map((t) => t.done), [true, true, undefined]); // even after an earlier untick
   assert.deepEqual(plan.days[1].tasks.map((t) => t.done), [undefined, undefined]);  // future review and other problems untouched
 });
+
+test("login opens the right terminal on each OS", async () => {
+  const { loginTerminal } = await import("./claude.ts");
+  const none = () => false;
+  assert.equal(loginTerminal("darwin", none, "claude")!.cmd, "osascript");
+  assert.match(loginTerminal("darwin", none, "claude")!.args[1], /do script "claude auth login"/);
+  assert.deepEqual(loginTerminal("win32", none, "claude"), { cmd: "cmd.exe", args: ["/c", "start", "Claude login", "cmd.exe", "/k", "claude auth login"] });
+  assert.deepEqual(loginTerminal("linux", (c) => c === "konsole" || c === "xterm", "claude"), { cmd: "konsole", args: ["-e", "claude", "auth", "login"] });
+  assert.equal(loginTerminal("linux", none, "claude"), null); // no terminal: the page shows the command instead
+});
+
+test("model choice is saved and validated", async () => {
+  const { saveModel, savedModel } = await import("./claude.ts");
+  assert.equal(await savedModel(), "");
+  await saveModel("claude-sonnet-5-5");
+  assert.equal(await savedModel(), "claude-sonnet-5-5");
+  await assert.rejects(saveModel("sonnet")); // only exact IDs from the list
+  const { write } = await import("./content.ts");
+  await write("settings.json", JSON.stringify({ model: "haiku" })); // a pick saved before IDs were used
+  assert.equal(await savedModel(), "claude-haiku-5-5");
+  await assert.rejects(saveModel("gpt-4"));
+  await saveModel("");
+  assert.equal(await savedModel(), "");
+});
