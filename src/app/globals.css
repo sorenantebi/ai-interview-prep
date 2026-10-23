@@ -1,26 +1,109 @@
 @import "tailwindcss";
+@import "highlight.js/styles/github-dark.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Palette after typesafe.ai: sage canvas, near-black ink, white boxes, teal/green/pink accents */
+  --bg: #abbab9;
+  --panel: #fefefe;
+  --fg: #1e1e1e;
+  --muted: #5c6463;
+  --border: #1e1e1e2e;
+  --accent: #09aea1;
+  --easy: #03aa5c;
+  --medium: #c98a00;
+  --hard: #d45bb6;
+  --code-bg: #1e1e1e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #161616;
+    --panel: #1e1e1e;
+    --fg: #fefefe;
+    --muted: #abbab9;
+    --border: #ffffff29;
+    --code-bg: #111111;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-easy: var(--easy);
+  --color-medium: var(--medium);
+  --color-hard: var(--hard);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter-tight);
+  --font-mono: var(--font-jetbrains);
+  /* Square corners everywhere, like the reference */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
 }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.hljs {
+  background: transparent;
+}
+
+.btn {
+  @apply inline-flex items-center gap-1.5 border border-border bg-panel px-3 py-1.5 text-sm text-fg hover:border-fg disabled:opacity-50;
+}
+.btn-primary {
+  @apply inline-flex items-center gap-1.5 border border-fg bg-fg px-3 py-1.5 text-sm font-medium text-panel hover:opacity-85 disabled:opacity-50;
+}
+.input {
+  @apply w-full border border-border bg-panel px-3 py-1.5 text-sm text-fg outline-none focus:border-fg;
+}
+.card {
+  @apply border border-border bg-panel;
+}
+/* Monospace label, like the reference's "Company News" / date chips */
+.tag {
+  @apply inline-block bg-fg px-1.5 py-0.5 font-mono text-xs text-panel;
+}
+.page-title {
+  @apply font-display text-4xl font-medium tracking-[-0.03em] md:text-5xl;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Rendered markdown */
+.md { @apply text-[15px] leading-relaxed; }
+.md h1 { @apply mb-4 font-display text-3xl font-medium tracking-[-0.02em]; }
+.md h2 { @apply mt-8 mb-2 font-display text-xl font-medium tracking-[-0.01em]; }
+.md h3 { @apply mt-4 mb-1 font-semibold; }
+.md p, .md ul, .md ol, .md pre, .md table, .md blockquote { @apply mb-3; }
+.md ul { @apply list-disc pl-6; }
+.md ol { @apply list-decimal pl-6; }
+.md li > ul, .md li > ol { @apply mb-0; }
+.md a { @apply underline decoration-accent decoration-2 underline-offset-2 hover:text-accent; }
+.md code { @apply bg-fg/10 px-1 py-0.5 font-mono text-[0.85em]; }
+.md pre { @apply overflow-x-auto bg-[var(--code-bg)] p-3 text-[13px] text-[#e6edf3]; tab-size: 4; }
+.md pre code { @apply bg-transparent p-0 text-inherit; }
+.md table { @apply block overflow-x-auto text-sm; }
+.md th, .md td { @apply border border-border px-2 py-1 text-left; }
+.md blockquote { @apply border-l-2 border-fg pl-3 text-muted; }
+.md hr { @apply my-4 border-border; }
+.md input[type="checkbox"] { @apply mr-1.5; }
+.md img { display: inline; max-width: 100%; vertical-align: middle; }
+
+/* Floating hearts when you pet the cat */
+.cat-heart { animation: cat-heart 1.4s ease-out forwards; }
+@keyframes cat-heart {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-28px) scale(1.4); }
+}
+@media (prefers-reduced-motion: reduce) { .cat-heart { animation: none; } }

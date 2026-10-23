@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // A package-lock.json in a parent folder would otherwise be picked as the workspace root.
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

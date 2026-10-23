@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,25 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Your personal data: stays on this machine (remove lines to keep things in git)
+content/progress.json
+content/jobs.json
+content/plan.json
+content/activity.json
+content/mantra.txt
+content/interviews/*
+!content/interviews/.gitkeep
+content/notes/*
+!content/notes/.gitkeep
+# cloned repos are other people's projects (and would be nested git repos)
+content/repos/*
+!content/repos/.gitkeep
+# your code, notes, drawings and tests per problem
+content/**/attempt.py
+content/**/solved.py
+content/**/notes.md
+content/**/drawing.json
+content/**/testcases.json
+content/**/tests.py
+content/**/my_tests.py
