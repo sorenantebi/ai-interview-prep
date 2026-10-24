@@ -37,8 +37,8 @@ export default function Patterns({ markdown }: { markdown: string }) {
   const remove = (i: number) => confirm(`Delete "${sections[i].title}"?`) && persist(sections.filter((_, k) => k !== i));
 
   return (
-    <div className="card max-h-[80vh] overflow-y-auto">
-      <nav className="sticky top-0 z-10 flex flex-wrap gap-1 border-b border-border bg-panel p-2" aria-label="Pattern topics">
+    <div className="card">
+      <nav className="sticky top-14 z-10 flex flex-wrap gap-1 border-b border-border bg-panel p-2" aria-label="Pattern topics">
         {sections.map((s, i) => (
           <a key={i} href={`#pattern-${i}`} className="border border-border px-2 py-0.5 font-mono text-xs hover:bg-fg hover:text-panel">{s.title}</a>
         ))}
@@ -48,7 +48,7 @@ export default function Patterns({ markdown }: { markdown: string }) {
       {error && <p className="p-2 text-sm text-hard" role="alert">{error}</p>}
       <div className="grid gap-px bg-border md:grid-cols-2 xl:grid-cols-3">
         {sections.map((s, i) => (
-          <section key={i} id={`pattern-${i}`} className={`group scroll-mt-14 bg-panel p-4 [&_.md]:text-sm [&_pre]:text-xs ${editing === i ? "md:col-span-2 xl:col-span-3" : ""}`}>
+          <section key={i} id={`pattern-${i}`} className={`group scroll-mt-28 bg-panel p-4 [&_.md]:text-sm [&_pre]:text-xs ${editing === i ? "md:col-span-2 xl:col-span-3" : ""}`}>
             {editing === i ? (
               <div className="space-y-2">
                 <input className="input font-display text-lg" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} aria-label="Topic title" />

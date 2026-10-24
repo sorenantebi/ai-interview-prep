@@ -230,8 +230,16 @@ export default function Workspace(props: {
     }
   }
 
+  // After a passing submit, the Time/Space boxes turn green (right) or red (wrong) until you edit them.
+  function mark(k: "time" | "space") {
+    const c = submit?.complexity;
+    const ok = c && !c.error ? c[k === "time" ? "timeOk" : "spaceOk"] : null;
+    if (ok === null || c?.claimed?.[k] !== (k === "time" ? myTime : mySpace).trim()) return "";
+    return ok ? "bg-easy/15 text-easy" : "bg-hard/15 text-hard";
+  }
+
   async function submitCode(regenerate = false) {
-    setBusy(regenerate ? "Claude is writing new hidden tests…" : "Submitting (the first submit asks Claude to write hidden tests)…");
+    setBusy(regenerate ? "Claude is writing new hidden tests…" : myTime.trim() || mySpace.trim() ? "Submitting, then Claude checks your complexity…" : "Submitting…");
     setSubmit(null);
     try {
       const r = await api("/api/run", { path, code, mode: "submit", regenerate, time: myTime, space: mySpace });
@@ -379,10 +387,10 @@ export default function Workspace(props: {
           <div className="flex flex-wrap gap-2">
             <button className="btn" disabled={!!busy} onClick={runCases} title="Run your test cases">▶ Run</button>
             <span className="inline-flex items-center border border-border bg-panel">
-              <label className="flex items-center gap-1 px-2 font-mono text-xs text-muted">Time<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={myTime} onChange={(e) => setMyTime(e.target.value)} placeholder="O(n)" aria-label="Your solution's time complexity" /></label>
-              <label className="flex items-center gap-1 border-l border-border px-2 font-mono text-xs text-muted">Space<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={mySpace} onChange={(e) => setMySpace(e.target.value)} placeholder="O(1)" aria-label="Your solution's space complexity" /></label>
+              <label className={`flex items-center gap-1 px-2 font-mono text-xs text-muted ${mark("time")}`}>Time<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={myTime} onChange={(e) => setMyTime(e.target.value)} placeholder="O(n)" aria-label="Your solution's time complexity" /></label>
+              <label className={`flex items-center gap-1 border-l border-border px-2 font-mono text-xs text-muted ${mark("space")}`}>Space<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={mySpace} onChange={(e) => setMySpace(e.target.value)} placeholder="O(1)" aria-label="Your solution's space complexity" /></label>
             </span>
-            <button className="btn-primary" disabled={!!busy || !myTime.trim() || !mySpace.trim()} onClick={() => submitCode()} title={myTime.trim() && mySpace.trim() ? "Run the hidden tests; passing marks the problem solved and checks your complexity" : "Enter your time and space complexity first"}>Submit</button>
+            <button className="btn-primary" disabled={!!busy} onClick={() => submitCode()} title="Run the hidden tests; passing marks the problem solved. Fill in Time/Space (optional) to have Claude check them">Submit</button>
             <button className="btn" disabled={!!busy} onClick={hint}>Hint</button>
             <button className="btn" disabled={!!busy} onClick={complexity} title="Claude works out the time and space complexity of your current code">Complexity</button>
             <button className="btn" disabled={!!busy} onClick={() => confirm("Reset code to the starter template?") && setCode(props.starter)}>Reset</button>
@@ -407,6 +415,7 @@ export default function Workspace(props: {
                     <div className="space-y-0.5 border-t border-border pt-2 text-sm">
                       {(["time", "space"] as const).map((k) => {
                         const ok = submit.complexity![k === "time" ? "timeOk" : "spaceOk"];
+                        if (ok === null) return null; // you didn't give this one
                         return (
                           <div key={k} className={ok ? "text-easy" : "text-hard"}>
                             {ok ? "✓" : "✗"} {k === "time" ? "Time" : "Space"}: you said <code className="font-mono">{submit.complexity!.claimed?.[k]}</code>{ok ? "" : <> · it&apos;s <code className="font-mono">{submit.complexity![k]}</code></>}

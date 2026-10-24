@@ -21,6 +21,7 @@
     "highlight.js": "^11.11.2",
     "next": "15.5.4",
     "next-auth": "^4.24.11",
+    "pdfjs-dist": "^6.4.299",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^10.1.0",

@@ -35,4 +35,5 @@ SOFTWARE.
 - **LeetCode**: problem links, problem names and the Python starter code in `starter.py` files belong to LeetCode
   (leetcode.com). This project is not affiliated with or endorsed by LeetCode.
 - **Hello Interview**: system design video links point to Hello Interview's YouTube channel
-  (hellointerview.com). This project is not affiliated with or endorsed by Hello Interview.
+  (hellointerview.com). The ML system design notes (`content/system-design/09 ML System Design/`) are condensed
+  summaries of Hello Interview's free ML System Design guide and problem breakdowns, with links back to each source page. This project is not affiliated with or endorsed by Hello Interview.

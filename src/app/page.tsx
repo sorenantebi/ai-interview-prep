@@ -6,6 +6,7 @@ import StreakCalendar from "@/components/StreakCalendar";
 import TodayPlan from "@/components/TodayPlan";
 import { readPlan } from "@/lib/plan";
 import Patterns from "@/components/Patterns";
+import PdfPages from "@/components/PdfPages";
 import SystemDesignSheet, { type SDEntry } from "@/components/SystemDesignSheet";
 import { parseScene } from "@/components/ExcalidrawView";
 import ReviewControls from "@/components/ReviewControls";
@@ -15,6 +16,7 @@ import { strokesOf } from "@/lib/starter";
 import fs from "node:fs/promises";
 
 export const dynamic = "force-dynamic";
+const ML_PDF = "notes/ml-cheat-sheet.pdf"; // put your own PDF here (git-ignored); the tab shows when it exists
 
 /** Your passing snapshot (solved.py), else your latest attempt (never the reference code), plus your notes. */
 async function yourCode(path: string) {
@@ -41,7 +43,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const sum = (g: typeof lc, k: "total" | "solved") => g.reduce((a, x) => a + x[k], 0);
   const today = localDate(new Date());
   const view = (await searchParams).view;
-  const tab = view === "system-design" ? 1 : view === "patterns" ? 2 : 0;
+  const tab = view === "system-design" ? 1 : view === "patterns" ? 2 : view === "ml-cheat-sheet" ? 3 : 0;
+  const hasPdf = await fs.access(safePath(ML_PDF)).then(() => true, () => false);
   const patterns = tab === 2 ? await read("patterns.md") : null;
   const [plan, activity] = await Promise.all([readPlan(), activityDays()]);
   const streak = streaks(activity, today);
@@ -116,11 +119,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       )}
       <DashboardTabs
         active={tab}
-        tabs={[{ label: "LeetCode", href: "/" }, { label: "System design", href: "/?view=system-design" }, { label: "Patterns", href: "/?view=patterns" }]}
+        tabs={[{ label: "LeetCode", href: "/" }, { label: "System design", href: "/?view=system-design" }, { label: "Patterns", href: "/?view=patterns" }, ...(hasPdf ? [{ label: "ML cheat sheet", href: "/?view=ml-cheat-sheet" }] : [])]}
       >
         {tab === 0 && <CheatSheet groups={cheat} today={today} />}
         {tab === 1 && <SystemDesignSheet groups={sdSheet} />}
         {tab === 2 && <Patterns markdown={patterns ?? ""} />}
+        {tab === 3 && hasPdf && <PdfPages title="ML cheat sheet" src={`/api/files/raw?path=${encodeURIComponent(ML_PDF)}`} />}
       </DashboardTabs>
       <section>
         <h2 className="tag mb-2">Recent activity</h2>

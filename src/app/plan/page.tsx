@@ -1,15 +1,15 @@
 import RefreshOnShow from "@/components/RefreshOnShow";
 import PlanForm from "@/components/PlanForm";
-import PlanTasks from "@/components/PlanTasks";
+import PlanTasks, { PlanOptions } from "@/components/PlanTasks";
 import DeletePlan from "@/components/DeletePlan";
 import { localDate, progress } from "@/lib/content";
-import { readPlan, taskDone } from "@/lib/plan";
+import { problemOptions, readPlan, taskDone } from "@/lib/plan";
 import { fmtDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlanPage() {
-  const [plan, prog] = await Promise.all([readPlan(), progress()]);
+  const [plan, prog, options] = await Promise.all([readPlan(), progress(), problemOptions()]);
   const today = localDate(new Date());
   const solved = Object.keys(prog).filter((k) => prog[k].status === "solved");
   const solvedSet = new Set(solved);
@@ -29,6 +29,7 @@ export default async function PlanPage() {
       <RefreshOnShow />
       <h1 className="page-title">Study plan</h1>
       {plan && (
+        <PlanOptions groups={options}>
         <section className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <h2 className="font-display text-2xl font-medium">{plan.title}</h2>
@@ -56,6 +57,7 @@ export default async function PlanPage() {
             </div>
           ))}
         </section>
+        </PlanOptions>
       )}
       <PlanForm today={today} hasPlan={!!plan} />
     </div>

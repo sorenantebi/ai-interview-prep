@@ -71,7 +71,7 @@ export async function claude(input: string, opts: { sessionId?: string; tools?: 
         reject(new Error(`claude exited ${code}: ${err || out}`.slice(0, 2000)));
       }
     });
-    const timer = setTimeout(() => child.kill(), 5 * 60_000);
+    const timer = setTimeout(() => child.kill(), 10 * 60_000); // safety limit; long jobs use claudeStream
     child.on("close", () => clearTimeout(timer));
     child.stdin.end(input);
   });
@@ -151,4 +151,61 @@ export async function openLogin(): Promise<{ opened: boolean; command: string }>
   child.on("error", () => {});
   child.unref();
   return { opened: true, command };
+}
+
+export type StreamEvent = { kind: "thinking" } | { kind: "text"; text: string } | { kind: "tokens"; input: number; output: number };
+
+/**
+ * Like claude(), but streams: onEvent gets "thinking" when Claude starts reasoning and each piece of text as it's
+ * written, so long jobs can show live progress. Uses Claude Code's stream-json output.
+ */
+export async function claudeStream(input: string, onEvent: (e: StreamEvent) => void, opts: { model?: string; timeoutMs?: number } = {}): Promise<{ text: string; sessionId: string }> {
+  const model = opts.model ?? (await savedModel());
+  const args = ["-p", "--output-format", "stream-json", "--verbose", "--include-partial-messages", "--tools", "", "--setting-sources", "", "--strict-mcp-config"];
+  if (model) args.push("--model", model);
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.env.CLAUDE_BIN ?? "claude", args, { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["pipe", "pipe", "pipe"] });
+    let buf = "", err = "", result: { text: string; sessionId: string } | null = null, failure = "";
+    // Input tokens come with message_start; output is only reported at the end, so estimate it live (~4 chars a token).
+    let tokensIn = 0, tokensOut = 0, chars = 0;
+    child.stdout.on("data", (d) => {
+      buf += d;
+      let nl;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl);
+        buf = buf.slice(nl + 1);
+        let ev;
+        try { ev = JSON.parse(line); } catch { continue; }
+        const e = ev.event;
+        if (ev.type === "stream_event" && e?.type === "message_start") {
+          const u = e.message?.usage ?? {};
+          tokensIn = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0);
+          onEvent({ kind: "tokens", input: tokensIn, output: tokensOut });
+        } else if (ev.type === "stream_event" && e?.type === "content_block_start" && e.content_block?.type === "thinking") onEvent({ kind: "thinking" });
+        else if (ev.type === "stream_event" && e?.type === "content_block_delta") {
+          chars += (e.delta?.text ?? e.delta?.thinking ?? "").length;
+          tokensOut = Math.max(tokensOut, Math.round(chars / 4));
+          if (e.delta?.type === "text_delta") onEvent({ kind: "text", text: e.delta.text });
+          onEvent({ kind: "tokens", input: tokensIn, output: tokensOut });
+        } else if (ev.type === "stream_event" && e?.type === "message_delta" && e.usage?.output_tokens) {
+          tokensOut = e.usage.output_tokens;
+          onEvent({ kind: "tokens", input: tokensIn, output: tokensOut });
+        }
+        else if (ev.type === "result") {
+          if (ev.is_error) failure = ev.result || "Claude returned an error";
+          else result = { text: ev.result, sessionId: ev.session_id };
+        }
+      }
+    });
+    child.stderr.on("data", (d) => (err += d));
+    child.on("error", (e) => reject(new Error(`Could not start claude CLI: ${e.message}. Is Claude Code installed?`)));
+    const limit = opts.timeoutMs ?? 30 * 60_000;
+    const timer = setTimeout(() => { failure = `Stopped after ${Math.round(limit / 60_000)} minutes`; child.kill(); }, limit);
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      if (result) resolve(result);
+      else reject(new Error(failure || `claude exited ${code}: ${err}`.slice(0, 2000)));
+    });
+    child.stdin.end(input);
+  });
 }

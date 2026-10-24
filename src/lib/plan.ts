@@ -1,5 +1,5 @@
 import { areaStats, localDate, progress, read, write } from "./content.ts";
-import { claude, prompt } from "./claude.ts";
+import { claudeStream, prompt } from "./claude.ts";
 
 // "review": redo a problem you already solved (done only when ticked); "leetcode"/"system-design": new problems (done when solved).
 export type Task = { type: "leetcode" | "system-design" | "review"; path: string; title: string; done?: boolean } | { type: "note"; text: string; done?: boolean };
@@ -11,6 +11,40 @@ export async function readPlan(): Promise<Plan | null> {
   try { return JSON.parse((await read("plan.json")) ?? "null"); } catch { return null; }
 }
 export const savePlan = (p: Plan) => write("plan.json", JSON.stringify(p, null, 1));
+
+export type ProblemOption = { path: string; title: string; difficulty?: string; solved: boolean };
+export type ProblemGroup = { area: "leetcode" | "system-design"; name: string; problems: ProblemOption[] };
+
+/** Every LeetCode and system design problem, by topic, for the "add to day" dropdown. */
+export async function problemOptions(): Promise<ProblemGroup[]> {
+  const prog = await progress();
+  const out: ProblemGroup[] = [];
+  for (const area of ["leetcode", "system-design"] as const)
+    for (const g of await areaStats(area))
+      out.push({ area, name: g.name, problems: g.problems.map((p) => ({ path: p.path, title: p.title, difficulty: p.difficulty, solved: prog[p.path]?.status === "solved" })) });
+  return out;
+}
+
+/** Adds a problem to a plan day: a solved one as a review, otherwise as new work. */
+export async function addTask(date: string, path: string): Promise<Plan> {
+  const plan = await readPlan();
+  const day = plan?.days.find((d) => d.date === date);
+  const group = (await problemOptions()).find((g) => g.problems.some((p) => p.path === path));
+  const problem = group?.problems.find((p) => p.path === path);
+  if (!plan || !day || !group || !problem) throw new Error("No such day or problem");
+  day.tasks.push({ type: problem.solved ? "review" : group.area, path, title: problem.title });
+  await savePlan(plan);
+  return plan;
+}
+
+export async function removeTask(date: string, index: number): Promise<Plan> {
+  const plan = await readPlan();
+  const day = plan?.days.find((d) => d.date === date);
+  if (!plan || !day?.tasks[index]) throw new Error("No such task");
+  day.tasks.splice(index, 1);
+  await savePlan(plan);
+  return plan;
+}
 
 const addDays = (d: string, n: number) => { const x = new Date(d + "T12:00"); x.setDate(x.getDate() + n); return localDate(x); };
 
@@ -34,7 +68,16 @@ export function validatePlan(raw: unknown, titles: Map<string, string>, start: s
   return { title: typeof r.title === "string" ? r.title.slice(0, 120) : "Study plan", created: new Date().toISOString(), days };
 }
 
-export async function generatePlan(s: PlanSettings): Promise<Plan> {
+export type PlanProgress = { phase: "thinking" | "writing" | "checking"; days: number; total: number; date?: string; focus?: string; tokens?: { input: number; output: number } };
+
+/** Watches the plan JSON as Claude writes it: how many days are done, and which one it's on. */
+export function planProgress(partial: string, total: number): Omit<PlanProgress, "phase"> {
+  const dates = [...partial.matchAll(/"date"\s*:\s*"(\d{4}-\d{2}-\d{2})"/g)].map((m) => m[1]);
+  const focus = [...partial.matchAll(/"focus"\s*:\s*"([^"]*)"/g)].map((m) => m[1]).at(-1);
+  return { days: dates.length, total, date: dates.at(-1), focus };
+}
+
+export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress) => void = () => {}): Promise<Plan> {
   const weeks = Math.min(26, Math.max(1, Math.round(s.weeks)));
   const end = addDays(s.start, weeks * 7 - 1);
   const prog = await progress();
@@ -54,7 +97,15 @@ export async function generatePlan(s: PlanSettings): Promise<Plan> {
     start: s.start, end, weeks: String(weeks), days: String(weeks * 7), hours: String(s.hours),
     focus: s.focus.join(", ") || "LeetCode and system design", notes: s.notes || "none", problems: lines.join("\n"),
   });
-  const { text } = await claude(input);
+  const total = weeks * 7;
+  onProgress({ phase: "thinking", days: 0, total });
+  let written = "", tokens: PlanProgress["tokens"];
+  const { text } = await claudeStream(input, (e) => {
+    if (e.kind === "tokens") tokens = { input: e.input, output: e.output };
+    else if (e.kind === "text") written += e.text;
+    onProgress({ phase: written ? "writing" : "thinking", ...planProgress(written, total), tokens });
+  });
+  onProgress({ phase: "checking", ...planProgress(text, total), tokens });
   const json = text.match(/```json\s*([\s\S]*?)```/)?.[1] ?? text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
   let raw: unknown;
   try { raw = JSON.parse(json); } catch { throw new Error("Claude's answer was not valid JSON:\n\n" + text.slice(0, 800)); }

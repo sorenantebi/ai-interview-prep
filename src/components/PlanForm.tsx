@@ -2,22 +2,31 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/client";
+import type { PlanProgress } from "@/lib/plan";
 
 const AREAS = ["LeetCode (NeetCode roadmap)", "System design", "Mock interviews", "Spaced-repetition reviews"];
 
-/** Estimated progress while Claude writes the plan: fills over the expected time, then creeps towards 99%. */
-function Progress({ seconds, expected }: { seconds: number; expected: number }) {
-  const pct = seconds < expected ? 90 * (seconds / expected) : 90 + 9 * (1 - Math.exp(-(seconds - expected) / expected));
-  const stage = seconds < 3 ? "Reading your problems and progress…" : seconds < expected * 0.9 ? "Claude is planning your days…" : "Checking the plan against your problems…";
+const fmtTokens = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
+
+/** Live progress from the streamed plan: what Claude is doing, days written out of all days, and tokens used. */
+function Progress({ p, seconds }: { p: PlanProgress | null; seconds: number }) {
+  const pct = !p ? 0 : p.phase === "checking" ? 100 : (100 * p.days) / p.total;
+  const day = p?.date ? new Date(p.date + "T00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "";
+  const stage = !p ? "Reading your problems and progress…"
+    : p.phase === "thinking" ? "Claude is thinking about your plan…"
+    : p.phase === "checking" ? "Checking the plan against your problems…"
+    : !p.date ? "Claude is starting to write…"
+    : `Writing ${day}${p.focus ? ` · ${p.focus}` : ""} (day ${Math.max(p.days, 1)} of ${p.total})`;
   return (
     <div className="space-y-1.5" role="status" aria-live="polite">
       <div className="h-2 overflow-hidden bg-fg/10" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} aria-label="Making your plan">
-        <div className="h-full bg-accent transition-[width] duration-300" style={{ width: `${pct}%` }} />
+        <div className={`h-full bg-accent transition-[width] duration-300 ${p?.phase === "thinking" || !p ? "animate-pulse" : ""}`} style={{ width: `${Math.max(pct, 2)}%` }} />
       </div>
-      <div className="flex justify-between font-mono text-xs text-muted">
+      <div className="flex justify-between gap-3 font-mono text-xs text-muted">
         <span>{stage}</span>
-        <span className="tabular-nums">{seconds}s · usually ~{expected}s</span>
+        <span className="shrink-0 tabular-nums">
+          {p?.tokens ? `${fmtTokens(p.tokens.input)} in · ~${fmtTokens(p.tokens.output)} out · ` : ""}{seconds}s
+        </span>
       </div>
     </div>
   );
@@ -39,14 +48,35 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
     const t0 = Date.now(), id = setInterval(() => setSeconds(Math.floor((Date.now() - t0) / 1000)), 250);
     return () => clearInterval(id);
   }, [busy]);
-  const expected = Math.round(15 + 7 * weeks); // a 1-week plan took ~20s in testing; longer plans write more
+  const [progress, setProgress] = useState<PlanProgress | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (hasPlan && !confirm("Replace your current plan? Ticked tasks in it will be lost.")) return;
     setBusy(true);
     setError("");
-    try { await api("/api/plan", { action: "generate", start, weeks, hours, focus, notes }); router.refresh(); } catch (err) { setError((err as Error).message); } finally { setBusy(false); }
+    setProgress(null);
+    try {
+      const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "generate", start, weeks, hours, focus, notes }) });
+      if (!res.ok || !res.body) throw new Error((await res.text()) || `HTTP ${res.status}`);
+      // One JSON line per update: {progress}, then {plan} or {error}.
+      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+      let buf = "", done = false;
+      while (!done) {
+        const chunk = await reader.read();
+        if (chunk.done) throw new Error("The connection closed before the plan was finished");
+        buf += chunk.value;
+        const lines = buf.split("\n");
+        buf = lines.pop()!;
+        for (const line of lines.filter(Boolean)) {
+          const msg = JSON.parse(line);
+          if (msg.error) throw new Error(msg.error);
+          if (msg.progress) setProgress(msg.progress);
+          if (msg.plan) done = true;
+        }
+      }
+      router.refresh();
+    } catch (err) { setError((err as Error).message); } finally { setBusy(false); }
   }
 
   return (
@@ -76,7 +106,7 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
         <button className="btn-primary" disabled={busy || !focus.length}>{busy ? "Claude is planning…" : hasPlan ? "Replace plan" : "Make plan"}</button>
         <Link href={`/files?path=${encodeURIComponent("prompts/study-plan.md")}`} className="text-xs text-muted hover:text-fg">Edit prompt</Link>
       </div>
-      {busy && <Progress seconds={seconds} expected={expected} />}
+      {busy && <Progress p={progress} seconds={seconds} />}
       {error && <pre className="whitespace-pre-wrap text-sm text-hard">{error}</pre>}
     </form>
   );

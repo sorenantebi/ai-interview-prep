@@ -252,3 +252,26 @@ test("moving a problem to another topic carries its progress, plan tasks and top
   assert.match((await read("plan.json"))!, /leetcode\/05 Graphs\/mv/);
   await assert.rejects(moveProblem(to, "../escape"));
 });
+
+test("plan progress reads how far the streamed plan JSON has got", async () => {
+  const { planProgress } = await import("./plan.ts");
+  const partial = '```json\n{"title":"x","days":[{"date":"2026-10-24","focus":"Arrays","tasks":[]},{"date": "2026-10-25","focus":"Two Poin';
+  assert.deepEqual(planProgress(partial, 56), { days: 2, total: 56, date: "2026-10-25", focus: "Arrays" });
+  assert.deepEqual(planProgress("", 7), { days: 0, total: 7, date: undefined, focus: undefined });
+});
+
+test("adding to a plan day: unsolved as new work, solved as a review; remove drops it", async () => {
+  const { addTask, removeTask, savePlan } = await import("./plan.ts");
+  await write("leetcode/09 P/x/question.md", "# Ay\n");
+  await write("leetcode/09 P/y/question.md", "# Bee\n");
+  await write("system-design/01 C/s/question.md", "# Sys\n");
+  await setProgress("leetcode/09 P/y", "solved");
+  await savePlan({ title: "t", created: "", days: [{ date: "2026-10-26", tasks: [{ type: "note", text: "x" }] }] });
+  await addTask("2026-10-26", "leetcode/09 P/x");
+  const plan = await addTask("2026-10-26", "leetcode/09 P/y");
+  assert.deepEqual(plan.days[0].tasks.slice(1), [{ type: "leetcode", path: "leetcode/09 P/x", title: "Ay" }, { type: "review", path: "leetcode/09 P/y", title: "Bee" }]);
+  await assert.rejects(addTask("2026-10-26", "leetcode/09 P/nope"));
+  await assert.rejects(addTask("2026-12-01", "leetcode/09 P/x"));
+  assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 2);
+  await setProgress("leetcode/09 P/y", null);
+});

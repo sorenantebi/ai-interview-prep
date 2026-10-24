@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(r);
     }
 
-    // Submitting means also stating your solution's complexity, like in an interview.
-    if (!String(time ?? "").trim() || !String(space ?? "").trim()) throw new Error("Enter your solution's time and space complexity to submit.");
+    // Stating your complexity is optional; without it Submit doesn't need Claude at all (once tests.py exists).
+    const claimed = { time: String(time ?? "").trim(), space: String(space ?? "").trim() };
     let tests = regenerate ? null : await read(`${path}/tests.py`);
     if (tests === null) {
       const input = await prompt("generate-tests", { question: question ?? "", solution: solution ?? "" });
@@ -39,9 +39,11 @@ export async function POST(req: NextRequest) {
     if (r.ok) {
       await write(`${path}/solved.py`, code); // snapshot of your passing code, shown in the cheat sheet
       await completeTasks(path);
-      // Check the complexity you stated against your code (a failed check doesn't undo the solve).
+    }
+    if (r.ok && (claimed.time || claimed.space)) {
+      // Check the complexity you stated against your code (a failed check, e.g. Claude offline, doesn't undo the solve).
       try {
-        complexity = { ...(await checkComplexity(question ?? "", code, { time: String(time).trim(), space: String(space).trim() })), at: new Date().toISOString() };
+        complexity = { ...(await checkComplexity(question ?? "", code, claimed)), at: new Date().toISOString() };
         await write(`${path}/complexity.json`, JSON.stringify(complexity, null, 2));
       } catch (e) {
         complexity = { error: (e as Error).message };
