@@ -18,10 +18,11 @@ export const dynamic = "force-dynamic";
 
 /** Your passing snapshot (solved.py), else your latest attempt (never the reference code), plus your notes. */
 async function yourCode(path: string) {
-  const [solved, attempt, solution, notes, drawing] = await Promise.all(["solved.py", "attempt.py", "solution.md", "notes.md", "drawing.json"].map((f) => read(`${path}/${f}`)));
+  const [solved, attempt, solution, notes, drawing, mine] = await Promise.all(["solved.py", "attempt.py", "solution.md", "notes.md", "drawing.json", "complexity.json"].map((f) => read(`${path}/${f}`)));
   const code = solved ?? attempt;
   return {
     ...complexity(solution ?? ""),
+    mine: (() => { try { return mine ? JSON.parse(mine) : null; } catch { return null; } })(),
     notes: notes ?? "",
     drawing: strokesOf(drawing),
     hasAttempt: attempt !== null,

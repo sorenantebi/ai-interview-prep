@@ -213,3 +213,42 @@ test("model choice is saved and validated", async () => {
   await saveModel("");
   assert.equal(await savedModel(), "");
 });
+
+test("API only accepts local, same-origin requests", async () => {
+  const { foreignRequest } = await import("./guard.ts");
+  const check = (method: string, h: Record<string, string>) => foreignRequest(method, new Headers(h));
+  assert.equal(check("POST", { host: "127.0.0.1:3000", origin: "http://127.0.0.1:3000", "sec-fetch-site": "same-origin" }), null);
+  assert.equal(check("GET", { host: "localhost:3000" }), null);
+  assert.equal(check("POST", { host: "127.0.0.1:3000", origin: "https://evil.example" }), "cross-site request");
+  assert.equal(check("POST", { host: "127.0.0.1:3000", "sec-fetch-site": "cross-site" }), "cross-site request");
+  assert.equal(check("GET", { host: "evil.example:3000" }), "not a local address"); // DNS rebinding
+});
+
+test("page replies are split by the page's own boundaries, not ``` fences", async () => {
+  const { splitReply } = await import("./page.ts");
+  const page = "<!doctype html>\n<html><body><pre>```\ncode inside the notes\n```</pre></body></html>";
+  const r = splitReply("Here are your notes as Markdown.\n\n```html\n" + page + "\n```\n");
+  assert.equal(r.reply, "Here are your notes as Markdown.");
+  assert.equal(r.page, page);
+  assert.equal(r.complete, true);
+  assert.deepEqual(splitReply("Your box is red."), { reply: "Your box is red.", page: null, complete: false });
+  assert.equal(splitReply("Sure:\n<!doctype html><html><body>cut off").complete, false); // truncated: nothing saved
+});
+
+test("moving a problem to another topic carries its progress, plan tasks and topic label", async () => {
+  const { moveProblem, write, read, progress, setProgress } = await import("./content.ts");
+  const from = "leetcode/01 T/mv";
+  await write(`${from}/question.md`, '---\ntopic: "T"\n---\n# Mv\n\n**Topic:** T · **Difficulty:** Easy\n');
+  await write(`${from}/attempt.py`, "x = 1\n");
+  await setProgress(from, "solved");
+  await write("plan.json", JSON.stringify({ days: [{ date: "2026-01-01", tasks: [{ type: "leetcode", path: from }] }] }));
+  const to = await moveProblem(from, "05 Graphs");
+  assert.equal(to, "leetcode/05 Graphs/mv");
+  assert.equal(await read(`${to}/attempt.py`), "x = 1\n");
+  assert.equal(await read(`${from}/question.md`), null);
+  assert.match((await read(`${to}/question.md`))!, /topic: "Graphs"[\s\S]*\*\*Topic:\*\* Graphs ·/);
+  assert.equal((await progress())[to].status, "solved");
+  assert.equal((await progress())[from], undefined);
+  assert.match((await read("plan.json"))!, /leetcode\/05 Graphs\/mv/);
+  await assert.rejects(moveProblem(to, "../escape"));
+});

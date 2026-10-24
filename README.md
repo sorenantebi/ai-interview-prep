@@ -4,27 +4,22 @@
 
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-1e1e1e) ![Python 3](https://img.shields.io/badge/Python-3-1e1e1e) ![Claude Code](https://img.shields.io/badge/AI-Claude%20Code-09aea1) ![Local first](https://img.shields.io/badge/data-local%20files-abbab9)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/roadmap-dark.png">
-  <img alt="LeetCode roadmap" src="docs/roadmap.png">
-</picture>
+![LeetCode roadmap](docs/roadmap.png)
 
 ## Features
 
 | | |
 |---|---|
 | **LeetCode** | NeetCode 150 on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). |
-| **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests. Hints and code review from Claude. |
+| **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests, stating your time and space complexity, which Claude checks against your code. Hints and a complexity check from Claude. Move a problem to any topic. |
 | **System design** | 32 problems with solutions, your Excalidraw diagrams, 17 Hello Interview videos, and your own notes canvas. |
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
 | **Review** | A dashboard cheat sheet of your solved problems (your code, notes, drawings), spaced repetition and a patterns sheet. |
 | **Plan** | Claude writes a day-by-day study plan from your progress, including reviews. Streak calendar on the dashboard. |
+| **My page** | One page that's entirely yours: ask Claude to change it, add pictures, or edit its HTML, with undo. It runs sealed off from the rest of the app. |
 | **Extras** | Light/dark switch, job application tracker, git repo browser, file browser, timer, Claude model picker and usage, a mantra and a pettable cat. |
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/problem-dark.png">
-  <img alt="Problem page" src="docs/problem.png">
-</picture>
+![Problem page](docs/problem.png)
 
 ## Quick start
 

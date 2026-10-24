@@ -22,7 +22,8 @@ export default async function ProblemPage({ params, searchParams }: {
 
   // Prev / next: roadmap order, or a seeded random order (?order=random&seed=…[&only=unsolved]).
   const order: Order = { random: q.order === "random", seed: Number(q.seed) || 1, unsolved: q.only === "unsolved" };
-  const all = (await areaStats("leetcode")).flatMap((g) => g.problems.map((p) => p.path));
+  const lcStats = await areaStats("leetcode");
+  const all = lcStats.flatMap((g) => g.problems.map((p) => p.path));
   const solved = new Set(Object.keys(prog).filter((k) => prog[k].status === "solved"));
   const seq = sequence(all, order, solved, path);
   const at = seq.indexOf(path);
@@ -49,6 +50,7 @@ export default async function ProblemPage({ params, searchParams }: {
       review={prog[path]?.review}
       today={localDate(new Date())}
       nav={nav}
+      topics={lcStats.map((g) => g.group)}
     />
   );
 }

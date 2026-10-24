@@ -48,6 +48,12 @@ content/plan.json
 content/activity.json
 content/mantra.txt
 content/settings.json
+# your own page, its pictures and its history (default.html is the starter page)
+content/page/page.html
+content/page/chat.json
+content/page/files/*
+!content/page/files/.gitkeep
+content/page/history/
 content/interviews/*
 !content/interviews/.gitkeep
 content/notes/*
@@ -55,9 +61,12 @@ content/notes/*
 # cloned repos are other people's projects (and would be nested git repos)
 content/repos/*
 !content/repos/.gitkeep
+# except this one, tracked as a git submodule (see .gitmodules)
+!content/repos/AI-Engineer-Interview-Questions
 # your code, notes, drawings and tests per problem
 content/**/attempt.py
 content/**/solved.py
+content/**/complexity.json
 content/**/notes.md
 content/**/drawing.json
 content/**/notes.excalidraw

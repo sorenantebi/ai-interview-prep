@@ -3,6 +3,7 @@ import { logActivity, read, safePath, setProgress, write } from "@/lib/content";
 import { claude, files, prompt } from "@/lib/claude";
 import { runCases, runPython } from "@/lib/run";
 import { completeTasks } from "@/lib/plan";
+import { checkComplexity } from "@/lib/complexity";
 import { codeBlock, starterFrom } from "@/lib/starter";
 
 /**
@@ -10,7 +11,7 @@ import { codeBlock, starterFrom } from "@/lib/starter";
  * mode "submit": Claude's hidden tests.py, generated on first use (like LeetCode's Submit). Only Submit marks a problem solved.
  */
 export async function POST(req: NextRequest) {
-  const { path, code, mode, cases, names, regenerate } = await req.json();
+  const { path, code, mode, cases, names, regenerate, time, space } = await req.json();
   try {
     safePath(path);
     await write(`${path}/attempt.py`, code);
@@ -24,6 +25,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(r);
     }
 
+    // Submitting means also stating your solution's complexity, like in an interview.
+    if (!String(time ?? "").trim() || !String(space ?? "").trim()) throw new Error("Enter your solution's time and space complexity to submit.");
     let tests = regenerate ? null : await read(`${path}/tests.py`);
     if (tests === null) {
       const input = await prompt("generate-tests", { question: question ?? "", solution: solution ?? "" });
@@ -32,9 +35,17 @@ export async function POST(req: NextRequest) {
       await write(`${path}/tests.py`, tests);
     }
     const r = await runPython({ "attempt.py": code, "tests.py": tests }, "tests.py");
+    let complexity = null;
     if (r.ok) {
       await write(`${path}/solved.py`, code); // snapshot of your passing code, shown in the cheat sheet
       await completeTasks(path);
+      // Check the complexity you stated against your code (a failed check doesn't undo the solve).
+      try {
+        complexity = { ...(await checkComplexity(question ?? "", code, { time: String(time).trim(), space: String(space).trim() })), at: new Date().toISOString() };
+        await write(`${path}/complexity.json`, JSON.stringify(complexity, null, 2));
+      } catch (e) {
+        complexity = { error: (e as Error).message };
+      }
     }
     await setProgress(path, r.ok ? "solved" : "attempted");
     // Hidden tests: show the summary and the first failure only, never the passing cases.
@@ -42,7 +53,7 @@ export async function POST(req: NextRequest) {
     const firstFail = lines.findIndex((l) => !/^PASS\b/.test(l) && l.trim() && !/^\d+\/\d+ passed/.test(l));
     const summary = lines.find((l) => /^\d+\/\d+ passed/.test(l)) ?? "";
     const output = r.ok ? `Accepted · ${summary}` : [summary, firstFail >= 0 ? lines.slice(firstFail, firstFail + 6).join("\n") : ""].filter(Boolean).join("\n\n");
-    return NextResponse.json({ ok: r.ok, output });
+    return NextResponse.json({ ok: r.ok, output, complexity });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

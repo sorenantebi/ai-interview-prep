@@ -1,8 +1,8 @@
 "use client";
 import Editor, { type EditorProps } from "@monaco-editor/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "./Markdown";
 import ReviewControls from "./ReviewControls";
 import { isDark } from "./ThemeToggle";
@@ -13,6 +13,7 @@ import type { CaseResult } from "@/lib/run";
 
 // No autocomplete, hints or auto-closing in either mode: you type every character, like in a real interview.
 const NO_ASSIST: EditorProps["options"] = {
+  automaticLayout: true, // follow the panel when you drag the dividers
   minimap: { enabled: false }, fontSize: 14, fontFamily: "var(--font-jetbrains), monospace", scrollBeyondLastLine: false,
   quickSuggestions: false, suggestOnTriggerCharacters: false, wordBasedSuggestions: "off", parameterHints: { enabled: false },
   acceptSuggestionOnEnter: "off", tabCompletion: "off", snippetSuggestions: "none", inlineSuggest: { enabled: false },
@@ -39,6 +40,30 @@ function verdict(run: Run): [string, string] {
   if (rs.some((r) => r.ok === false)) return ["Wrong Answer", "text-hard"];
   if (rs.some((r) => r.ok == null)) return ["Check your answer", "text-medium"];
   return ["Accepted", "text-easy"];
+}
+
+/** A drag handle between panels (also works with arrow keys; double-click resets). */
+function Divider({ dir, onMove, onStep, onReset }: { dir: "x" | "y"; onMove: (e: React.PointerEvent) => void; onStep: (delta: number) => void; onReset: () => void }) {
+  const x = dir === "x";
+  return (
+    <div
+      role="separator"
+      aria-orientation={x ? "vertical" : "horizontal"}
+      aria-label={x ? "Drag to resize the question and editor" : "Drag to resize the results panel"}
+      tabIndex={0}
+      title="Drag to resize · double-click to reset"
+      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault(); }}
+      onPointerMove={(e) => e.buttons & 1 && onMove(e)}
+      onDoubleClick={onReset}
+      onKeyDown={(e) => {
+        const d = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 }[e.key];
+        if (d) { e.preventDefault(); onStep(d); }
+      }}
+      className={`group flex shrink-0 touch-none select-none items-center justify-center outline-none ${x ? "w-3 cursor-col-resize max-lg:hidden" : "h-3 cursor-row-resize"}`}
+    >
+      <div className={`bg-border transition-colors group-hover:bg-accent group-focus-visible:bg-accent group-active:bg-accent ${x ? "h-10 w-1" : "h-1 w-10"}`} />
+    </div>
+  );
 }
 
 /** LeetCode-style testcase editor (inputs only) plus the results of the last Run. */
@@ -134,6 +159,7 @@ export default function Workspace(props: {
   path: string; question: string; solution: string; attempt: string | null; starter: string;
   names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
+  topics: string[];
 }) {
   const { path } = props;
   const [tab, setTab] = useState<Tab>((useSearchParams().get("tab") as Tab) ?? "question");
@@ -141,7 +167,26 @@ export default function Workspace(props: {
   const [notes, setNotes] = useState(props.notes);
   const [cases, setCases] = useState(props.cases);
   const [run, setRun] = useState<Run | null>(null);
-  const [submit, setSubmit] = useState<{ ok: boolean; output: string } | null>(null);
+  type Verdict = { time: string; space: string; timeOk: boolean | null; spaceOk: boolean | null; why: string; claimed?: { time: string; space: string }; error?: string };
+  const [submit, setSubmit] = useState<{ ok: boolean; output: string; complexity?: Verdict | null } | null>(null);
+  // Panel sizes: question width (% of the row) and results height (px); remembered in this browser.
+  const LAYOUT = { left: 50, bottom: 240 };
+  const [layout, setLayout] = useState(LAYOUT);
+  const row = useRef<HTMLDivElement>(null);
+  const right = useRef<HTMLElement>(null);
+  useEffect(() => {
+    try { setLayout((l) => ({ ...l, ...JSON.parse(localStorage.getItem("workspace-layout") ?? "{}") })); } catch {}
+  }, []);
+  const resize = (next: Partial<typeof LAYOUT>) => setLayout((l) => {
+    const v = { ...l, ...next };
+    v.left = Math.min(80, Math.max(20, v.left));
+    v.bottom = Math.min((right.current?.clientHeight ?? 800) - 220, Math.max(80, v.bottom));
+    try { localStorage.setItem("workspace-layout", JSON.stringify(v)); } catch {}
+    return v;
+  });
+  const [myTime, setMyTime] = useState("");
+  const [mySpace, setMySpace] = useState("");
+  const router = useRouter();
   const [coach, setCoach] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [status, setStatus] = useState(props.status);
@@ -189,7 +234,7 @@ export default function Workspace(props: {
     setBusy(regenerate ? "Claude is writing new hidden tests…" : "Submitting (the first submit asks Claude to write hidden tests)…");
     setSubmit(null);
     try {
-      const r = await api("/api/run", { path, code, mode: "submit", regenerate });
+      const r = await api("/api/run", { path, code, mode: "submit", regenerate, time: myTime, space: mySpace });
       setSubmit(r);
       setStatus((s) => (r.ok ? "solved" : s === "solved" ? s : "attempted"));
     } catch (e) {
@@ -199,14 +244,36 @@ export default function Workspace(props: {
     }
   }
 
-  async function ask(kind: "hint" | "review") {
-    setBusy(kind === "hint" ? "Asking for a hint…" : "Reviewing…");
+  async function hint() {
+    setBusy("Asking for a hint…");
     try {
-      setCoach((await api("/api/claude", { action: "hint", mode: kind, path, code, output: submit?.output ?? "" })).text);
+      setCoach((await api("/api/claude", { action: "hint", mode: "hint", path, code, output: submit?.output ?? "" })).text);
     } catch (e) {
       setCoach("**Error:** " + (e as Error).message);
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function complexity() {
+    setBusy("Working out your code's complexity…");
+    try {
+      const r: Verdict = await api("/api/claude", { action: "complexity", path, code });
+      setCoach(`**Your code's complexity**\n\n- Time: \`${r.time}\`\n- Space: \`${r.space}\`\n\n${r.why}`);
+    } catch (e) {
+      setCoach("**Error:** " + (e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function moveTo(group: string) {
+    if (!group || !confirm(`Move this problem to “${group.replace(/^\d+\s*/, "")}”? Your code, notes and progress move with it.`)) return;
+    try {
+      const r = await api("/api/problem", { action: "move", path, group });
+      router.push("/" + r.path.split("/").map(encodeURIComponent).join("/"));
+    } catch (e) {
+      alert((e as Error).message);
     }
   }
 
@@ -225,6 +292,17 @@ export default function Workspace(props: {
         ) : (
           <Link href={`/leetcode?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {group.replace(/^\d+\s*/, "")}</Link>
         )}
+        <select
+          className="border border-border bg-panel px-1.5 py-1 font-mono text-xs text-muted hover:text-fg"
+          value=""
+          onChange={(e) => moveTo(e.target.value === "+" ? (prompt("New topic name (e.g. 19 Strings)") ?? "").trim() : e.target.value)}
+          aria-label="Move this problem to another topic"
+          title="Change this problem's topic"
+        >
+          <option value="">topic: {group.replace(/^\d+\s*/, "")} ▾</option>
+          {props.topics.filter((t) => t !== group).map((t) => <option key={t} value={t}>move to {t.replace(/^\d+\s*/, "")}</option>)}
+          <option value="+">move to a new topic…</option>
+        </select>
         <span className="flex items-center gap-1">
           {props.nav.prev ? <Link href={props.nav.prev} className="btn px-2 py-1" aria-label="Previous problem">← prev</Link> : <span className="btn px-2 py-1 opacity-40">← prev</span>}
           <span className="px-1 font-mono text-xs tabular-nums text-muted">
@@ -240,8 +318,8 @@ export default function Workspace(props: {
           {status === "solved" ? "✓ Solved" : "Mark solved"}
         </button>
       </div>
-      <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-2">
-        <section className="card flex min-h-0 flex-col">
+      <div ref={row} className="flex min-h-0 flex-1 max-lg:flex-col max-lg:gap-3">
+        <section className="card flex min-h-0 flex-col lg:w-[var(--left)] lg:shrink-0" style={{ "--left": `${layout.left}%` } as React.CSSProperties}>
           <div className="flex gap-1 border-b border-border p-2" role="tablist">
             {(["question", "solution", "notes", "tests"] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`px-3 py-1 font-mono text-xs capitalize ${tab === t ? "bg-fg text-panel" : "text-muted hover:text-fg"}`}>
@@ -269,8 +347,14 @@ export default function Workspace(props: {
             )}
           </div>
         </section>
-        <section className="flex min-h-0 flex-col gap-3">
-          <div className="card flex min-h-80 flex-1 flex-col overflow-hidden">
+        <Divider
+          dir="x"
+          onMove={(e) => { const r = row.current!.getBoundingClientRect(); resize({ left: ((e.clientX - r.left) / r.width) * 100 }); }}
+          onStep={(d) => resize({ left: layout.left + d * 2 })}
+          onReset={() => resize({ left: LAYOUT.left })}
+        />
+        <section ref={right} className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+          <div className="card flex min-h-48 flex-1 flex-col overflow-hidden">
             <div className="flex items-center gap-1 border-b border-border p-2" role="radiogroup" aria-label="Editor mode">
               {([["doc", "Doc"], ["ide", "IDE"]] as const).map(([m, label]) => (
                 <button key={m} role="radio" aria-checked={mode === m} onClick={() => switchMode(m)} className={`px-3 py-1 font-mono text-xs ${mode === m ? "bg-fg text-panel" : "text-muted hover:text-fg"}`}>
@@ -294,18 +378,44 @@ export default function Workspace(props: {
           </div>
           <div className="flex flex-wrap gap-2">
             <button className="btn" disabled={!!busy} onClick={runCases} title="Run your test cases">▶ Run</button>
-            <button className="btn-primary" disabled={!!busy} onClick={() => submitCode()} title="Run the hidden tests; passing marks the problem solved">Submit</button>
-            <button className="btn" disabled={!!busy} onClick={() => ask("hint")}>Hint</button>
-            <button className="btn" disabled={!!busy} onClick={() => ask("review")}>Review my code</button>
+            <span className="inline-flex items-center border border-border bg-panel">
+              <label className="flex items-center gap-1 px-2 font-mono text-xs text-muted">Time<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={myTime} onChange={(e) => setMyTime(e.target.value)} placeholder="O(n)" aria-label="Your solution's time complexity" /></label>
+              <label className="flex items-center gap-1 border-l border-border px-2 font-mono text-xs text-muted">Space<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={mySpace} onChange={(e) => setMySpace(e.target.value)} placeholder="O(1)" aria-label="Your solution's space complexity" /></label>
+            </span>
+            <button className="btn-primary" disabled={!!busy || !myTime.trim() || !mySpace.trim()} onClick={() => submitCode()} title={myTime.trim() && mySpace.trim() ? "Run the hidden tests; passing marks the problem solved and checks your complexity" : "Enter your time and space complexity first"}>Submit</button>
+            <button className="btn" disabled={!!busy} onClick={hint}>Hint</button>
+            <button className="btn" disabled={!!busy} onClick={complexity} title="Claude works out the time and space complexity of your current code">Complexity</button>
             <button className="btn" disabled={!!busy} onClick={() => confirm("Reset code to the starter template?") && setCode(props.starter)}>Reset</button>
           </div>
           {(busy || submit || coach) && (
-            <div className="card max-h-72 space-y-3 overflow-y-auto p-3">
+            <>
+            <Divider
+              dir="y"
+              onMove={(e) => resize({ bottom: right.current!.getBoundingClientRect().bottom - e.clientY })}
+              onStep={(d) => resize({ bottom: layout.bottom - d * 20 })}
+              onReset={() => resize({ bottom: LAYOUT.bottom })}
+            />
+            <div className="card -mt-3 shrink-0 space-y-3 overflow-y-auto p-3" style={{ height: layout.bottom }}>
               {busy && <p className="text-sm text-muted" role="status">{busy}</p>}
               {submit && (
                 <div className="space-y-1">
                   <div className={`font-display text-lg font-medium ${submit.ok ? "text-easy" : "text-hard"}`}>{submit.ok ? "Accepted" : "Not accepted"}</div>
                   <pre className="whitespace-pre-wrap font-mono text-xs">{submit.output}</pre>
+                  {submit.complexity && (submit.complexity.error ? (
+                    <p className="font-mono text-xs text-medium">Couldn&apos;t check your complexity: {submit.complexity.error}</p>
+                  ) : (
+                    <div className="space-y-0.5 border-t border-border pt-2 text-sm">
+                      {(["time", "space"] as const).map((k) => {
+                        const ok = submit.complexity![k === "time" ? "timeOk" : "spaceOk"];
+                        return (
+                          <div key={k} className={ok ? "text-easy" : "text-hard"}>
+                            {ok ? "✓" : "✗"} {k === "time" ? "Time" : "Space"}: you said <code className="font-mono">{submit.complexity!.claimed?.[k]}</code>{ok ? "" : <> · it&apos;s <code className="font-mono">{submit.complexity![k]}</code></>}
+                          </div>
+                        );
+                      })}
+                      <p className="text-xs text-muted">{submit.complexity.why}</p>
+                    </div>
+                  ))}
                   {!submit.ok && (
                     <button className="font-mono text-[11px] text-muted hover:text-fg" onClick={() => submitCode(true)} disabled={!!busy}>hidden tests look wrong? regenerate them</button>
                   )}
@@ -313,6 +423,7 @@ export default function Workspace(props: {
               )}
               {coach && <Markdown>{coach}</Markdown>}
             </div>
+            </>
           )}
         </section>
       </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logActivity, read, safePath, write } from "@/lib/content";
 import { claude, files, prompt } from "@/lib/claude";
 import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
+import { checkComplexity } from "@/lib/complexity";
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -57,6 +58,9 @@ export async function POST(req: NextRequest) {
       case "hint": {
         const input = await prompt("hint", { mode: b.mode, question: (await read(`${b.path}/question.md`)) ?? "", code: b.code, output: b.output || "(not run yet)" });
         return NextResponse.json({ text: (await claude(input)).text });
+      }
+      case "complexity": {
+        return NextResponse.json(await checkComplexity((await read(`${b.path}/question.md`)) ?? "", String(b.code ?? "")));
       }
       case "interview": {
         await logActivity();

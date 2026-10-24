@@ -192,3 +192,32 @@ export function streaks(days: Record<string, number>, today: string) {
   }
   return { current: cur, longest };
 }
+
+/**
+ * Moves a problem to another topic folder (e.g. leetcode/<new topic>/<slug>) and updates everything that points at it:
+ * progress/reviews, study plan tasks and the topic shown in its question and solution. Returns the new path.
+ */
+export async function moveProblem(problemPath: string, group: string): Promise<string> {
+  const [area, , slug] = problemPath.split("/");
+  if (!slug || problemPath.split("/").length !== 3) throw new Error("Not a problem path");
+  if (!group.trim() || group.includes("/") || group.startsWith(".")) throw new Error("Pick a topic");
+  const to = `${area}/${group}/${slug}`;
+  if (to === problemPath) return to;
+  if (await fs.stat(safePath(to)).catch(() => null)) throw new Error(`${to} already exists`);
+  await rename(problemPath, to);
+
+  const topic = group.replace(/^\d+\s*/, "");
+  for (const f of ["question.md", "solution.md"]) {
+    const md = await read(`${to}/${f}`);
+    if (md !== null) await write(`${to}/${f}`, md.replace(/^topic: .*$/m, `topic: "${topic}"`).replace(/(\*\*Topic:\*\* )[^·\n]+/, `$1${topic} `));
+  }
+  const prog = await progress();
+  if (prog[problemPath]) {
+    prog[to] = prog[problemPath];
+    delete prog[problemPath];
+    await write("progress.json", JSON.stringify(prog, null, 2));
+  }
+  const plan = await read("plan.json");
+  if (plan?.includes(JSON.stringify(problemPath))) await write("plan.json", plan.split(JSON.stringify(problemPath)).join(JSON.stringify(to)));
+  return to;
+}

@@ -13,7 +13,8 @@ import type { Review } from "@/lib/content";
 
 export type CheatEntry = {
   path: string; title: string; difficulty?: string; at: string; review?: Review; hasAttempt: boolean;
-  code: string; codeSource: "passed" | "latest" | null; time?: string; space?: string; notes: string; drawing: Stroke[];
+  code: string; codeSource: "passed" | "latest" | null; time?: string; space?: string; notes: string;
+  mine: { time: string; space: string; timeOk: boolean | null; spaceOk: boolean | null; claimed?: { time: string; space: string } } | null; drawing: Stroke[];
 };
 
 // Problem | Your solution | Complexity | Your notes | Drawing
@@ -93,13 +94,24 @@ export default function CheatSheet({ groups, today }: { groups: { name: string; 
                   <p className="font-mono text-xs text-muted">No saved code. Pass the tests on the problem page to store your solution here.</p>
                 )}
               </div>
-              <div className={`${cell} space-y-2`} title="From the reference solution">
-                {[["Time", e.time], ["Space", e.space]].map(([k, v]) => (
-                  <div key={k}>
-                    <div className="font-mono text-[11px] uppercase tracking-wide text-muted">{k}</div>
-                    <code className="font-mono text-base">{v ?? "–"}</code>
-                  </div>
-                ))}
+              <div className={`${cell} space-y-2`}>
+                {(["time", "space"] as const).map((k) => {
+                  const ok = e.mine?.[k === "time" ? "timeOk" : "spaceOk"];
+                  return (
+                    <div key={k}>
+                      <div className="font-mono text-[11px] uppercase tracking-wide text-muted">{k}</div>
+                      {e.mine?.claimed ? (
+                        <div title="What you submitted, checked against your code">
+                          <code className={`font-mono text-base ${ok ? "text-easy" : "text-hard"}`}>{ok ? "✓ " : "✗ "}{e.mine.claimed[k]}</code>
+                          {!ok && <div className="font-mono text-xs">is <code>{e.mine[k]}</code></div>}
+                        </div>
+                      ) : (
+                        <code className="font-mono text-base" title="From the reference solution">{e[k] ?? "–"}</code>
+                      )}
+                      {e.mine?.claimed && <div className="font-mono text-[10px] text-muted" title="From the reference solution">ref {e[k] ?? "–"}</div>}
+                    </div>
+                  );
+                })}
               </div>
               <div className={cell}>
                 <NotesCell path={e.path} initial={e.notes} />
