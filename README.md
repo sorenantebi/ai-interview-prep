@@ -79,8 +79,6 @@ content/
 | `npm test` | Unit tests |
 | `node scripts/generate-tests.ts` | Pre-generate hidden tests for all problems (`--model`, `--jobs`, `--force`) |
 | `npm run fetch` | Re-download LeetCode starters and NeetCode solutions |
-| `npm run import-diagrams` | Import Excalidraw diagrams from an Obsidian vault |
-| `npm run seed` | Rebuild `content/` from an Obsidian vault (one-off) |
 
 </details>
 

@@ -8,9 +8,7 @@
     "start": "next start -H 127.0.0.1",
     "lint": "eslint",
     "test": "node --test --experimental-strip-types src/lib/*.test.ts",
-    "seed": "node scripts/seed-from-vault.mjs",
     "fetch": "node scripts/fetch-neetcode.ts",
-    "import-diagrams": "node scripts/import-excalidraw.mjs",
     "app": "next build && next start -H 127.0.0.1",
     "mac-app": "bash scripts/make-mac-app.sh",
     "linux-app": "bash scripts/make-linux-app.sh",
@@ -41,7 +39,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
-    "lz-string": "^1.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
