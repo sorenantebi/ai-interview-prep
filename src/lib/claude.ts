@@ -1,4 +1,5 @@
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcessWithoutNullStreams, type StdioOptions } from "node:child_process";
+import { tmpdir } from "node:os";
 import { read, write } from "./content.ts";
 
 /** Loads content/prompts/<name>.md and fills {{vars}}. */
@@ -6,6 +7,16 @@ export async function prompt(name: string, vars: Record<string, string> = {}) {
   const tpl = await read(`prompts/${name}.md`);
   if (tpl === null) throw new Error(`Missing prompt file content/prompts/${name}.md`);
   return tpl.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] ?? "");
+}
+
+const bin = () => process.env.CLAUDE_BIN ?? "claude";
+const WIN = process.platform === "win32";
+
+/** Starts the claude CLI. On Windows an npm install is `claude.cmd`, which only runs through the shell, and the shell drops empty args unless quoted. */
+// Typed as all-piped: callers only touch the streams they asked to pipe.
+function cli(args: string[], stdio: StdioOptions) {
+  const child = WIN ? spawn(`"${bin()}"`, args.map((a) => `"${a}"`), { cwd: tmpdir(), stdio, shell: true }) : spawn(bin(), args, { cwd: tmpdir(), stdio });
+  return child as ChildProcessWithoutNullStreams;
 }
 
 /** Runs the local Claude Code CLI headlessly. Uses whatever account `claude` is logged into. */
@@ -31,7 +42,7 @@ export async function savedModel(): Promise<string> {
 /** The exact name of Claude Code's own default model, e.g. "Opus 5.5" (from `/model`); null if it can't be read. */
 export function defaultModelName(): Promise<string | null> {
   return new Promise((resolve) => {
-    const child = spawn(process.env.CLAUDE_BIN ?? "claude", ["-p", "/model", "--setting-sources", "", "--strict-mcp-config"], { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["ignore", "pipe", "ignore"] });
+    const child = cli(["-p", "/model", "--setting-sources", "", "--strict-mcp-config"], ["ignore", "pipe", "ignore"]);
     let out = "";
     child.stdout.on("data", (d) => (out += d));
     child.on("error", () => resolve(null));
@@ -57,7 +68,7 @@ export async function claude(input: string, opts: { sessionId?: string; tools?: 
   if (model) args.push("--model", model);
 
   return new Promise((resolve, reject) => {
-    const child = spawn(process.env.CLAUDE_BIN ?? "claude", args, { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["pipe", "pipe", "pipe"] });
+    const child = cli(args, ["pipe", "pipe", "pipe"]);
     let out = "", err = "";
     child.stdout.on("data", (d) => (out += d));
     child.stderr.on("data", (d) => (err += d));
@@ -95,7 +106,7 @@ export function parseUsage(report: string): Limit[] {
 /** Your plan's limits, read by running Claude Code's own `/usage` command (the app never touches credentials). */
 export function planUsage(): Promise<{ limits: Limit[]; raw: string }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.env.CLAUDE_BIN ?? "claude", ["-p", "/usage", "--setting-sources", "", "--strict-mcp-config"], { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["ignore", "pipe", "pipe"] });
+    const child = cli(["-p", "/usage", "--setting-sources", "", "--strict-mcp-config"], ["ignore", "pipe", "pipe"]);
     let out = "", err = "";
     child.stdout.on("data", (d) => (out += d));
     child.stderr.on("data", (d) => (err += d));
@@ -105,12 +116,11 @@ export function planUsage(): Promise<{ limits: Limit[]; raw: string }> {
   });
 }
 
-const bin = () => process.env.CLAUDE_BIN ?? "claude";
 
 /** Whether Claude Code is logged in, and how. Only these three fields leave the server (no email or org). */
 export function authStatus(): Promise<{ installed: boolean; loggedIn: boolean; method?: string; plan?: string }> {
   return new Promise((resolve) => {
-    const child = spawn(bin(), ["auth", "status", "--json"], { stdio: ["ignore", "pipe", "ignore"] });
+    const child = cli(["auth", "status", "--json"], ["ignore", "pipe", "ignore"]);
     let out = "";
     child.stdout.on("data", (d) => (out += d));
     child.on("error", () => resolve({ installed: false, loggedIn: false }));
@@ -164,7 +174,7 @@ export async function claudeStream(input: string, onEvent: (e: StreamEvent) => v
   const args = ["-p", "--output-format", "stream-json", "--verbose", "--include-partial-messages", "--tools", "", "--setting-sources", "", "--strict-mcp-config"];
   if (model) args.push("--model", model);
   return new Promise((resolve, reject) => {
-    const child = spawn(process.env.CLAUDE_BIN ?? "claude", args, { cwd: process.env.TMPDIR ?? "/tmp", stdio: ["pipe", "pipe", "pipe"] });
+    const child = cli(args, ["pipe", "pipe", "pipe"]);
     let buf = "", err = "", result: { text: string; sessionId: string } | null = null, failure = "";
     // Input tokens come with message_start; output is only reported at the end, so estimate it live (~4 chars a token).
     let tokensIn = 0, tokensOut = 0, chars = 0;

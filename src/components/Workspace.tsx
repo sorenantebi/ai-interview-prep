@@ -141,14 +141,14 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
 }
 
 export default function Workspace(props: {
-  path: string; question: string; solution: string; attempt: string | null; starter: string;
+  path: string; question: string; solution: string; attempt: string | null; starter: string; fresh?: boolean; // fresh: a review, start from the starter
   names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
   topics: string[];
 }) {
   const { path } = props;
   const [tab, setTab] = useState<Tab>((useSearchParams().get("tab") as Tab) ?? "question");
-  const [code, setCode] = useState(props.attempt ?? props.starter);
+  const [code, setCode] = useState(props.fresh ? props.starter : (props.attempt ?? props.starter));
   const [notes, setNotes] = useState(props.notes);
   const [cases, setCases] = useState(props.cases);
   const [run, setRun] = useState<Run | null>(null);
@@ -191,6 +191,13 @@ export default function Workspace(props: {
     try { localStorage.setItem("editorMode", m); } catch {}
   };
 
+  // Review: drop ?review=1 from the URL so reloading keeps what you've written since (autosave stores the blank start).
+  useEffect(() => {
+    if (!props.fresh) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("review");
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [props.fresh, router]);
   // Autosave attempt.py and your test cases one second after you stop typing.
   useEffect(() => {
     if (code === (props.attempt ?? props.starter)) return;

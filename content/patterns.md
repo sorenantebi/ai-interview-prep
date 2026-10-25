@@ -4,13 +4,18 @@ One card per NeetCode topic: when to reach for it, the patterns that come up mos
 
 ## Arrays & Hashing
 
-**Use when:** you need "have I seen X?", counts, or grouping in O(1) per lookup.
+**Use when:** you need "have I seen X?", counts, or grouping in O(1) per lookup. For bins, also map one thing to another, for instance LinkedList1Node : LinkedList2Node.
 
 - **Set for membership** (Contains Duplicate, Longest Consecutive: only start counting at `x` when `x - 1` is not in the set)
 - **Counter / frequency map** (Valid Anagram, Top K: bucket sort by frequency gives O(n))
 - **Canonical key for grouping**: sorted word or 26-count tuple (Group Anagrams)
 - **Complement map**: store value → index, look up `target - x` (Two Sum)
 - **Prefix / suffix products or sums** (Product Except Self) test
+
+**How to iterate through:**
+- for x in thisdict:, for x in thisdict.keys():
+- for x in thisdict.values():
+- for key, val in thisdict.items():
 
 ```python
 seen = {}
@@ -331,4 +336,22 @@ count = 0
 while n:
     n &= n - 1
     count += 1
+```
+
+## Complexity
+
+**O(n * m) vs O(n + m):**
+
+nested loops: 
+```python
+for x in a:          # runs n times
+    for c in x:     
+            
+```
+
+if you do the operations separately, its n + m
+```python
+for x in a:
+
+for y in b:
 ```

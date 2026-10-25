@@ -11,4 +11,4 @@ export default function middleware(req: NextRequestWithAuth, event: NextFetchEve
   return gate(req, event);
 }
 
-export const config = { matcher: ["/((?!_next|favicon.ico).*)"] };
+export const config = { matcher: ["/((?!_next|favicon.ico|icon.png).*)"] };

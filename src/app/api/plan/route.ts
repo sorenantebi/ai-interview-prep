@@ -4,13 +4,13 @@ import { addTask, generatePlan, readPlan, removeTask, savePlan } from "@/lib/pla
 
 const fail = (e: unknown, status = 400) => NextResponse.json({ error: (e as Error).message }, { status });
 
-/** generate { start, weeks, focus[], notes } · toggle { date, index, done } · add { date, path, problem? } · remove { date, index } */
+/** generate { start, weeks, focus[], notes, previous? } · toggle { date, index, done } · add { date, path, problem? } · remove { date, index } */
 export async function POST(req: NextRequest) {
   const b = await req.json();
   try {
     if (b.action === "generate") {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(b.start ?? "")) throw new Error("Pick a start date");
-      const settings = { start: b.start, weeks: Number(b.weeks) || 4, focus: Array.isArray(b.focus) ? b.focus.map(String) : [], notes: String(b.notes ?? "") };
+      const settings = { start: b.start, weeks: Number(b.weeks) || 4, focus: Array.isArray(b.focus) ? b.focus.map(String) : [], notes: String(b.notes ?? ""), previous: b.previous === true };
       // Streams one JSON line per update ({progress} … then {plan} or {error}), so the page can show what Claude is doing.
       const enc = new TextEncoder();
       return new Response(new ReadableStream({

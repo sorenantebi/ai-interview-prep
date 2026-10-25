@@ -110,7 +110,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <ul className="card divide-y divide-border">
             {due.map(([p, v]) => (
               <li key={p} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 text-sm">
-                <Link href={problemHref(p)} className="flex-1 truncate hover:underline decoration-accent decoration-2 underline-offset-2">{p.split("/").slice(1).join(" › ")}</Link>
+                <Link href={`${problemHref(p)}?review=1`} className="flex-1 truncate hover:underline decoration-accent decoration-2 underline-offset-2">{p.split("/").slice(1).join(" › ")}</Link>
                 <ReviewControls path={p} review={v.review} today={today} />
               </li>
             ))}

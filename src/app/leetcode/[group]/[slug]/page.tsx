@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Workspace from "@/components/Workspace";
-import { areaStats, localDate, progress, read } from "@/lib/content";
+import { areaStats, localDate, progress, read, write } from "@/lib/content";
 import { orderQuery, sequence, type Order } from "@/lib/order";
 import { problemHref } from "@/components/ProblemList";
 import { codeBlock, parseExamples, starterFrom, strokesOf, type Cases } from "@/lib/starter";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ProblemPage({ params, searchParams }: {
   params: Promise<{ group: string; slug: string }>;
-  searchParams: Promise<{ order?: string; seed?: string; only?: string }>;
+  searchParams: Promise<{ order?: string; seed?: string; only?: string; review?: string }>;
 }) {
   const { group, slug } = await params;
   const q = await searchParams;
@@ -19,6 +19,10 @@ export default async function ProblemPage({ params, searchParams }: {
   );
   if (question === null) notFound();
   const prog = await progress();
+  // A review starts from a blank starter. The dashboard shows solved.py, so a solve from before solved.py existed
+  // gets its answer copied there first; the problem stays solved either way.
+  const review = q.review === "1";
+  if (review && prog[path]?.status === "solved" && attempt !== null && (await read(`${path}/solved.py`)) === null) await write(`${path}/solved.py`, attempt);
 
   // Prev / next: roadmap order, or a seeded random order (?order=random&seed=…[&only=unsolved]).
   const order: Order = { random: q.order === "random", seed: Number(q.seed) || 1, unsolved: q.only === "unsolved" };
@@ -40,6 +44,7 @@ export default async function ProblemPage({ params, searchParams }: {
       question={order.random ? question.replace(/\*\*Topic:\*\*[^·\n]*·\s*/, "") : question} // shuffle mode hides the topic: it gives the pattern away
       solution={solution ?? ""}
       attempt={attempt}
+      fresh={review}
       starter={starter}
       names={examples.names}
       cases={mine?.cases?.length ? mine.cases : examples.cases}

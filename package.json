@@ -11,7 +11,10 @@
     "seed": "node scripts/seed-from-vault.mjs",
     "fetch": "node scripts/fetch-neetcode.ts",
     "import-diagrams": "node scripts/import-excalidraw.mjs",
-    "app": "next build && next start -H 127.0.0.1"
+    "app": "next build && next start -H 127.0.0.1",
+    "mac-app": "bash scripts/make-mac-app.sh",
+    "linux-app": "bash scripts/make-linux-app.sh",
+    "windows-app": "powershell -ExecutionPolicy Bypass -File scripts/make-windows-app.ps1"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.0",

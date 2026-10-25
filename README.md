@@ -22,7 +22,7 @@
 
 ## Quick start
 
-Needs **Node 20+** and **Python 3**. For the AI features, [set up Claude](#set-up-claude) too.
+Needs **Node 20+** and **Python 3**, on macOS, Linux or Windows. For the AI features, [set up Claude](#set-up-claude) too.
 
 ```bash
 npm install
@@ -73,6 +73,9 @@ content/
 |---|---|
 | `npm run app` | Production build + server (fast) |
 | `npm run dev` | Development server |
+| `npm run mac-app` | Create `/Applications/prep.app` for the Dock: one click starts the server if needed (rebuilding only after code changes) and opens the browser; Quit stops it |
+| `npm run linux-app` | The same as an app-menu entry (right-click → Stop server) |
+| `npm run windows-app` | The same as a Start Menu and Desktop shortcut (close the "prep server" window to stop it) |
 | `npm test` | Unit tests |
 | `node scripts/generate-tests.ts` | Pre-generate hidden tests for all problems (`--model`, `--jobs`, `--force`) |
 | `npm run fetch` | Re-download LeetCode starters and NeetCode solutions |

@@ -8,7 +8,7 @@ export type Task =
   | { type: "mock"; kind: "coding" | "system-design"; path?: string; title?: string; done?: boolean }; // a mock interview (optionally on one problem); done when ticked
 export type Day = { date: string; focus?: string; tasks: Task[] };
 export type Plan = { title: string; created: string; days: Day[] };
-export type PlanSettings = { start: string; weeks: number; focus: string[]; notes: string };
+export type PlanSettings = { start: string; weeks: number; focus: string[]; notes: string; previous?: boolean }; // previous: build on the current plan
 
 export async function readPlan(): Promise<Plan | null> {
   try { return JSON.parse((await read("plan.json")) ?? "null"); } catch { return null; }
@@ -108,6 +108,22 @@ export function coverAll(plan: Plan, required: { type: "leetcode" | "system-desi
   return plan;
 }
 
+/** The plan in a compact form for Claude: one line per day, ✓ for done tasks, exact problem paths. */
+export function planSummary(plan: Plan, solved: Set<string>): string {
+  const task = (t: Task) =>
+    (taskDone(t, solved) ? "✓ " : "○ ") +
+    (t.type === "note" ? `note: ${t.text}` : t.type === "mock" ? `mock ${t.kind}${t.path ? `: ${t.path}` : ""}` : `${t.type}: ${t.path}`);
+  return [`"${plan.title}"`, ...plan.days.map((d) => `${d.date} | ${d.focus ?? ""} | ${d.tasks.map(task).join("; ")}`)].join("\n");
+}
+
+/** Keeps your ticks (and unticks) from the old plan on tasks that are still on the same day in the new one. */
+export function carryTicks(plan: Plan, old: Plan): Plan {
+  const key = (t: Task) => `${t.type}|${"path" in t ? t.path : ""}|${t.type === "note" ? t.text : t.type === "mock" ? t.kind : ""}`;
+  const was = new Map(old.days.flatMap((d) => d.tasks.filter((t) => t.done !== undefined).map((t) => [`${d.date}|${key(t)}`, t.done] as const)));
+  for (const d of plan.days) for (const t of d.tasks) { const done = was.get(`${d.date}|${key(t)}`); if (done !== undefined) t.done = done; }
+  return plan;
+}
+
 export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress) => void = () => {}): Promise<Plan> {
   const weeks = Math.min(26, Math.max(1, Math.round(s.weeks)));
   const end = addDays(s.start, weeks * 7 - 1);
@@ -129,6 +145,8 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   const input = await prompt("study-plan", {
     start: s.start, end, weeks: String(weeks), days: String(weeks * 7),
     focus: s.focus.join(", ") || "LeetCode and system design", notes: s.notes || "none", problems: lines.join("\n"),
+    // Only when you ask to build on it (the checkbox); otherwise Claude plans from scratch.
+    previous: s.previous ? await readPlan().then((p) => (p ? planSummary(p, new Set(Object.keys(prog).filter((k) => prog[k].status === "solved"))) : "none")) : "none",
   });
   const total = weeks * 7;
   onProgress({ phase: "thinking", days: 0, total });
@@ -143,6 +161,8 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   let raw: unknown;
   try { raw = JSON.parse(json); } catch { throw new Error("Claude's answer was not valid JSON:\n\n" + text.slice(0, 800)); }
   const plan = validatePlan(raw, titles, s.start, end);
+  const old = s.previous ? await readPlan() : null;
+  if (old) carryTicks(plan, old);
   // Every problem of each covered area ends up in the plan. Each area's gaps are spread over the whole plan on their
   // own, so leftovers don't pile up as all-coding first and all-system-design last.
   const covers = (area: string) => !s.focus.length || s.focus.some((f) => f.toLowerCase().startsWith(area));

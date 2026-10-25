@@ -38,6 +38,7 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
   const [weeks, setWeeks] = useState(8);
   const [focus, setFocus] = useState<string[]>(AREAS);
   const [notes, setNotes] = useState("");
+  const [previous, setPrevious] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [seconds, setSeconds] = useState(0);
@@ -51,12 +52,12 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (hasPlan && !confirm("Replace your current plan? Ticked tasks in it will be lost.")) return;
+    if (hasPlan && !confirm(previous ? "Replace your current plan with one built on it? Ticks stay on tasks that keep their day." : "Replace your current plan? Ticked tasks in it will be lost.")) return;
     setBusy(true);
     setError("");
     setProgress(null);
     try {
-      const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "generate", start, weeks, focus, notes }) });
+      const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "generate", start, weeks, focus, notes, previous: hasPlan && previous }) });
       if (!res.ok || !res.body) throw new Error((await res.text()) || `HTTP ${res.status}`);
       // One JSON line per update: {progress}, then {plan} or {error}.
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -100,6 +101,12 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
         <span className="font-medium">Notes for the plan (optional)</span>
         <textarea className="input" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Google onsite on Dec 10, weak at DP and graphs, weekends free for longer sessions" />
       </label>
+      {hasPlan && (
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" className="mt-1 accent-[var(--accent)]" checked={previous} onChange={(e) => setPrevious(e.target.checked)} />
+          <span><span className="font-medium">Build on my current plan</span> <span className="text-muted">— Claude sees your current plan and what you&apos;ve done in it. Say how to use it in the notes, e.g. &quot;extend it by 4 weeks&quot;, &quot;same structure, more DP&quot;.</span></span>
+        </label>
+      )}
       <div className="flex items-center gap-3">
         <button className="btn-primary" disabled={busy || !focus.length}>{busy ? "Claude is planning…" : hasPlan ? "Replace plan" : "Make plan"}</button>
         <Link href={`/files?path=${encodeURIComponent("prompts/study-plan.md")}`} className="text-xs text-muted hover:text-fg">Edit prompt</Link>

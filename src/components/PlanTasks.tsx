@@ -99,7 +99,7 @@ export default function PlanTasks({ day, solved }: { day: Day; solved: string[] 
                 {t.kind === "coding" ? "Coding interview" : "System design interview"}{t.title ? `: ${t.title}` : ""}
               </Link>
             ) : (
-              <Link href={problemHref(t.path)} className={`decoration-accent decoration-2 underline-offset-2 hover:underline ${isDone ? "text-muted line-through" : ""}`}>
+              <Link href={problemHref(t.path) + (t.type === "review" ? "?review=1" : "")} className={`decoration-accent decoration-2 underline-offset-2 hover:underline ${isDone ? "text-muted line-through" : ""}`}>
                 <span className="mr-1.5 font-mono text-[11px] text-muted no-underline" title={{ leetcode: "New LeetCode problem", "system-design": "System design", review: "Review: redo it from scratch" }[t.type]}>{{ leetcode: "LC", "system-design": "SD", review: "↻ review" }[t.type]}</span>
                 {t.title}
               </Link>

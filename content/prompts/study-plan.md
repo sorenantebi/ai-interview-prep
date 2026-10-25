@@ -6,6 +6,14 @@ Plan settings:
 - Cover: {{focus}}
 - Notes from the candidate: {{notes}}
 
+Current plan to build on (only given when the candidate asked for it; otherwise "none"). One line per day:
+date | focus | tasks, with ✓ done and ○ not done:
+{{previous}}
+If it is given, use it the way the notes say (e.g. extend it, keep its structure, carry over unfinished tasks). Without
+other instructions, keep its structure and carry over the unfinished (○) work. Done (✓) problems are not new work again.
+The new plan replaces the current one, so for days that fall in both, keep the current plan's tasks (unless the notes
+say otherwise) and build the rest around them.
+
 Available problems (only use these exact paths). Format: path | title | difficulty | status
 
 {{problems}}

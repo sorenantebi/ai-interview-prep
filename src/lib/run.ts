@@ -9,7 +9,7 @@ export async function runPython(files: Record<string, string>, entry: string): P
   try {
     for (const [name, content] of Object.entries(files)) await fs.writeFile(path.join(dir, name), content);
     return await new Promise((resolve) => {
-      execFile(process.env.PYTHON_BIN ?? "python3", [entry], { cwd: dir, timeout: 10_000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
+      execFile(process.env.PYTHON_BIN ?? (process.platform === "win32" ? "python" : "python3"), [entry], { cwd: dir, timeout: 10_000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
         const killed = err && "killed" in err && err.killed;
         resolve({ ok: !err, output: (stdout + stderr + (killed ? "\n⏱ Timed out after 10s" : "")).trim() });
       });

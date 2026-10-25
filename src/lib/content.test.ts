@@ -295,3 +295,20 @@ test("coverAll adds every missing problem, spread over the days in order", async
   const where = plan.days.map((d) => d.tasks.map((t) => ("path" in t ? `${t.type[0]}:${t.path}` : "")).join(","));
   assert.deepEqual(where, ["l:a,l:b,l:c", "l:d", "l:e", "r:a"]); // b..e and the review of a, in order, evenly spread
 });
+
+test("planSummary: one line per day, done marks and exact paths", async () => {
+  const { planSummary } = await import("./plan.ts");
+  const plan = { title: "P", created: "", days: [{ date: "2026-11-02", focus: "Arrays", tasks: [
+    { type: "leetcode", path: "leetcode/a", title: "A" }, { type: "review", path: "leetcode/b", title: "B", done: true },
+    { type: "mock", kind: "coding", path: "leetcode/c", title: "C" }, { type: "note", text: "patterns" },
+  ] }] } as import("./plan.ts").Plan;
+  assert.equal(planSummary(plan, new Set(["leetcode/a"])), '"P"\n2026-11-02 | Arrays | ✓ leetcode: leetcode/a; ✓ review: leetcode/b; ○ mock coding: leetcode/c; ○ note: patterns');
+});
+
+test("carryTicks keeps ticks on tasks that stay on the same day", async () => {
+  const { carryTicks } = await import("./plan.ts");
+  const old = { title: "", created: "", days: [{ date: "2026-11-02", tasks: [{ type: "note", text: "x", done: true }, { type: "leetcode", path: "a", title: "A", done: false }] }] } as import("./plan.ts").Plan;
+  const neu = { title: "", created: "", days: [{ date: "2026-11-02", tasks: [{ type: "leetcode", path: "a", title: "A" }, { type: "note", text: "x" }] }, { date: "2026-11-03", tasks: [{ type: "note", text: "x" }] }] } as import("./plan.ts").Plan;
+  carryTicks(neu, old);
+  assert.deepEqual(neu.days.map((d) => d.tasks.map((t) => t.done)), [[false, true], [undefined]]);
+});
