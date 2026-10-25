@@ -1,19 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type State = { kind: "stopwatch" | "countdown"; startedAt: number | null; elapsed: number; duration: number };
+type State = { kind: "stopwatch" | "countdown"; startedAt: number | null; elapsed: number; duration: number; interview?: boolean };
 const IDLE: State = { kind: "stopwatch", startedAt: null, elapsed: 0, duration: 0 };
 const KEY = "prep-timer";
 const PRESETS = [15, 20, 30, 45, 60];
 const EVENT = "prep-timer";
 
 /** Lets other parts of the app drive the top-bar timer, e.g. a mock interview starting a 45-minute countdown. */
-export function timerCommand(detail: { action: "countdown"; minutes: number } | { action: "pause" }) {
+export function timerCommand(detail: { action: "countdown"; minutes: number; interview?: boolean } | { action: "pause" } | { action: "reset" }) {
   window.dispatchEvent(new CustomEvent(EVENT, { detail }));
 }
 
 const load = (): State => {
-  try { return { ...IDLE, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") }; } catch { return IDLE; }
+  try {
+    const s = { ...IDLE, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") };
+    return s.interview ? IDLE : s; // a mock interview ends when its page goes away, so its clock does too
+  } catch { return IDLE; }
 };
 const fmt = (ms: number) => {
   const s = Math.max(0, Math.round(ms / 1000));
@@ -51,13 +54,14 @@ export default function Timer() {
     document.title = done ? `⏰ Time's up · ${base}` : base;
   }, [done]);
 
-  const start = (kind: State["kind"], minutes = 0) => { setState({ kind, startedAt: Date.now(), elapsed: 0, duration: minutes * 60_000 }); setOpen(false); };
+  const start = (kind: State["kind"], minutes = 0, interview = false) => { setState({ kind, startedAt: Date.now(), elapsed: 0, duration: minutes * 60_000, interview }); setOpen(false); };
   const pause = () => setState((s) => ({ ...s, startedAt: null, elapsed: s.elapsed + (s.startedAt ? Date.now() - s.startedAt : 0) }));
   useEffect(() => {
     const on = (e: Event) => {
       const d = (e as CustomEvent).detail;
-      if (d.action === "countdown") start("countdown", d.minutes);
+      if (d.action === "countdown") start("countdown", d.minutes, !!d.interview);
       else if (d.action === "pause") pause();
+      else if (d.action === "reset") setState((s) => (s.interview ? IDLE : s)); // only clears an interview's clock
     };
     window.addEventListener(EVENT, on);
     return () => window.removeEventListener(EVENT, on);

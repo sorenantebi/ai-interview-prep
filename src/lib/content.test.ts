@@ -265,3 +265,13 @@ test("adding to a plan day: unsolved as new work, solved as a review; remove dro
   assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 2);
   await setProgress("leetcode/09 P/y", null);
 });
+
+test("mock interview length follows the kind and difficulty", async () => {
+  const { interviewMinutes, difficultyOf } = await import("./interview.ts");
+  assert.equal(interviewMinutes("coding", difficultyOf("---\ndifficulty: Easy\n---\n# X")), 15);
+  assert.equal(interviewMinutes("coding", "Medium"), 30);
+  assert.equal(interviewMinutes("coding", "Hard"), 45);
+  assert.equal(interviewMinutes("system-design", difficultyOf('---\ndifficulty: "Hard"\n---')), 60);
+  assert.equal(interviewMinutes("coding", undefined), 45); // interviewer picks
+  assert.equal(interviewMinutes("system-design", "weird"), 45);
+});

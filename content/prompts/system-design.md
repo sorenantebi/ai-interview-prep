@@ -5,6 +5,10 @@ Category: {{category}}
 (If the request names a known problem, e.g. "Design Uber", cover that one. If it is an idea, design an original prompt around it.)
 
 Match the style of a Hello Interview breakdown: concrete numbers, clear trade-offs, no fluff.
+If the category is ML system design, keep question.md as below but give solution.md these sections instead:
+1. Problem framing · 2. Business objective → ML objective · 3. High-level design · 4. Data and labels · 5. Features ·
+6. Modelling (baseline → stronger model, loss) · 7. Evaluation (offline and online) · 8. Deployment and monitoring ·
+9. Deep dives · 10. What interviewers look for · 11. Common pitfalls.
 Write exactly two files (no text outside the file sections):
 
 === FILE: question.md ===

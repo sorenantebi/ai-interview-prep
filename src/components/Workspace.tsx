@@ -1,5 +1,6 @@
 "use client";
-import Editor, { type EditorProps } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
+import { DOC, NO_ASSIST } from "./editor-options";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -10,22 +11,6 @@ import SketchPad, { type Stroke } from "./SketchPad";
 import { api, putFile } from "@/lib/client";
 import type { Review } from "@/lib/content";
 import type { CaseResult } from "@/lib/run";
-
-// No autocomplete, hints or auto-closing in either mode: you type every character, like in a real interview.
-const NO_ASSIST: EditorProps["options"] = {
-  automaticLayout: true, // follow the panel when you drag the dividers
-  minimap: { enabled: false }, fontSize: 14, fontFamily: "var(--font-jetbrains), monospace", scrollBeyondLastLine: false,
-  quickSuggestions: false, suggestOnTriggerCharacters: false, wordBasedSuggestions: "off", parameterHints: { enabled: false },
-  acceptSuggestionOnEnter: "off", tabCompletion: "off", snippetSuggestions: "none", inlineSuggest: { enabled: false },
-  hover: { enabled: "off" }, autoClosingBrackets: "never", autoClosingQuotes: "never", autoSurround: "never", formatOnType: false,
-  occurrencesHighlight: "off", selectionHighlight: false, codeLens: false,
-};
-// "Doc" = Google-interview style blank white sheet: no highlighting, line numbers, guides or auto-indent.
-const DOC: EditorProps["options"] = {
-  ...NO_ASSIST, lineNumbers: "off", glyphMargin: false, folding: false, lineDecorationsWidth: 16, renderLineHighlight: "none",
-  guides: { indentation: false, bracketPairs: false }, matchBrackets: "never", autoIndent: "none", renderWhitespace: "none",
-  padding: { top: 16 }, wordWrap: "on",
-};
 
 type Tab = "question" | "solution" | "notes" | "tests";
 type Run = { results?: CaseResult[]; error?: string };
@@ -255,7 +240,7 @@ export default function Workspace(props: {
   async function hint() {
     setBusy("Asking for a hint…");
     try {
-      setCoach((await api("/api/claude", { action: "hint", mode: "hint", path, code, output: submit?.output ?? "" })).text);
+      setCoach((await api("/api/claude", { action: "hint", path, code, output: submit?.output ?? "" })).text);
     } catch (e) {
       setCoach("**Error:** " + (e as Error).message);
     } finally {

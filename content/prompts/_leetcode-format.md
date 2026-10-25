@@ -49,8 +49,9 @@ class Solution:
 	def methodName(self, ...) -> ...:
 		...
 ```
-(Use LeetCode's exact method signature. Tabs for indentation. Comment only the non-obvious lines.
-For linked lists / trees, refer to `ListNode` / `TreeNode` without defining them.)
+(Use LeetCode's exact class and method signature; for an original problem, a LeetCode-style `class Solution`
+method. 4-space indentation. Comment only the non-obvious lines. For linked lists / trees, refer to `ListNode` /
+`TreeNode` without defining them. The code must be correct and optimal: the app runs your examples against it.)
 
 ## Complexity
 

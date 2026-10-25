@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logActivity, read, safePath, write } from "@/lib/content";
+import { difficultyOf, interviewMinutes } from "@/lib/interview";
+import { areaStats, logActivity, read, safePath, write } from "@/lib/content";
+import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
 import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
 import { checkComplexity } from "@/lib/complexity";
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ path: await saveProblem((await claude(input, { tools: ["WebFetch"] })).text, "system-design", b.group) });
       }
       case "hint": {
-        const input = await prompt("hint", { mode: b.mode, question: (await read(`${b.path}/question.md`)) ?? "", code: b.code, output: b.output || "(not run yet)" });
+        const input = await prompt("hint", { question: (await read(`${b.path}/question.md`)) ?? "", code: b.code, output: b.output || "(not run yet)" });
         return NextResponse.json({ text: (await claude(input)).text });
       }
       case "complexity": {
@@ -66,9 +68,17 @@ export async function POST(req: NextRequest) {
         await logActivity();
         // First turn builds the interviewer prompt; later turns resume the same CLI session.
         if (b.sessionId) return NextResponse.json(await claude(b.message, { sessionId: b.sessionId }));
-        const problem = b.problemPath ? ((await read(`${b.problemPath}/question.md`)) ?? "") : `choose (theme: ${b.theme || "any"})`;
-        const input = (await prompt(b.kind === "system-design" ? "interview-system-design" : "interview-coding", { problem })) + "\n\nBegin the interview now.";
-        return NextResponse.json(await claude(input));
+        // Claude picks the same "obvious" problem for the same prompt, so the randomness comes from here: no theme → a
+        // random problem from your list; a theme → Claude picks from the list in a fresh random order.
+        const all = (await areaStats(b.kind === "system-design" ? "system-design" : "leetcode")).flatMap((g) => g.problems);
+        const path: string | undefined = b.problemPath || (b.theme ? undefined : all[Math.floor(Math.random() * all.length)]?.path);
+        const problem = path
+          ? ((await read(`${path}/question.md`)) ?? "")
+          : `choose (theme: ${b.theme}). Pick from this list, which is in random order: take the first one that fits the theme.\n` +
+            shuffle(all.map((p) => `- ${p.title} (${p.difficulty ?? "?"})`), Date.now()).join("\n");
+        const minutes = interviewMinutes(b.kind, path ? difficultyOf(problem) : undefined);
+        const input = (await prompt(b.kind === "system-design" ? "interview-system-design" : "interview-coding", { problem, minutes: String(minutes) })) + "\n\nBegin the interview now.";
+        return NextResponse.json({ ...(await claude(input)), minutes }); // the page starts its clock when this first reply arrives
       }
       default:
         return NextResponse.json({ error: `Unknown action ${b.action}` }, { status: 400 });

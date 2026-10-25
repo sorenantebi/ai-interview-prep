@@ -5,7 +5,9 @@ import { useSearchParams } from "next/navigation";
 import Markdown from "./Markdown";
 import { problemHref } from "./ProblemList";
 import { api, putFile } from "@/lib/client";
+import Editor from "@monaco-editor/react";
 import { timerCommand } from "./Timer";
+import { DOC } from "./editor-options";
 import type { TreeNode } from "@/lib/content";
 
 type Tab = "link" | "generate" | "system-design" | "interview";
@@ -97,8 +99,6 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
 }
 
 type Msg = { role: "interviewer" | "you"; text: string };
-const INTERVIEW_MINUTES = 45;
-
 function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; initialKind: string; initialProblem: string }) {
   const [kind, setKind] = useState(initialKind === "system-design" ? "system-design" : "coding");
   const [problem, setProblem] = useState(initialProblem);
@@ -109,8 +109,12 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState("");
+  const [code, setCode] = useState("");
+  const sentCode = useRef(""); // the doc as the interviewer last saw it
   const bottom = useRef<HTMLDivElement>(null);
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth" }), [msgs, busy]);
+  useEffect(() => { bottom.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, busy]);
+  // Leaving the interview (another tab or page) ends it, so its clock resets.
+  useEffect(() => () => timerCommand({ action: "reset" }), []);
 
   const options = problemsOf(tree, kind === "coding" ? "leetcode" : "system-design");
 
@@ -120,6 +124,7 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
     if (mine) setMsgs((m) => [...m, { role: "you", text: mine }]);
     try {
       const r = await api("/api/claude", { action: "interview", ...body });
+      if (r.minutes) timerCommand({ action: "countdown", minutes: r.minutes, interview: true }); // first reply is in: the clock starts now
       setSessionId(r.sessionId);
       setMsgs((m) => [...m, { role: "interviewer", text: r.text }]);
     } catch (e) {
@@ -129,20 +134,32 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
     }
   }
 
-  const start = () => {
+  const start = async () => {
     setMsgs([]);
     setSaved("");
-    timerCommand({ action: "countdown", minutes: INTERVIEW_MINUTES }); // the interview clock starts with the interview
+    // The coding doc starts with the problem's LeetCode starter code, or blank when the interviewer picks.
+    const starter = kind === "coding" && problem ? await fetch(`/api/files?path=${encodeURIComponent(`${problem}/starter.py`)}`).then((r) => r.json()).then((d) => d.content ?? "", () => "") : "";
+    setCode(starter);
+    sentCode.current = starter;
     call({ kind, problemPath: problem || undefined, theme });
   };
-  const send = (text: string) => { if (text.trim() && sessionId) { setInput(""); call({ sessionId, message: text }, text); } };
+  // Your message, plus the doc's code whenever it changed since the interviewer last saw it.
+  const send = (text: string) => {
+    if (!text.trim() || !sessionId) return;
+    setInput("");
+    const changed = kind === "coding" && code.trim() && code !== sentCode.current;
+    sentCode.current = code;
+    const message = changed ? `${text}\n\n[The candidate's code in the shared doc]\n\`\`\`python\n${code}\n\`\`\`` : text;
+    call({ sessionId, message }, changed ? `${text}\n\n_(shared the current code)_` : text);
+  };
 
   async function save() {
     const title = problem ? problem.split("/").at(-1)! : theme || "open";
     const date = new Date().toISOString().slice(0, 10);
     const path = saved || `interviews/${date}-${kind}-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.md`;
     const md = `---\nkind: ${kind}\nproblem: "${problem || theme || "chosen by interviewer"}"\ndate: ${date}\n---\n# Mock interview: ${title}\n\n` +
-      msgs.map((m) => `**${m.role === "you" ? "You" : "Interviewer"}:**\n\n${m.text}`).join("\n\n---\n\n") + "\n";
+      msgs.map((m) => `**${m.role === "you" ? "You" : "Interviewer"}:**\n\n${m.text}`).join("\n\n---\n\n") +
+      (code.trim() ? `\n\n---\n\n## Final code\n\n\`\`\`python\n${code}\n\`\`\`` : "") + "\n";
     try { await putFile(path, md); setSaved(path); } catch (e) { setError((e as Error).message); }
   }
 
@@ -150,9 +167,9 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
     return (
       <div className="card max-w-2xl space-y-4 p-5">
         <div className="flex gap-2" role="radiogroup" aria-label="Interview type">
-          {["coding", "system-design"].map((k) => (
-            <button key={k} role="radio" aria-checked={kind === k} onClick={() => { setKind(k); setProblem(""); }} className={`btn ${kind === k ? "border-fg bg-fg text-panel" : ""}`}>
-              {k === "coding" ? "Coding" : "System design"}
+          {([["coding", "Coding"], ["system-design", "System design"]] as const).map(([k, label]) => (
+            <button key={k} role="radio" aria-checked={kind === k} onClick={() => { setKind(k); setProblem(""); }} className={`border px-3 py-1.5 text-sm ${kind === k ? "border-accent bg-accent font-medium text-white" : "border-border bg-panel text-fg hover:border-fg"}`}>
+              {label}
             </button>
           ))}
         </div>
@@ -170,16 +187,16 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
           </label>
         )}
         <div className="flex items-center gap-3">
-          <button className="btn-primary" onClick={start} disabled={busy}>{busy ? "Starting…" : "Start interview"}</button>
+          <button className="btn-primary" onClick={start} disabled={busy}>{busy ? "Starting…" : `Start ${kind === "coding" ? "coding" : "system design"} interview`}</button>
           <Link href={`/files?path=${encodeURIComponent(`prompts/interview-${kind}.md`)}`} className="text-xs text-muted hover:text-fg">Edit interviewer prompt</Link>
         </div>
         {error && <pre className="whitespace-pre-wrap text-sm text-hard">{error}</pre>}
       </div>
     );
 
-  return (
-    <div className="flex max-w-3xl flex-col gap-3">
-      <div className="card max-h-[60vh] space-y-4 overflow-y-auto p-4">
+  const chat = (
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className={`card space-y-4 overflow-y-auto p-4 ${kind === "coding" ? "h-[60vh]" : "max-h-[60vh]"}`}>
         {msgs.map((m, i) => (
           <div key={i} className={m.role === "you" ? "ml-8 border-l-2 border-accent bg-fg/5 p-3" : "mr-8"}>
             <div className="mb-1 text-xs font-medium text-muted">{m.role === "you" ? "You" : "Interviewer"}</div>
@@ -197,15 +214,30 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
         disabled={busy}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-        placeholder="Your answer. Enter sends, Shift+Enter adds a new line. Use ``` for code."
+        placeholder={kind === "coding" ? "Talk to the interviewer. Write code in the doc; it's sent along with your next message. Enter sends." : "Your answer. Enter sends, Shift+Enter adds a new line."}
       />
       <div className="flex flex-wrap gap-2">
         <button className="btn-primary" onClick={() => send(input)} disabled={busy || !input.trim()}>Send</button>
         <button className="btn" onClick={() => { timerCommand({ action: "pause" }); send("END INTERVIEW"); }} disabled={busy}>End & get feedback</button>
         <button className="btn" onClick={save} disabled={busy || !msgs.length}>{saved ? "Save again" : "Save transcript"}</button>
-        <button className="btn" onClick={() => { setSessionId(null); setMsgs([]); }} disabled={busy}>New interview</button>
+        <button className="btn" onClick={() => { timerCommand({ action: "reset" }); setSessionId(null); setMsgs([]); }} disabled={busy}>New interview</button>
         {saved && <Link href={`/files?path=${encodeURIComponent(saved)}`} className="self-center text-sm text-easy underline">Saved to {saved}</Link>}
       </div>
+    </div>
+  );
+  if (kind !== "coding") return <div className="max-w-3xl">{chat}</div>;
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      {chat}
+      <section className="card flex h-[60vh] flex-col overflow-hidden lg:h-auto" aria-label="Coding doc">
+        <div className="flex items-center justify-between border-b border-border px-3 py-2">
+          <h2 className="font-medium">Doc</h2>
+          <span className="font-mono text-[11px] text-muted">{code.trim() && code !== sentCode.current ? "changed · sent with your next message" : "the interviewer sees this when you send"}</span>
+        </div>
+        <div className="min-h-0 flex-1 bg-white">
+          <Editor language="plaintext" theme="light" value={code} onChange={(v) => setCode(v ?? "")} options={DOC} />
+        </div>
+      </section>
     </div>
   );
 }
@@ -218,7 +250,7 @@ export default function AiStudio() {
   useEffect(() => { refresh(); }, []);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div>
         <h1 className="page-title">AI & Interviews</h1>
         <p className="mt-1 text-sm text-muted">Runs on your local Claude Code login. Everything Claude creates is saved under Files.</p>
