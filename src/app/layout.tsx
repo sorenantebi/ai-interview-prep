@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import Nav from "@/components/Nav";
 import Cat from "@/components/Cat";
+import Notepad from "@/components/Notepad";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           LeetCode solutions © NeetCode (<a className="underline hover:text-fg" href="https://github.com/neetcode-gh/leetcode" target="_blank" rel="noreferrer">neetcode-gh/leetcode</a>, MIT License) ·
           problems and starter code © LeetCode · system design videos © Hello Interview · not affiliated with any of them
         </footer>
+        <Notepad />
         <Cat />
       </body>
     </html>

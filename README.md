@@ -16,7 +16,6 @@
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
 | **Review** | A dashboard cheat sheet of your solved problems (your code, notes, drawings), spaced repetition and a patterns sheet. |
 | **Plan** | Claude writes a day-by-day study plan from your progress, including reviews. Streak calendar on the dashboard. |
-| **My page** | One page that's entirely yours: ask Claude to change it, add pictures, or edit its HTML, with undo. It runs sealed off from the rest of the app. |
 | **Extras** | Light/dark switch, job application tracker, git repo browser, file browser, timer, Claude model picker and usage, a mantra and a pettable cat. |
 
 ![Problem page](docs/problem.png)

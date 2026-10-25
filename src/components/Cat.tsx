@@ -1,113 +1,119 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CAT_COLORS, CAT_FRAMES, type CatFrame } from "./cat-frames";
 
-const S = 1; // screen pixels per sprite pixel
-const W = 48 * S;
-const H = 36 * S;
-const SPEED = 45; // px per second
-const WALK = ["walk1", "walk2", "walk3", "walk4"] as const; // ball feet: back foot hops forward, together, front foot hops forward, together
-const STEP = 0.14; // seconds per walk frame
+// The cat from Purr (github.com/sorenantebi/purr): its 32px-cell sprite sheet, recoloured white, same animation rows and
+// idle → yawn/wash → wander behaviour. Here it walks left and right along a ledge just under the top bar
+// (foot = the sprite's lowest pixel row in that animation, so its feet stay on one line).
+const SHEET = "/cat/cat.png";
+const CELL = 32;
+const SCALE = 2;
+const SIZE = CELL * SCALE;
+const SPEED = 56; // px/s on screen (Purr: 18 px/s at 1×)
+const ANIMS = {
+  idle: { row: 16, cols: [0, 1], frameMs: 600, foot: 22 },
+  walk_right: { row: 6, cols: [0, 1, 2, 3, 4, 5, 6, 7], frameMs: 60, foot: 24 },
+  walk_left: { row: 7, cols: [0, 1, 2, 3, 4, 5, 6, 7], frameMs: 60, foot: 24 },
+  yawn: { row: 35, cols: [0, 1, 2, 3, 4, 5, 6, 7], frameMs: 400, foot: 23 },
+  wash: { row: 38, cols: [0, 1, 2, 3, 4, 5, 6], frameMs: 400, foot: 23 },
+} as const;
+type Anim = keyof typeof ANIMS;
+type State = "idle" | "wander" | "yawn" | "wash" | "sit";
 
+// White coat: the sheet's greys (body, shade, highlight) become white and light greys; the dark outline,
+// eyes and nose keep their colours so the cat stays crisp on any background.
+const WHITE: Record<string, [number, number, number]> = {
+  "98,103,115": [246, 246, 248], // body
+  "65,71,82": [204, 207, 214], // shade
+  "134,141,155": [255, 255, 255], // highlight
+};
 
-function Sprite({ frame }: { frame: CatFrame }) {
-  return (
-    <svg width={W} height={H} viewBox="0 0 48 36" shapeRendering="crispEdges" aria-hidden>
-      {CAT_FRAMES[frame].flatMap((row, y) => [...row].map((c, x) => (c === "." ? null : <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={CAT_COLORS[c]} />)))}
-    </svg>
-  );
-}
-
-type Pose = [x: number, y: number, rot: number]; // feet centre + rotation in degrees
-
-/**
- * The cat walks a loop round the screen with its feet on whatever it walks on: upright on a ledge under the top bar,
- * feet against the right edge going down, upright on the bottom edge, feet against the left edge going up.
- * At a corner it simply hops onto the next edge. `s` is the distance along the loop (clockwise).
- */
-function geometry(navBottom: number) {
-  const vw = window.innerWidth, vh = window.innerHeight, y0 = navBottom + H, m = W / 2;
-  const edges: [Pose, Pose][] = [
-    [[m, y0, 0], [vw - m, y0, 0]], // top ledge
-    [[vw, y0 + m, -90], [vw, vh - m, -90]], // right edge, feet on the wall
-    [[vw - m, vh, 0], [m, vh, 0]], // bottom edge
-    [[0, vh - m, 90], [0, y0 + m, 90]], // left edge, feet on the wall
-  ];
-  const lens = edges.map(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1]));
-  const starts = lens.map((_, i) => lens.slice(0, i).reduce((n, l) => n + l, 0));
-  const P = starts[3] + lens[3];
-  const place = (s: number): Pose => {
-    s = ((s % P) + P) % P;
-    let i = 3;
-    while (i > 0 && starts[i] > s) i--;
-    const [a, b] = edges[i], t = lens[i] ? (s - starts[i]) / lens[i] : 0;
-    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2]];
-  };
-  // Mostly the top ledge, sometimes partway down a side, rarely anywhere.
-  const target = () => {
-    const r = Math.random();
-    if (r < 0.7) return lens[0] * (0.05 + 0.9 * Math.random());
-    if (r < 0.92) return Math.random() < 0.5 ? starts[1] + lens[1] * 0.45 * Math.random() : P - lens[3] * 0.45 * Math.random();
-    return P * Math.random();
-  };
-  return { P, place, target };
+function whiten(img: HTMLImageElement) {
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  const ctx = c.getContext("2d")!;
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, c.width, c.height), d = data.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const to = d[i + 3] ? WHITE[`${d[i]},${d[i + 1]},${d[i + 2]}`] : undefined;
+    if (to) [d[i], d[i + 1], d[i + 2]] = to;
+  }
+  ctx.putImageData(data, 0, 0);
+  return c;
 }
 
 export default function Cat() {
-  const el = useRef<HTMLButtonElement>(null);
-  const [frame, setFrame] = useState<CatFrame>("stand");
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const box = useRef<HTMLButtonElement>(null);
+  const cat = useRef({ x: 0, target: 0, facing: "right" as "left" | "right", state: "idle" as State, next: "wander" as State, timer: 2000, frame: 0, elapsed: 0 });
   const [hearts, setHearts] = useState<number[]>([]);
   const [pets, setPets] = useState(0);
-  const petting = useRef(false);
+  const [purring, setPurring] = useState(false);
 
   useEffect(() => {
     try { setPets(Number(localStorage.getItem("cat-pets")) || 0); } catch {}
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const navBottom = () => document.querySelector("header")?.getBoundingClientRect().bottom ?? 56;
-    let g = geometry(navBottom());
-    let s = window.innerWidth * 0.8, goal = s, pauseUntil = 0, last = performance.now(), step = 0, raf = 0;
-    const onResize = () => { g = geometry(navBottom()); };
-    window.addEventListener("resize", onResize);
+    const ledge = () => document.querySelector("header")?.getBoundingClientRect().bottom ?? 56;
+    const range = () => [16, window.innerWidth - SIZE - 16];
+    const c = cat.current;
+    c.x = c.target = window.innerWidth * 0.8;
+    let sheet: HTMLCanvasElement | null = null, raf = 0, last = performance.now();
+    const img = new Image();
+    img.onload = () => { sheet = whiten(img); };
+    img.src = SHEET;
 
+    const anim = (): Anim => (c.state === "wander" ? (c.facing === "left" ? "walk_left" : "walk_right") : c.state === "yawn" || c.state === "wash" ? c.state : "idle");
     const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
+      const dt = Math.min(50, now - last);
       last = now;
-      let moving = false, dir = 1;
-      if (!petting.current && !reduced && now > pauseUntil) {
-        // Walk the shorter way round the loop.
-        let d = ((goal - s) % g.P + g.P) % g.P;
-        if (d > g.P / 2) d -= g.P;
-        if (Math.abs(d) < 1) {
-          pauseUntil = now + 1200 + Math.random() * 3500;
-          goal = g.target();
-        } else {
-          dir = Math.sign(d);
-          s += dir * Math.min(Math.abs(d), SPEED * dt);
-          moving = true;
+      const a = ANIMS[anim()];
+      c.elapsed += dt;
+      if (c.elapsed >= a.frameMs) { c.elapsed = 0; c.frame = (c.frame + 1) % a.cols.length; }
+
+      // Purr's state machine, minus sleeping in the sun.
+      if (c.state === "idle" && !reduced) {
+        c.timer -= dt;
+        if (c.timer <= 0) {
+          c.state = Math.random() < 0.4 ? "wash" : "yawn";
+          c.timer = c.state === "wash" ? 3600 : 2400;
+          c.next = Math.random() < 0.75 ? "wander" : "idle";
+          c.frame = 0;
         }
+      } else if (c.state === "yawn" || c.state === "wash") {
+        c.timer -= dt;
+        if (c.timer <= 0) {
+          c.state = c.next;
+          c.frame = 0;
+          c.timer = 4000 + Math.random() * 8000;
+          if (c.state === "wander") { const [lo, hi] = range(); c.target = lo + Math.random() * (hi - lo); }
+        }
+      } else if (c.state === "wander") {
+        const d = c.target - c.x;
+        if (Math.abs(d) < 1) { c.state = "idle"; c.frame = 0; c.timer = 4000 + Math.random() * 8000; }
+        else { c.x += Math.sign(d) * Math.min(Math.abs(d), (SPEED * dt) / 1000); c.facing = d > 0 ? "right" : "left"; }
       }
-      const [x, y, rot] = g.place(s);
-      // Face the way it walks: compare the movement with the sprite's local "forward" (+x) after rotation.
-      const [nx, ny] = g.place(s + dir);
-      const r = (rot * Math.PI) / 180, along = (nx - x) * Math.cos(r) + (ny - y) * Math.sin(r);
-      const faceRight = moving && Math.abs(along) > 0.01 ? along > 0 : el.current?.dataset.face !== "l";
-      if (el.current) {
-        el.current.dataset.face = faceRight ? "r" : "l";
-        el.current.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg) scaleX(${faceRight ? 1 : -1}) translate(${-W / 2}px, ${-H}px)`;
-      }
-      if (!petting.current) {
-        step = moving ? step + dt : 0;
-        setFrame(moving ? WALK[Math.floor(step / STEP) % WALK.length] : "stand");
+
+      const [lo, hi] = range();
+      c.x = Math.min(hi, Math.max(lo, c.x));
+      const feet = ledge() + 42; // the ledge: just enough room for the cat (ears up when walking) under the top bar
+      if (box.current) box.current.style.transform = `translate(${Math.round(c.x)}px, ${Math.round(feet - (ANIMS[anim()].foot + 1) * SCALE)}px)`;
+      const ctx = canvas.current?.getContext("2d");
+      if (ctx && sheet) {
+        ctx.clearRect(0, 0, CELL, CELL);
+        const cur = ANIMS[anim()];
+        ctx.drawImage(sheet, cur.cols[c.frame % cur.cols.length] * CELL, cur.row * CELL, CELL, CELL, 0, 0, CELL, CELL);
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   function pet() {
-    petting.current = true;
-    setFrame("pet");
+    const c = cat.current;
+    c.state = "sit";
+    c.frame = 0;
+    setPurring(true);
     const id = Date.now();
     setHearts((h) => [...h, id, id + 1, id + 2]);
     setPets((n) => {
@@ -115,24 +121,24 @@ export default function Cat() {
       return n + 1;
     });
     setTimeout(() => setHearts((h) => h.filter((x) => x < id || x > id + 2)), 1600);
-    setTimeout(() => { petting.current = false; }, 2600);
+    setTimeout(() => { setPurring(false); if (c.state === "sit") { c.state = "idle"; c.timer = 800 + Math.random() * 1200; } }, 2600);
   }
 
   return (
     <button
-      ref={el}
+      ref={box}
       onClick={pet}
       tabIndex={-1}
       aria-label={`Pet the cat (petted ${pets} times)`}
       title={`purr… petted ${pets}×`}
       className="fixed left-0 top-0 z-40 cursor-pointer select-none"
-      style={{ width: W, height: H, transformOrigin: "0 0", willChange: "transform" }}
+      style={{ width: SIZE, height: SIZE, willChange: "transform" }}
     >
-      <Sprite frame={frame} />
+      <canvas ref={canvas} width={CELL} height={CELL} className="h-full w-full [image-rendering:pixelated]" />
       {hearts.map((h, i) => (
-        <span key={h} className="cat-heart pointer-events-none absolute font-mono text-lg text-[#f386a1]" style={{ left: W * 0.55 + (i % 3) * 12 - 12, top: -4, animationDelay: `${(i % 3) * 120}ms` }}>♥</span>
+        <span key={h} className="cat-heart pointer-events-none absolute font-mono text-lg text-[#f386a1]" style={{ left: SIZE * 0.5 + (i % 3) * 12 - 12, top: 4, animationDelay: `${(i % 3) * 120}ms` }}>♥</span>
       ))}
-      {frame === "pet" && <span className="cat-heart pointer-events-none absolute -top-5 left-1/2 font-mono text-xs text-fg">purr</span>}
+      {purring && <span className="cat-heart pointer-events-none absolute left-1/2 top-0 font-mono text-xs text-fg">purr</span>}
     </button>
   );
 }

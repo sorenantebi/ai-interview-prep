@@ -38,7 +38,7 @@ export async function read(rel: string): Promise<string | null> {
   }
 }
 
-export async function write(rel: string, data: string) {
+export async function write(rel: string, data: string | Uint8Array) {
   const abs = safePath(rel);
   await fs.mkdir(path.dirname(abs), { recursive: true });
   await fs.writeFile(abs, data);

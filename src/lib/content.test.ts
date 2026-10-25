@@ -224,16 +224,6 @@ test("API only accepts local, same-origin requests", async () => {
   assert.equal(check("GET", { host: "evil.example:3000" }), "not a local address"); // DNS rebinding
 });
 
-test("page replies are split by the page's own boundaries, not ``` fences", async () => {
-  const { splitReply } = await import("./page.ts");
-  const page = "<!doctype html>\n<html><body><pre>```\ncode inside the notes\n```</pre></body></html>";
-  const r = splitReply("Here are your notes as Markdown.\n\n```html\n" + page + "\n```\n");
-  assert.equal(r.reply, "Here are your notes as Markdown.");
-  assert.equal(r.page, page);
-  assert.equal(r.complete, true);
-  assert.deepEqual(splitReply("Your box is red."), { reply: "Your box is red.", page: null, complete: false });
-  assert.equal(splitReply("Sure:\n<!doctype html><html><body>cut off").complete, false); // truncated: nothing saved
-});
 
 test("moving a problem to another topic carries its progress, plan tasks and topic label", async () => {
   const { moveProblem, write, read, progress, setProgress } = await import("./content.ts");

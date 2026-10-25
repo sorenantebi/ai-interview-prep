@@ -12,7 +12,6 @@ const links = [
   ["/ai", "AI & Interviews"],
   ["/jobs", "Jobs"],
   ["/repos", "Repos"],
-  ["/my", "My page"],
   ["/files", "Files"],
 ];
 

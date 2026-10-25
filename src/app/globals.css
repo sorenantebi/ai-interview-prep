@@ -13,6 +13,8 @@
   --medium: #c98a00;
   --hard: #d45bb6;
   --code-bg: #1e1e1e;
+  --lavender: #8f7ad1; /* Files: misc/ */
+  --jade: #00a36c; /* Files: notes/ */
 }
 
 /* Dark only when picked with the theme switch (data-theme on <html>); light is the default */
@@ -23,6 +25,8 @@
   --muted: #abbab9;
   --border: #ffffff29;
   --code-bg: #111111;
+  --lavender: #b6a6ee;
+  --jade: #3fcf98;
 }
 
 @theme inline {
@@ -35,6 +39,8 @@
   --color-easy: var(--easy);
   --color-medium: var(--medium);
   --color-hard: var(--hard);
+  --color-lavender: var(--lavender);
+  --color-jade: var(--jade);
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter-tight);
   --font-mono: var(--font-jetbrains);

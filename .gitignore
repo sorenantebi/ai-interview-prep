@@ -48,16 +48,13 @@ content/plan.json
 content/activity.json
 content/mantra.txt
 content/settings.json
-# your own page, its pictures and its history (default.html is the starter page)
-content/page/page.html
-content/page/chat.json
-content/page/files/*
-!content/page/files/.gitkeep
-content/page/history/
 content/interviews/*
 !content/interviews/.gitkeep
 content/notes/*
 !content/notes/.gitkeep
+# your uploads (Files → Upload)
+content/misc/*
+!content/misc/.gitkeep
 # cloned repos are other people's projects (and would be nested git repos)
 content/repos/*
 !content/repos/.gitkeep
