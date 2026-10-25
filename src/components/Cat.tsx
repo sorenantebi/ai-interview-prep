@@ -95,7 +95,7 @@ export default function Cat() {
 
       const [lo, hi] = range();
       c.x = Math.min(hi, Math.max(lo, c.x));
-      const feet = ledge() + 42; // the ledge: just enough room for the cat (ears up when walking) under the top bar
+      const feet = ledge() + 36; // the ledge, close under the top bar (the cat draws above the bar, so ears may overlap it)
       if (box.current) box.current.style.transform = `translate(${Math.round(c.x)}px, ${Math.round(feet - (ANIMS[anim()].foot + 1) * SCALE)}px)`;
       const ctx = canvas.current?.getContext("2d");
       if (ctx && sheet) {
@@ -131,7 +131,7 @@ export default function Cat() {
       tabIndex={-1}
       aria-label={`Pet the cat (petted ${pets} times)`}
       title={`purr… petted ${pets}×`}
-      className="fixed left-0 top-0 z-40 cursor-pointer select-none"
+      className="fixed left-0 top-0 z-50 cursor-pointer select-none"
       style={{ width: SIZE, height: SIZE, willChange: "transform" }}
     >
       <canvas ref={canvas} width={CELL} height={CELL} className="h-full w-full [image-rendering:pixelated]" />
