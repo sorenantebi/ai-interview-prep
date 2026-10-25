@@ -2,10 +2,13 @@ import { areaStats, localDate, progress, read, write } from "./content.ts";
 import { claudeStream, prompt } from "./claude.ts";
 
 // "review": redo a problem you already solved (done only when ticked); "leetcode"/"system-design": new problems (done when solved).
-export type Task = { type: "leetcode" | "system-design" | "review"; path: string; title: string; done?: boolean } | { type: "note"; text: string; done?: boolean };
+export type Task =
+  | { type: "leetcode" | "system-design" | "review"; path: string; title: string; done?: boolean }
+  | { type: "note"; text: string; done?: boolean }
+  | { type: "mock"; kind: "coding" | "system-design"; path?: string; title?: string; done?: boolean }; // a mock interview (optionally on one problem); done when ticked
 export type Day = { date: string; focus?: string; tasks: Task[] };
 export type Plan = { title: string; created: string; days: Day[] };
-export type PlanSettings = { start: string; weeks: number; hours: number; focus: string[]; notes: string };
+export type PlanSettings = { start: string; weeks: number; focus: string[]; notes: string };
 
 export async function readPlan(): Promise<Plan | null> {
   try { return JSON.parse((await read("plan.json")) ?? "null"); } catch { return null; }
@@ -25,10 +28,22 @@ export async function problemOptions(): Promise<ProblemGroup[]> {
   return out;
 }
 
-/** Adds a problem to a plan day: a solved one as a review, otherwise as new work. */
-export async function addTask(date: string, path: string): Promise<Plan> {
+/**
+ * Adds a problem to a plan day (a solved one as a review, otherwise as new work), or a mock interview ("mock:coding" /
+ * "mock:system-design"), optionally on one problem of that kind.
+ */
+export async function addTask(date: string, path: string, mockProblem?: string): Promise<Plan> {
   const plan = await readPlan();
   const day = plan?.days.find((d) => d.date === date);
+  if (plan && day && (path === "mock:coding" || path === "mock:system-design")) {
+    const kind = path === "mock:coding" ? "coding" : "system-design";
+    const area = kind === "coding" ? "leetcode" : "system-design";
+    const p = mockProblem ? (await problemOptions()).filter((g) => g.area === area).flatMap((g) => g.problems).find((x) => x.path === mockProblem) : undefined;
+    if (mockProblem && !p) throw new Error("No such problem for that interview");
+    day.tasks.push({ type: "mock", kind, ...(p ? { path: p.path, title: p.title } : {}) });
+    await savePlan(plan);
+    return plan;
+  }
   const group = (await problemOptions()).find((g) => g.problems.some((p) => p.path === path));
   const problem = group?.problems.find((p) => p.path === path);
   if (!plan || !day || !group || !problem) throw new Error("No such day or problem");
@@ -60,6 +75,11 @@ export function validatePlan(raw: unknown, titles: Map<string, string>, start: s
     for (const t of d.tasks as { type?: unknown; path?: unknown; text?: unknown }[]) {
       if ((t?.type === "leetcode" || t?.type === "system-design" || t?.type === "review") && typeof t.path === "string" && titles.has(t.path)) tasks.push({ type: t.type, path: t.path, title: titles.get(t.path)! });
       else if (t?.type === "note" && typeof t.text === "string" && t.text.trim()) tasks.push({ type: "note", text: t.text.trim().slice(0, 300) });
+      else if (t?.type === "mock") {
+        const kind = (t as { kind?: unknown }).kind === "system-design" ? "system-design" : "coding";
+        const ok = typeof t.path === "string" && titles.has(t.path) && t.path.startsWith(kind === "coding" ? "leetcode/" : "system-design/");
+        tasks.push({ type: "mock", kind, ...(ok ? { path: t.path as string, title: titles.get(t.path as string)! } : {}) });
+      }
     }
     if (tasks.length) days.push({ date, focus: typeof d.focus === "string" ? d.focus.slice(0, 80) : undefined, tasks });
   }
@@ -77,12 +97,24 @@ export function planProgress(partial: string, total: number): Omit<PlanProgress,
   return { days: dates.length, total, date: dates.at(-1), focus };
 }
 
+/**
+ * Makes sure every required problem is in the plan: anything Claude left out is spread evenly over the plan's days,
+ * keeping the given (roadmap) order. A problem counts as covered when it appears with the same task type.
+ */
+export function coverAll(plan: Plan, required: { type: "leetcode" | "system-design" | "review"; path: string; title: string }[]): Plan {
+  const have = new Set(plan.days.flatMap((d) => d.tasks.map((t) => ("path" in t && t.type !== "mock" ? `${t.type}|${t.path}` : ""))));
+  const missing = required.filter((r) => !have.has(`${r.type}|${r.path}`));
+  missing.forEach((r, i) => plan.days[Math.floor((i * plan.days.length) / missing.length)].tasks.push({ ...r }));
+  return plan;
+}
+
 export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress) => void = () => {}): Promise<Plan> {
   const weeks = Math.min(26, Math.max(1, Math.round(s.weeks)));
   const end = addDays(s.start, weeks * 7 - 1);
   const prog = await progress();
   const titles = new Map<string, string>();
   const lines: string[] = [];
+  const required: Parameters<typeof coverAll>[1] = []; // every problem: unsolved as new work, solved as a review
   for (const area of ["leetcode", "system-design"]) {
     for (const g of await areaStats(area)) {
       for (const p of g.problems) {
@@ -90,11 +122,12 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
         const e = prog[p.path];
         const status = e?.status !== "solved" ? "not solved" : e.review ? `solved, review due ${e.review.due}` : `solved ${e.at.slice(0, 10)}`;
         lines.push(`${p.path} | ${p.title} | ${p.difficulty ?? "?"} | ${status}`);
+        required.push({ type: e?.status === "solved" ? "review" : (area as "leetcode" | "system-design"), path: p.path, title: p.title });
       }
     }
   }
   const input = await prompt("study-plan", {
-    start: s.start, end, weeks: String(weeks), days: String(weeks * 7), hours: String(s.hours),
+    start: s.start, end, weeks: String(weeks), days: String(weeks * 7),
     focus: s.focus.join(", ") || "LeetCode and system design", notes: s.notes || "none", problems: lines.join("\n"),
   });
   const total = weeks * 7;
@@ -109,7 +142,13 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   const json = text.match(/```json\s*([\s\S]*?)```/)?.[1] ?? text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
   let raw: unknown;
   try { raw = JSON.parse(json); } catch { throw new Error("Claude's answer was not valid JSON:\n\n" + text.slice(0, 800)); }
-  return validatePlan(raw, titles, s.start, end);
+  const plan = validatePlan(raw, titles, s.start, end);
+  // Every problem of each covered area ends up in the plan. Each area's gaps are spread over the whole plan on their
+  // own, so leftovers don't pile up as all-coding first and all-system-design last.
+  const covers = (area: string) => !s.focus.length || s.focus.some((f) => f.toLowerCase().startsWith(area));
+  for (const area of ["leetcode", "system design"])
+    if (covers(area)) coverAll(plan, required.filter((r) => r.path.startsWith(area.replace(" ", "-") + "/") && (r.type !== "review" || covers("spaced"))));
+  return plan;
 }
 
 /** Your tick or untick (`done`) wins; untouched new-problem tasks count as done once the problem is solved. */
@@ -126,7 +165,7 @@ export async function completeTasks(problemPath: string) {
   let changed = false;
   for (const d of plan.days)
     for (const t of d.tasks)
-      if (t.type !== "note" && t.path === problemPath && !t.done && (t.type !== "review" || d.date <= today)) {
+      if (t.type !== "mock" && "path" in t && t.path === problemPath && !t.done && (t.type !== "review" || d.date <= today)) {
         t.done = true;
         changed = true;
       }

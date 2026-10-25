@@ -36,7 +36,6 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
   const router = useRouter();
   const [start, setStart] = useState(today);
   const [weeks, setWeeks] = useState(8);
-  const [hours, setHours] = useState(2);
   const [focus, setFocus] = useState<string[]>(AREAS);
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -57,7 +56,7 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
     setError("");
     setProgress(null);
     try {
-      const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "generate", start, weeks, hours, focus, notes }) });
+      const res = await fetch("/api/plan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "generate", start, weeks, focus, notes }) });
       if (!res.ok || !res.body) throw new Error((await res.text()) || `HTTP ${res.status}`);
       // One JSON line per update: {progress}, then {plan} or {error}.
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
@@ -82,10 +81,9 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
   return (
     <form onSubmit={submit} className="card space-y-4 p-5">
       <h2 className="font-display text-xl font-medium">{hasPlan ? "Make a new plan" : "Make a study plan"}</h2>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-1 text-sm"><span className="font-medium">Start</span><input type="date" className="input font-mono" value={start} onChange={(e) => setStart(e.target.value)} required /></label>
         <label className="space-y-1 text-sm"><span className="font-medium">Weeks</span><input type="number" min={1} max={26} className="input font-mono" value={weeks} onChange={(e) => setWeeks(+e.target.value)} required /></label>
-        <label className="space-y-1 text-sm"><span className="font-medium">Hours per day</span><input type="number" min={0.5} max={12} step={0.5} className="input font-mono" value={hours} onChange={(e) => setHours(+e.target.value)} required /></label>
       </div>
       <fieldset className="space-y-1 text-sm">
         <legend className="mb-1 font-medium">Cover</legend>

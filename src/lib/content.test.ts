@@ -262,7 +262,10 @@ test("adding to a plan day: unsolved as new work, solved as a review; remove dro
   assert.deepEqual(plan.days[0].tasks.slice(1), [{ type: "leetcode", path: "leetcode/09 P/x", title: "Ay" }, { type: "review", path: "leetcode/09 P/y", title: "Bee" }]);
   await assert.rejects(addTask("2026-10-26", "leetcode/09 P/nope"));
   await assert.rejects(addTask("2026-12-01", "leetcode/09 P/x"));
-  assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 2);
+  assert.deepEqual((await addTask("2026-10-26", "mock:coding")).days[0].tasks.at(-1), { type: "mock", kind: "coding" });
+  assert.deepEqual((await addTask("2026-10-26", "mock:coding", "leetcode/09 P/x")).days[0].tasks.at(-1), { type: "mock", kind: "coding", path: "leetcode/09 P/x", title: "Ay" });
+  await assert.rejects(addTask("2026-10-26", "mock:system-design", "leetcode/09 P/x")); // wrong kind for that problem
+  assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 4);
   await setProgress("leetcode/09 P/y", null);
 });
 
@@ -274,4 +277,21 @@ test("mock interview length follows the kind and difficulty", async () => {
   assert.equal(interviewMinutes("system-design", difficultyOf('---\ndifficulty: "Hard"\n---')), 60);
   assert.equal(interviewMinutes("coding", undefined), 45); // interviewer picks
   assert.equal(interviewMinutes("system-design", "weird"), 45);
+});
+
+test("plans from Claude keep mock interviews and drop unknown tasks", async () => {
+  const { validatePlan } = await import("./plan.ts");
+  const titles = new Map([["leetcode/01 A/two-sum", "Two Sum"]]);
+  const plan = validatePlan({ days: [{ date: "2026-11-02", tasks: [{ type: "mock", kind: "system-design" }, { type: "mock" }, { type: "mock", kind: "coding", path: "leetcode/01 A/two-sum" }, { type: "mock", kind: "system-design", path: "leetcode/01 A/two-sum" }, { type: "bogus" }] }] }, titles, "2026-11-01", "2026-11-30");
+  assert.deepEqual(plan.days[0].tasks, [{ type: "mock", kind: "system-design" }, { type: "mock", kind: "coding" }, { type: "mock", kind: "coding", path: "leetcode/01 A/two-sum", title: "Two Sum" }, { type: "mock", kind: "system-design" }]);
+});
+
+test("coverAll adds every missing problem, spread over the days in order", async () => {
+  const { coverAll } = await import("./plan.ts");
+  const plan = { title: "t", created: "", days: [1, 2, 3, 4].map((n) => ({ date: `2026-11-0${n}`, tasks: [] as never[] })) } as import("./plan.ts").Plan;
+  plan.days[0].tasks.push({ type: "leetcode", path: "a", title: "A" } as never);
+  const req = ["a", "b", "c", "d", "e"].map((p) => ({ type: "leetcode" as const, path: p, title: p.toUpperCase() }));
+  coverAll(plan, [...req, { type: "review", path: "a", title: "A" }]);
+  const where = plan.days.map((d) => d.tasks.map((t) => ("path" in t ? `${t.type[0]}:${t.path}` : "")).join(","));
+  assert.deepEqual(where, ["l:a,l:b,l:c", "l:d", "l:e", "r:a"]); // b..e and the review of a, in order, evenly spread
 });
