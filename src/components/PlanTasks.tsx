@@ -12,21 +12,31 @@ export function PlanOptions({ groups, children }: { groups: ProblemGroup[]; chil
   return <Options.Provider value={groups}>{children}</Options.Provider>;
 }
 
-/** "+ add" under a day: pick any problem (solved ones become reviews) or a mock interview. */
+/** "+ add" under a day: pick any problem (solved ones become reviews), a mock interview, or write your own task. */
 function AddTask({ date }: { date: string }) {
   const router = useRouter();
   const groups = useContext(Options);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mock, setMock] = useState<"coding" | "system-design" | null>(null); // picked a mock: now choose its problem
-  async function add(path: string, problem?: string) {
+  const [custom, setCustom] = useState<string | null>(null); // picked "custom task": now type it
+  async function add(path: string, problem?: string, text?: string) {
     if (!path) return;
     setBusy(true);
-    try { await api("/api/plan", { action: "add", date, path, problem }); setOpen(false); setMock(null); startTransition(() => router.refresh()); }
+    try { await api("/api/plan", { action: "add", date, path, problem, text }); setOpen(false); setMock(null); setCustom(null); startTransition(() => router.refresh()); }
     catch (e) { alert((e as Error).message); }
     finally { setBusy(false); }
   }
   if (!groups.length) return null; // e.g. the dashboard's today card, which has no problem list
+  if (custom !== null) {
+    return (
+      <form className="mt-1" onSubmit={(e) => { e.preventDefault(); if (custom.trim()) add("note", undefined, custom); }}>
+        <input className="input py-1 text-xs" autoFocus disabled={busy} value={custom} maxLength={300} onChange={(e) => setCustom(e.target.value)}
+          onBlur={() => !busy && !custom.trim() && (setCustom(null), setOpen(false))} onKeyDown={(e) => e.key === "Escape" && (setCustom(null), setOpen(false))}
+          placeholder="Your task, then Enter" aria-label={`Custom task for ${date}`} />
+      </form>
+    );
+  }
   if (mock) {
     const area = mock === "coding" ? "leetcode" : "system-design";
     return (
@@ -43,8 +53,9 @@ function AddTask({ date }: { date: string }) {
   }
   if (!open) return <button className="mt-1 font-mono text-[11px] text-muted hover:text-fg" onClick={() => setOpen(true)}>+ add</button>;
   return (
-    <select className="input mt-1 py-1 text-xs" autoFocus disabled={busy} defaultValue="" onChange={(e) => (e.target.value.startsWith("mock:") ? setMock(e.target.value.slice(5) as "coding" | "system-design") : add(e.target.value))} onBlur={() => !busy && setOpen(false)} aria-label={`Add a problem to ${date}`}>
+    <select className="input mt-1 py-1 text-xs" autoFocus disabled={busy} defaultValue="" onChange={(e) => (e.target.value === "custom" ? setCustom("") : e.target.value.startsWith("mock:") ? setMock(e.target.value.slice(5) as "coding" | "system-design") : add(e.target.value))} onBlur={() => !busy && setOpen(false)} aria-label={`Add a problem to ${date}`}>
       <option value="" disabled>Pick a problem…</option>
+      <option value="custom">✎ Custom task…</option>
       <optgroup label="Mock interview">
         <option value="mock:coding">Mock coding interview</option>
         <option value="mock:system-design">Mock system design interview</option>

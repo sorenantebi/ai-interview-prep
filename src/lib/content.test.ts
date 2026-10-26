@@ -278,7 +278,9 @@ test("adding to a plan day: unsolved as new work, solved as a review; remove dro
   assert.deepEqual((await addTask("2026-10-26", "mock:coding")).days[0].tasks.at(-1), { type: "mock", kind: "coding" });
   assert.deepEqual((await addTask("2026-10-26", "mock:coding", "leetcode/09 P/x")).days[0].tasks.at(-1), { type: "mock", kind: "coding", path: "leetcode/09 P/x", title: "Ay" });
   await assert.rejects(addTask("2026-10-26", "mock:system-design", "leetcode/09 P/x")); // wrong kind for that problem
-  assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 4);
+  assert.deepEqual((await addTask("2026-10-26", "note", undefined, "  Read DDIA ch. 5 ")).days[0].tasks.at(-1), { type: "note", text: "Read DDIA ch. 5" });
+  await assert.rejects(addTask("2026-10-26", "note", undefined, "  ")); // empty custom task
+  assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 5);
   await setProgress("leetcode/09 P/y", null);
 });
 

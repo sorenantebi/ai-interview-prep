@@ -4,7 +4,7 @@ import { addTask, generatePlan, readPlan, removeTask, savePlan } from "@/lib/pla
 
 const fail = (e: unknown, status = 400) => NextResponse.json({ error: (e as Error).message }, { status });
 
-/** generate { start, weeks, focus[], notes, previous? } · toggle { date, index, done } · add { date, path, problem? } · remove { date, index } */
+/** generate { start, weeks, focus[], notes, previous? } · toggle { date, index, done } · add { date, path, problem?, text? } (path "note": your own task) · remove { date, index } */
 export async function POST(req: NextRequest) {
   const b = await req.json();
   try {
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       if (task.done) await logActivity();
       return NextResponse.json(plan);
     }
-    if (b.action === "add") return NextResponse.json(await addTask(String(b.date), String(b.path), b.problem ? String(b.problem) : undefined));
+    if (b.action === "add") return NextResponse.json(await addTask(String(b.date), String(b.path), b.problem ? String(b.problem) : undefined, b.text ? String(b.text) : undefined));
     if (b.action === "remove") return NextResponse.json(await removeTask(String(b.date), Number(b.index)));
     throw new Error(`Unknown action ${b.action}`);
   } catch (e) {

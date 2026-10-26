@@ -34,9 +34,15 @@ export async function problemOptions(): Promise<ProblemGroup[]> {
  * Adds a problem to a plan day (a solved one as a review, otherwise as new work), or a mock interview ("mock:coding" /
  * "mock:system-design"), optionally on one problem of that kind.
  */
-export async function addTask(date: string, path: string, mockProblem?: string): Promise<Plan> {
+export async function addTask(date: string, path: string, mockProblem?: string, text?: string): Promise<Plan> {
   const plan = await readPlan();
   const day = plan?.days.find((d) => d.date === date);
+  if (plan && day && path === "note") {
+    if (!text?.trim()) throw new Error("Write the task first");
+    day.tasks.push({ type: "note", text: text.trim().slice(0, 300) });
+    await savePlan(plan);
+    return plan;
+  }
   if (plan && day && (path === "mock:coding" || path === "mock:system-design")) {
     const kind = path === "mock:coding" ? "coding" : "system-design";
     const area = kind === "coding" ? "leetcode" : "system-design";
