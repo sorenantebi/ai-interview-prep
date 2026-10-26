@@ -4,7 +4,7 @@
 
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-1e1e1e) ![Python 3](https://img.shields.io/badge/Python-3-1e1e1e) ![Claude Code](https://img.shields.io/badge/AI-Claude%20Code-09aea1) ![Local first](https://img.shields.io/badge/data-local%20files-abbab9)
 
-![LeetCode roadmap](docs/roadmap.png)
+![Dashboard](docs/dashboard.png)
 
 ## Features
 
