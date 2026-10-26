@@ -31,6 +31,7 @@ export default async function MlCodingPage({ searchParams }: { searchParams: Pro
           <span className="mr-2 text-sm tabular-nums text-muted">{solved} / {total} solved</span>
           {firstOf(false) && <Link href={firstOf(false)!} className="btn-primary">⤮ Shuffle all</Link>}
           {firstOf(true) && <Link href={firstOf(true)!} className="btn">⤮ Shuffle unsolved</Link>}
+          <Link href="/ml-coding/new" className="btn">+ Add your own</Link>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 text-sm">

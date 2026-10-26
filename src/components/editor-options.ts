@@ -1,4 +1,7 @@
-import type { EditorProps } from "@monaco-editor/react";
+import { loader, type EditorProps } from "@monaco-editor/react";
+
+// Load the editor from this app (src/app/monaco), not a CDN, so it works offline.
+loader.config({ paths: { vs: "/monaco/vs" } });
 
 // No autocomplete, hints or auto-closing in either mode: you type every character, like in a real interview.
 export const NO_ASSIST: EditorProps["options"] = {

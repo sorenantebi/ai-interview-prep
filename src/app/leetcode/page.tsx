@@ -65,14 +65,14 @@ export default async function LeetcodePage({ searchParams }: { searchParams: Pro
         <div className="flex flex-wrap gap-2 text-sm">
           <span className="text-muted">Other topics:</span>
           {extra.map((s) => (
-            <Link key={s.group} href={`/leetcode?topic=${encodeURIComponent(s.group)}`} scroll={false} className={`btn ${s.group === selected?.group ? "border-accent" : ""}`}>
+            <Link key={s.group} href={`/leetcode?topic=${encodeURIComponent(s.group)}#topic-problems`} className={`btn ${s.group === selected?.group ? "border-accent" : ""}`}>
               {s.name} <span className="text-muted">{s.solved}/{s.total}</span>
             </Link>
           ))}
         </div>
       )}
       {selected && (
-        <section className="card">
+        <section id="topic-problems" className="card scroll-mt-4">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <h2 className="font-medium">{selected.name}</h2>
             <span className="text-sm tabular-nums text-muted">{selected.solved} / {selected.total}</span>

@@ -19,6 +19,20 @@ function cli(args: string[], stdio: StdioOptions) {
   return child as ChildProcessWithoutNullStreams;
 }
 
+export const OFFLINE = "No internet connection, so Claude can't be reached. Everything else works offline: Run, Submit, notes, the dashboard and your plan.";
+let reach: { at: number; ok: Promise<boolean> } | null = null;
+/**
+ * Whether Anthropic's API answers within a few seconds (cached 15 s). Offline, the claude CLI keeps retrying for minutes,
+ * so callers check this first. Any HTTP answer counts as online. Behind a proxy (which fetch ignores) it assumes online.
+ */
+export function online(url = "https://api.anthropic.com"): Promise<boolean> {
+  if (process.env.HTTPS_PROXY || process.env.https_proxy) return Promise.resolve(true);
+  if (url === "https://api.anthropic.com" && reach && Date.now() - reach.at < 15_000) return reach.ok;
+  const ok = fetch(url, { method: "HEAD", signal: AbortSignal.timeout(4000) }).then(() => true, () => false);
+  if (url === "https://api.anthropic.com") reach = { at: Date.now(), ok };
+  return ok;
+}
+
 /** Runs the local Claude Code CLI headlessly. Uses whatever account `claude` is logged into. */
 /** Models you can pick on the Claude page, by exact model ID ("" = whatever Claude Code itself defaults to). */
 export const MODELS: { id: string; label: string; group: string }[] = [
@@ -40,7 +54,8 @@ export async function savedModel(): Promise<string> {
 }
 
 /** The exact name of Claude Code's own default model, e.g. "Opus 5.5" (from `/model`); null if it can't be read. */
-export function defaultModelName(): Promise<string | null> {
+export async function defaultModelName(): Promise<string | null> {
+  if (!(await online())) return null;
   return new Promise((resolve) => {
     const child = cli(["-p", "/model", "--setting-sources", "", "--strict-mcp-config"], ["ignore", "pipe", "ignore"]);
     let out = "";
@@ -59,6 +74,7 @@ export async function saveModel(model: string) {
 }
 
 export async function claude(input: string, opts: { sessionId?: string; tools?: string[]; model?: string } = {}): Promise<{ text: string; sessionId: string }> {
+  if (!(await online())) throw new Error(OFFLINE);
   const model = opts.model ?? (await savedModel());
   // Only the listed tools exist (e.g. WebFetch); the app writes all files itself.
   // Empty setting sources + strict MCP keep the user's own hooks/plugins/MCP servers out.
@@ -104,7 +120,8 @@ export function parseUsage(report: string): Limit[] {
 }
 
 /** Your plan's limits, read by running Claude Code's own `/usage` command (the app never touches credentials). */
-export function planUsage(): Promise<{ limits: Limit[]; raw: string }> {
+export async function planUsage(): Promise<{ limits: Limit[]; raw: string }> {
+  if (!(await online())) throw new Error(OFFLINE);
   return new Promise((resolve, reject) => {
     const child = cli(["-p", "/usage", "--setting-sources", "", "--strict-mcp-config"], ["ignore", "pipe", "pipe"]);
     let out = "", err = "";
@@ -132,6 +149,18 @@ export function authStatus(): Promise<{ installed: boolean; loggedIn: boolean; m
         resolve({ installed: true, loggedIn: false });
       }
     });
+  });
+}
+
+/** Signs Claude Code out on this computer (`claude auth logout`), for every app and terminal that uses it. */
+export function logout(): Promise<{ ok: boolean; output: string }> {
+  return new Promise((resolve) => {
+    const child = cli(["auth", "logout"], ["ignore", "pipe", "pipe"]);
+    let out = "";
+    child.stdout.on("data", (d) => (out += d));
+    child.stderr.on("data", (d) => (out += d));
+    child.on("error", (e) => resolve({ ok: false, output: e.message }));
+    child.on("close", (code) => resolve({ ok: code === 0, output: out.trim() }));
   });
 }
 
@@ -170,6 +199,7 @@ export type StreamEvent = { kind: "thinking" } | { kind: "text"; text: string } 
  * written, so long jobs can show live progress. Uses Claude Code's stream-json output.
  */
 export async function claudeStream(input: string, onEvent: (e: StreamEvent) => void, opts: { model?: string; timeoutMs?: number } = {}): Promise<{ text: string; sessionId: string }> {
+  if (!(await online())) throw new Error(OFFLINE);
   const model = opts.model ?? (await savedModel());
   const args = ["-p", "--output-format", "stream-json", "--verbose", "--include-partial-messages", "--tools", "", "--setting-sources", "", "--strict-mcp-config"];
   if (model) args.push("--model", model);

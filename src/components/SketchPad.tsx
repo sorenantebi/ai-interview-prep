@@ -20,6 +20,32 @@ function ellipse(a: [number, number], b: [number, number], round: boolean): [num
   });
 }
 
+type P = [number, number];
+const r1 = (n: number) => Math.round(n * 10) / 10;
+/** Points along the straight line a→b, dense enough for the eraser to hit any part of it. */
+function seg(a: P, b: P): P[] {
+  const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 8));
+  return Array.from({ length: n + 1 }, (_, i) => [r1(a[0] + ((b[0] - a[0]) * i) / n), r1(a[1] + ((b[1] - a[1]) * i) / n)]);
+}
+const path = (...ps: P[]) => ps.slice(1).flatMap((b, i) => seg(ps[i], b).slice(i ? 1 : 0));
+
+/** Outline of the shape dragged from a to b, as stroke points. */
+function shape(tool: Shape, a: P, b: P, w: number): P[] {
+  if (tool === "circle") return ellipse(a, b, true);
+  if (tool === "line") return seg(a, b);
+  if (tool === "arrow") {
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]), len = 12 + w * 2;
+    const head = (t: number): P => [r1(b[0] - len * Math.cos(ang + t)), r1(b[1] - len * Math.sin(ang + t))];
+    return path(a, b, head(0.5), b, head(-0.5));
+  }
+  let [x, y] = b;
+  if (tool === "square") {
+    const side = Math.max(Math.abs(x - a[0]), Math.abs(y - a[1]));
+    x = a[0] + Math.sign(x - a[0] || 1) * side; y = a[1] + Math.sign(y - a[1] || 1) * side;
+  }
+  return path(a, [x, a[1]], [x, y], [a[0], y], a);
+}
+
 /** Read-only rendering of a drawing (used on the dashboard). */
 export function SketchView({ strokes, className = "" }: { strokes: Stroke[]; className?: string }) {
   return (
@@ -32,9 +58,13 @@ export function SketchView({ strokes, className = "" }: { strokes: Stroke[]; cla
 }
 
 /** Small vector drawing pad; strokes are saved to <problem>/drawing.json. */
+const SHAPES = [["circle", "◯", "Drag to draw a circle (hold Shift for an oval)"], ["rect", "▭", "Drag to draw a rectangle"], ["square", "□", "Drag to draw a square"], ["line", "╱", "Drag to draw a straight line"], ["arrow", "→", "Drag to draw an arrow"]] as const;
+type Shape = (typeof SHAPES)[number][0];
+
 export default function SketchPad({ path, initial }: { path: string; initial: Stroke[] }) {
   const [strokes, setStrokes] = useState<Stroke[]>(initial);
-  const [tool, setTool] = useState<"pen" | "accent" | "circle" | "eraser">("pen");
+  const [tool, setTool] = useState<"pen" | Shape | "eraser">("pen");
+  const [teal, setTeal] = useState(false);
   const origin = useRef<[number, number] | null>(null);
   const [width, setWidth] = useState(3);
   const svg = useRef<SVGSVGElement>(null);
@@ -59,7 +89,7 @@ export default function SketchPad({ path, initial }: { path: string; initial: St
     const p = point(e);
     if (tool === "eraser") return erase(p);
     origin.current = p;
-    current.current = { d: [p], w: width, ...(tool === "accent" ? { accent: true } : {}) };
+    current.current = { d: [p], w: width, ...(teal ? { accent: true } : {}) };
     setStrokes((ss) => [...ss, current.current!]);
   }
   function move(e: React.PointerEvent) {
@@ -68,8 +98,8 @@ export default function SketchPad({ path, initial }: { path: string; initial: St
     if (tool === "eraser") return erase(p);
     const s = current.current;
     if (!s) return;
-    if (tool === "circle") {
-      s.d = ellipse(origin.current!, p, e.shiftKey);
+    if (tool !== "pen") {
+      s.d = tool === "circle" && e.shiftKey ? ellipse(origin.current!, p, false) : shape(tool, origin.current!, p, s.w);
       setStrokes((ss) => [...ss.slice(0, -1), { ...s }]);
       return;
     }
@@ -86,9 +116,11 @@ export default function SketchPad({ path, initial }: { path: string; initial: St
       <div className="flex flex-wrap items-center gap-1">
         <span className="mr-1 font-mono text-xs text-muted">sketch</span>
         <button className={btn(tool === "pen")} onClick={() => setTool("pen")}>pen</button>
-        <button className={btn(tool === "accent")} onClick={() => setTool("accent")}><span className="text-accent">●</span> teal</button>
-        <button className={btn(tool === "circle")} onClick={() => setTool("circle")} title="Drag to draw a circle (hold Shift for a perfect circle)">◯ circle</button>
+        {SHAPES.map(([t, icon, title]) => (
+          <button key={t} className={btn(tool === t)} onClick={() => setTool(t)} title={title} aria-label={t}>{icon} {t}</button>
+        ))}
         <button className={btn(tool === "eraser")} onClick={() => setTool("eraser")}>eraser</button>
+        <button className={btn(teal)} onClick={() => setTeal(!teal)} aria-pressed={teal} title="Draw in teal"><span className="text-accent">●</span> teal</button>
         <label className="ml-1 flex items-center gap-1 font-mono text-xs text-muted">
           size <input type="range" min={1} max={10} value={width} onChange={(e) => setWidth(+e.target.value)} className="w-16 accent-[var(--accent)]" />
         </label>

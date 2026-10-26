@@ -336,3 +336,11 @@ test("carryTicks keeps ticks on tasks that stay on the same day", async () => {
   carryTicks(neu, old);
   assert.deepEqual(neu.days.map((d) => d.tasks.map((t) => t.done)), [[false, true], [undefined]]);
 });
+
+test("offline: Claude calls fail fast instead of hanging", async () => {
+  const { online, claude, OFFLINE } = await import("./claude.ts");
+  const t0 = Date.now();
+  assert.equal(await online("http://127.0.0.1:9"), false); // nothing listens there
+  assert.ok(Date.now() - t0 < 5000);
+  if (!(await online())) await assert.rejects(claude("hi"), { message: OFFLINE }); // only checkable when actually offline
+});

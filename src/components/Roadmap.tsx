@@ -44,7 +44,10 @@ export default function Roadmap({ stats, selected }: { stats: Stat[]; selected?:
         nodesDraggable={false}
         nodesConnectable={false}
         proOptions={{ hideAttribution: true }}
-        onNodeClick={(_, n) => router.push(`/leetcode?topic=${encodeURIComponent((n.data as TopicData).group)}`, { scroll: false })}
+        onNodeClick={(_, n) => {
+          router.push(`/leetcode?topic=${encodeURIComponent((n.data as TopicData).group)}`, { scroll: false });
+          document.getElementById("topic-problems")?.scrollIntoView({ behavior: "smooth" });
+        }}
         style={{ background: "transparent" }}
       />
     </div>

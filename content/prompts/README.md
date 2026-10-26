@@ -9,6 +9,7 @@ These are the instructions the app sends to Claude Code (`claude -p`). Edit them
 | `_leetcode-format.md` | Shared file format for the two LeetCode prompts below |
 | `add-leetcode-from-link.md` | AI → Add LeetCode from link |
 | `generate-leetcode.md` | AI → Generate LeetCode problem |
+| `generate-ml-coding.md` | AI → Generate ML coding problem (its file format is `ml-coding/_template/`) |
 | `system-design.md` | AI → Add system design |
 | `generate-tests.md` | Problem page → Submit (first submit, or "regenerate them") and `scripts/generate-tests.ts` |
 | `hint.md` | Problem page → Hint |

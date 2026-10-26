@@ -4,6 +4,7 @@ import DashboardTabs from "@/components/DashboardTabs";
 import Mantra from "@/components/Mantra";
 import StreakCalendar from "@/components/StreakCalendar";
 import TodayPlan from "@/components/TodayPlan";
+import TodoList, { type Todo } from "@/components/TodoList";
 import { readPlan } from "@/lib/plan";
 import Patterns from "@/components/Patterns";
 import PdfPages from "@/components/PdfPages";
@@ -87,6 +88,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     .sort((a, b) => a[1].review!.due.localeCompare(b[1].review!.due));
   const recent = Object.entries(prog).sort((a, b) => b[1].at.localeCompare(a[1].at)).slice(0, 8);
 
+  let todos: Todo[] = [];
+  try { todos = JSON.parse((await read("todos.json")) ?? "[]"); } catch {}
+
   const tiles = [
     { label: "LeetCode solved", value: `${sum(lc, "solved")} / ${sum(lc, "total")}`, href: "/leetcode" },
     { label: "ML coding solved", value: `${sum(ml, "solved")} / ${sum(ml, "total")}`, href: "/ml-coding" },
@@ -106,9 +110,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </Link>
         ))}
       </div>
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-[1fr_auto]">
         <TodayPlan plan={plan} solved={solvedPaths} today={today} />
-        <StreakCalendar days={activity} current={streak.current} longest={streak.longest} today={today} />
+        <div className="flex flex-col sm:flex-row">
+          <div className="flex flex-1 [&>section]:flex-1"><StreakCalendar days={activity} current={streak.current} longest={streak.longest} today={today} /></div>
+          <TodoList initial={todos} />
+        </div>
       </div>
       {due.length > 0 && (
         <section>

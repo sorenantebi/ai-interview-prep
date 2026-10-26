@@ -2,12 +2,13 @@ import fs from "node:fs/promises";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "@/components/Markdown";
+import NotebookFrame from "@/components/NotebookFrame";
 import { safePath } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
 const MAX = 512 * 1024;
-const LANG: Record<string, string> = { ts: "typescript", tsx: "typescript", js: "javascript", jsx: "javascript", mjs: "javascript", py: "python", rb: "ruby", go: "go", rs: "rust", java: "java", kt: "kotlin", c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", cs: "csharp", swift: "swift", sh: "bash", zsh: "bash", yml: "yaml", yaml: "yaml", json: "json", toml: "ini", sql: "sql", html: "xml", xml: "xml", css: "css", scss: "scss", dockerfile: "dockerfile", ipynb: "json" };
+const LANG: Record<string, string> = { ts: "typescript", tsx: "typescript", js: "javascript", jsx: "javascript", mjs: "javascript", py: "python", rb: "ruby", go: "go", rs: "rust", java: "java", kt: "kotlin", c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", cs: "csharp", swift: "swift", sh: "bash", zsh: "bash", yml: "yaml", yaml: "yaml", json: "json", toml: "ini", sql: "sql", html: "xml", xml: "xml", css: "css", scss: "scss", dockerfile: "dockerfile" };
 
 export default async function RepoBrowser({ params }: { params: Promise<{ name: string; path?: string[] }> }) {
   const { name, path = [] } = await params;
@@ -42,6 +43,8 @@ export default async function RepoBrowser({ params }: { params: Promise<{ name: 
         )}
       </>
     );
+  } else if (abs.endsWith(".ipynb")) {
+    body = <NotebookFrame path={parts.join("/")} />;
   } else if (stat.size > MAX) {
     body = <p className="card p-4 text-sm text-muted">This file is {(stat.size / 1024 / 1024).toFixed(1)} MB, too large to show here.</p>;
   } else {

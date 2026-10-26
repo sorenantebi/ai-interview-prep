@@ -85,7 +85,7 @@ export async function problems(groupRel: string): Promise<Problem[]> {
 
 /** Top-level groups (topic/category folders) of an area. */
 export async function groups(area: string) {
-  const dirs = (await fs.readdir(safePath(area), { withFileTypes: true })).filter((d) => d.isDirectory());
+  const dirs = (await fs.readdir(safePath(area), { withFileTypes: true })).filter((d) => d.isDirectory() && !d.name.startsWith("_")); // _template etc. are not topics
   return dirs.map((d) => d.name).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 }
 

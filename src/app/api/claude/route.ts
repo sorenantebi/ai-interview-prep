@@ -3,13 +3,17 @@ import { difficultyOf, interviewMinutes } from "@/lib/interview";
 import { areaStats, logActivity, read, safePath, write } from "@/lib/content";
 import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
+import { testsProblem } from "@/lib/run";
+import { codeBlock } from "@/lib/starter";
 import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
 import { checkComplexity } from "@/lib/complexity";
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-/** Writes question.md/solution.md from a model reply into <area>/<group>/<slug of title>. */
-async function saveProblem(text: string, area: string, group: string) {
+const unfence = (code: string) => code.replace(/^```\w*\n|\n?```\s*$/g, "");
+
+/** Writes question.md/solution.md (and any `extra` files) from a model reply into <area>/<group>/<slug of title>. */
+async function saveProblem(text: string, area: string, group: string, extra: string[] = []) {
   const f = files(text);
   if (!f["question.md"] || !f["solution.md"]) throw new Error("Claude's reply did not contain question.md and solution.md:\n\n" + text.slice(0, 1500));
   const title = f["question.md"].match(/^# (?:Design )?(.+)$/m)?.[1] ?? "untitled";
@@ -17,6 +21,7 @@ async function saveProblem(text: string, area: string, group: string) {
   if ((await read(`${dir}/question.md`)) !== null) throw new Error(`${dir} already exists`);
   await write(`${dir}/question.md`, f["question.md"]);
   await write(`${dir}/solution.md`, f["solution.md"]);
+  for (const name of extra) await write(`${dir}/${name}`, unfence(f[name]));
   return dir;
 }
 
@@ -51,6 +56,19 @@ export async function POST(req: NextRequest) {
         const format = await prompt("_leetcode-format", { topic: topicName(b.group) });
         const input = await prompt("generate-leetcode", { topic: topicName(b.group), difficulty: b.difficulty, idea: b.idea || "none", format });
         return NextResponse.json({ path: await saveProblem((await claude(input)).text, "leetcode", b.group) });
+      }
+      case "generate-ml-coding": {
+        safePath(`ml-coding/${b.group}`);
+        const names = ["question.md", "starter.py", "solution.md", "tests.py"];
+        const template = (await Promise.all(names.map(async (n) => `=== FILE: ${n} ===\n${(await read(`ml-coding/_template/${n}`)) ?? ""}`))).join("\n") + "\n=== END ===";
+        const input = await prompt("generate-ml-coding", { topic: topicName(b.group), difficulty: b.difficulty, idea: b.idea || "none", template });
+        const { text } = await claude(input);
+        const f = files(text);
+        if (!f["starter.py"] || !f["tests.py"]) throw new Error("Claude's reply did not contain starter.py and tests.py:\n\n" + text.slice(0, 1500));
+        // Only keep a problem whose tests accept the reference solution and reject the empty starter.
+        const bad = await testsProblem({ reference: codeBlock(f["solution.md"] ?? ""), starter: unfence(f["starter.py"]), tests: unfence(f["tests.py"]) });
+        if (bad) throw new Error(`Nothing was saved, try again. ${bad}`);
+        return NextResponse.json({ path: await saveProblem(text, "ml-coding", b.group, ["starter.py", "tests.py"]) });
       }
       case "system-design": {
         safePath(`system-design/${b.group}`);

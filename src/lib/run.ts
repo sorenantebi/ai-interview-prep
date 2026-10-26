@@ -7,7 +7,7 @@ import path from "node:path";
 const WIN = process.platform === "win32";
 const VENV = path.join(process.cwd(), ".venv", WIN ? "Scripts/python.exe" : "bin/python");
 /** PYTHON_BIN, else the project's .venv (npm run setup-python), else the system Python. */
-const python = () => process.env.PYTHON_BIN ?? (existsSync(VENV) ? VENV : WIN ? "python" : "python3");
+export const python = () => process.env.PYTHON_BIN ?? (existsSync(VENV) ? VENV : WIN ? "python" : "python3");
 
 // Runs the user's own code locally. shortcut: no sandbox, fine for a single-user local app; containerise before hosting.
 export async function runPython(files: Record<string, string>, entry: string): Promise<{ ok: boolean; output: string }> {
@@ -43,4 +43,18 @@ export async function runCases(o: { attempt: string; reference: string; starter:
   const at = r.output.indexOf("__RESULTS__");
   if (at < 0) return { error: r.output || "The run produced no output" };
   return { results: JSON.parse(r.output.slice(at + "__RESULTS__".length)) as CaseResult[] };
+}
+
+/** Why a problem's hidden tests can't be trusted (they must pass the reference and fail the empty starter), or null. */
+export async function testsProblem(o: { reference: string; starter: string; tests: string }): Promise<string | null> {
+  const ref = await runPython({ "attempt.py": o.reference, "tests.py": o.tests }, "tests.py");
+  if (!ref.ok) {
+    const lines = ref.output.split("\n");
+    const fail = lines.find((l) => l.trim() && !/^PASS\b/.test(l) && !/^\d+\/\d+ passed/.test(l)) ?? "";
+    const summary = lines.find((l) => /^\d+\/\d+ passed/.test(l));
+    // No summary line: tests.py itself crashed, so its traceback is the useful part.
+    return summary ? `The solution fails the tests: ${summary}\n\n${fail.slice(0, 600)}` : "tests.py crashed with the solution:\n\n" + ref.output.slice(-1500);
+  }
+  if ((await runPython({ "attempt.py": o.starter, "tests.py": o.tests }, "tests.py")).ok) return "The tests also pass the empty starter, so they don't check anything.";
+  return null;
 }

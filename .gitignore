@@ -44,6 +44,7 @@ next-env.d.ts
 # Your personal data: stays on this machine (remove lines to keep things in git)
 content/progress.json
 content/jobs.json
+content/todos.json
 content/plan.json
 content/activity.json
 content/mantra.txt

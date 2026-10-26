@@ -16,6 +16,13 @@ export default function ClaudeConnection() {
     setMsg(r.opened ? "A terminal window opened: finish logging in there (it opens your browser), then press Check again." : `Couldn't open a terminal here. Run this yourself: ${r.command}`);
   }
 
+  async function signOut() {
+    if (!confirm("Sign out of Claude Code? This signs it out on this whole computer, including in your terminal. AI features stop until you log in again.")) return;
+    try { await api("/api/claude-auth", {}, "DELETE"); setMsg("Signed out."); } catch (e) { setMsg((e as Error).message); }
+    setStatus(null);
+    check();
+  }
+
   const dot = (ok: boolean) => <span className={`inline-block h-2.5 w-2.5 ${ok ? "bg-easy" : "bg-hard"}`} aria-hidden />;
   return (
     <section className="card flex flex-wrap items-center gap-3 p-4 text-sm">
@@ -24,7 +31,7 @@ export default function ClaudeConnection() {
       ) : !status.installed ? (
         <>{dot(false)}<span>Claude Code isn&apos;t installed. See <b>Set up Claude</b> in the README.</span></>
       ) : status.loggedIn ? (
-        <>{dot(true)}<span>Claude Code connected <span className="font-mono text-xs text-muted">{[status.method, status.plan && `${status.plan} plan`].filter(Boolean).join(" · ")}</span></span></>
+        <>{dot(true)}<span>Claude Code connected <span className="font-mono text-xs text-muted">{[status.method, status.plan && `${status.plan} plan`].filter(Boolean).join(" · ")}</span></span><button className="btn px-2 py-1 text-xs" onClick={signOut}>Sign out</button></>
       ) : (
         <>{dot(false)}<span>Claude Code isn&apos;t logged in, so AI features won&apos;t work.</span><button className="btn-primary" onClick={login}>Log in to Claude</button></>
       )}

@@ -10,10 +10,10 @@ import { timerCommand } from "./Timer";
 import { DOC } from "./editor-options";
 import type { TreeNode } from "@/lib/content";
 
-type Tab = "link" | "generate" | "system-design" | "interview";
-const TABS: [Tab, string][] = [["link", "Add LeetCode from link"], ["generate", "Generate LeetCode problem"], ["system-design", "Add system design"], ["interview", "Mock interview"]];
+type Tab = "link" | "generate" | "ml-coding" | "system-design" | "interview";
+const TABS: [Tab, string][] = [["link", "Add LeetCode from link"], ["generate", "Generate LeetCode problem"], ["ml-coding", "Generate ML coding problem"], ["system-design", "Add system design"], ["interview", "Mock interview"]];
 
-const groupsOf = (tree: TreeNode[], area: string) => tree.find((n) => n.path === area)?.children?.filter((n) => n.dir).map((n) => n.name) ?? [];
+const groupsOf = (tree: TreeNode[], area: string) => tree.find((n) => n.path === area)?.children?.filter((n) => n.dir && !n.name.startsWith("_")).map((n) => n.name) ?? [];
 const problemsOf = (tree: TreeNode[], area: string) =>
   (tree.find((n) => n.path === area)?.children ?? []).flatMap((g) => (g.children ?? []).filter((p) => p.children?.some((f) => f.name === "question.md")).map((p) => p.path));
 
@@ -28,7 +28,7 @@ function GroupInput({ id, groups, value, onChange }: { id: string; groups: strin
 }
 
 function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tree: TreeNode[]; onCreated: () => void }) {
-  const area = tab === "system-design" ? "system-design" : "leetcode";
+  const area = tab === "system-design" || tab === "ml-coding" ? tab : "leetcode";
   const [group, setGroup] = useState("");
   const [text, setText] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
@@ -42,6 +42,7 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
     const body =
       tab === "link" ? { action: "add-leetcode", group, url: text }
       : tab === "generate" ? { action: "generate-leetcode", group, difficulty, idea: text }
+      : tab === "ml-coding" ? { action: "generate-ml-coding", group, difficulty, idea: text }
       : { action: "system-design", group, request: text };
     try {
       setResult({ path: (await api("/api/claude", body)).path });
@@ -54,7 +55,7 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
     }
   }
 
-  const promptFile = { link: "add-leetcode-from-link", generate: "generate-leetcode", "system-design": "system-design" }[tab];
+  const promptFile = { link: "add-leetcode-from-link", generate: "generate-leetcode", "ml-coding": "generate-ml-coding", "system-design": "system-design" }[tab];
   return (
     <form onSubmit={submit} className="card max-w-2xl space-y-4 p-5">
       <label className="block space-y-1 text-sm">
@@ -67,7 +68,7 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
           <input className="input" type="url" required value={text} onChange={(e) => setText(e.target.value)} placeholder="https://leetcode.com/problems/two-sum/" />
         </label>
       )}
-      {tab === "generate" && (
+      {(tab === "generate" || tab === "ml-coding") && (
         <>
           <label className="block space-y-1 text-sm">
             <span className="font-medium">Difficulty</span>
@@ -77,7 +78,7 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
           </label>
           <label className="block space-y-1 text-sm">
             <span className="font-medium">Extra instructions (optional)</span>
-            <textarea className="input" rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. a sliding window twist on a real-world logging scenario" />
+            <textarea className="input" rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder={tab === "ml-coding" ? "e.g. implement layer norm from scratch, or: a groupby + rolling mean over user sessions" : "e.g. a sliding window twist on a real-world logging scenario"} />
           </label>
         </>
       )}
