@@ -13,7 +13,7 @@ say() { if [ "$MAC" ]; then osascript -e "display notification \"$1\" with title
 up() { curl -s -o /dev/null "$URL/api/progress"; }
 
 stale() { [ ! -f "$DIST/BUILD_ID" ] || [ -n "$(find src public package.json next.config.ts -newer "$DIST/BUILD_ID" -print -quit)" ]; }
-PIDFILE="$DIST/prep.pid"
+PIDFILE=".prep-$PORT.pid"  # outside .next, which a build wipes
 # Only ever stops the server this launcher started (checked to still be a next process), never a `npm run dev` one.
 stop() {
   local pid; pid=$(cat "$PIDFILE" 2>/dev/null) || return 1
@@ -22,9 +22,14 @@ stop() {
 }
 if [ "$1" = stop ]; then stop; exit 0; fi
 
+# One launch at a time: a second click while one is building or starting waits for it, then just opens the browser.
+LOCK=".prep-$PORT.lock"
+for _ in $(seq 300); do mkdir "$LOCK" 2>/dev/null && break; sleep 1; done
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+
 # Restart that server if the code changed since its build.
 if up && stale && stop; then
-  for _ in $(seq 10); do up || break; sleep 0.5; done
+  for _ in $(seq 40); do up || break; sleep 0.5; done
 fi
 
 if ! up; then
@@ -33,7 +38,10 @@ if ! up; then
     node_modules/.bin/next build >"$LOG" 2>&1 || { say "Build failed, see $LOG"; exit 1; }
   fi
   nohup node_modules/.bin/next start -H 127.0.0.1 -p "$PORT" >>"$LOG" 2>&1 &
-  echo $! >"$PIDFILE"
+  started=$!
   for _ in $(seq 60); do up && break; sleep 1; done
+  # Remember the process that actually serves the port (only if this launch's server is the one running).
+  listener=$(lsof -tiTCP:"$PORT" -sTCP:LISTEN 2>/dev/null | head -1)
+  if kill -0 "$started" 2>/dev/null; then echo "${listener:-$started}" >"$PIDFILE"; fi
 fi
 if [ "$MAC" ]; then open "$URL"; else xdg-open "$URL"; fi

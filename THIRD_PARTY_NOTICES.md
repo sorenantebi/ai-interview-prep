@@ -37,3 +37,6 @@ SOFTWARE.
 - **Hello Interview**: system design video links point to Hello Interview's YouTube channel
   (hellointerview.com). The ML system design notes (`content/system-design/09 ML System Design/`) are condensed
   summaries of Hello Interview's free ML System Design guide and problem breakdowns, with links back to each source page. This project is not affiliated with or endorsed by Hello Interview.
+- **ML Coding** (`content/ml-coding/`): problems, solutions and tests written for this project. They are common
+  interview exercises; public collections such as rougier/numpy-100, guipsamora/pandas_exercises, srush/Tensor-Puzzles,
+  eriklindernoren/ML-From-Scratch and Deep-ML were inspiration only, and no text or code is copied from them.

@@ -34,22 +34,27 @@ async function yourCode(path: string) {
 }
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const [lc, sd, prog, interviews] = await Promise.all([
+  const [lc, ml, sd, prog, interviews] = await Promise.all([
     areaStats("leetcode"),
+    areaStats("ml-coding").catch(() => []),
     areaStats("system-design"),
     progress(),
     fs.readdir(safePath("interviews")).then((f) => f.filter((n) => n.endsWith(".md")), () => []),
   ]);
   const sum = (g: typeof lc, k: "total" | "solved") => g.reduce((a, x) => a + x[k], 0);
   const today = localDate(new Date());
-  const view = (await searchParams).view;
-  const tab = view === "system-design" ? 1 : view === "patterns" ? 2 : view === "ml-cheat-sheet" ? 3 : 0;
   const hasPdf = await fs.access(safePath(ML_PDF)).then(() => true, () => false);
-  const patterns = tab === 2 ? await read("patterns.md") : null;
+  const tabs = [
+    { view: "", label: "LeetCode" }, { view: "ml-coding", label: "ML coding" }, { view: "system-design", label: "System design" },
+    { view: "patterns", label: "Patterns" }, ...(hasPdf ? [{ view: "ml-cheat-sheet", label: "ML cheat sheet" }] : []),
+  ];
+  const requested = (await searchParams).view ?? "";
+  const tab = tabs.some((t) => t.view === requested) ? requested : "";
+  const patterns = tab === "patterns" ? await read("patterns.md") : null;
   const [plan, activity] = await Promise.all([readPlan(), activityDays()]);
   const streak = streaks(activity, today);
   const solvedPaths = Object.keys(prog).filter((k) => prog[k].status === "solved");
-  const sdSheet = tab !== 1 ? [] : await Promise.all(
+  const sdSheet = tab !== "system-design" ? [] : await Promise.all(
     sd.map(async (g) => ({
       name: g.name,
       entries: await Promise.all(
@@ -61,10 +66,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     })),
   );
 
-  // Cheat sheet: solved LeetCode problems per topic, summarised from their solution.md.
-  const cheat = tab !== 0 ? [] : (
+  // Cheat sheet: solved LeetCode (or ML Coding) problems per topic, summarised from their solution.md.
+  const cheat = tab !== "" && tab !== "ml-coding" ? [] : (
     await Promise.all(
-      lc.map(async (g) => ({
+      (tab === "ml-coding" ? ml : lc).map(async (g) => ({
         name: g.name,
         entries: await Promise.all(
           g.problems
@@ -84,6 +89,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const tiles = [
     { label: "LeetCode solved", value: `${sum(lc, "solved")} / ${sum(lc, "total")}`, href: "/leetcode" },
+    { label: "ML coding solved", value: `${sum(ml, "solved")} / ${sum(ml, "total")}`, href: "/ml-coding" },
     { label: "System design done", value: `${sum(sd, "solved")} / ${sum(sd, "total")}`, href: "/system-design" },
     { label: "Saved interviews", value: String(interviews.length), href: "/files?path=interviews" },
   ];
@@ -92,7 +98,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     <div className="space-y-8">
       <Mantra initial={((await read("mantra.txt")) ?? "lock the fuck in").trim()} />
       <h1 className="page-title">Dashboard</h1>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Link key={t.label} href={t.href} className="card p-4 hover:border-fg">
             <div className="font-mono text-xs uppercase tracking-wide text-muted">{t.label}</div>
@@ -117,14 +123,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </ul>
         </section>
       )}
-      <DashboardTabs
-        active={tab}
-        tabs={[{ label: "LeetCode", href: "/" }, { label: "System design", href: "/?view=system-design" }, { label: "Patterns", href: "/?view=patterns" }, ...(hasPdf ? [{ label: "ML cheat sheet", href: "/?view=ml-cheat-sheet" }] : [])]}
-      >
-        {tab === 0 && <CheatSheet groups={cheat} today={today} />}
-        {tab === 1 && <SystemDesignSheet groups={sdSheet} />}
-        {tab === 2 && <Patterns markdown={patterns ?? ""} />}
-        {tab === 3 && hasPdf && <PdfPages title="ML cheat sheet" src={`/api/files/raw?path=${encodeURIComponent(ML_PDF)}`} />}
+      <DashboardTabs active={tabs.findIndex((t) => t.view === tab)} tabs={tabs.map((t) => ({ label: t.label, href: t.view ? `/?view=${t.view}` : "/" }))}>
+        {tab === "" && <CheatSheet groups={cheat} today={today} />}
+        {tab === "ml-coding" && <CheatSheet groups={cheat} today={today} complexity={false} />}
+        {tab === "system-design" && <SystemDesignSheet groups={sdSheet} />}
+        {tab === "patterns" && <Patterns markdown={patterns ?? ""} />}
+        {tab === "ml-cheat-sheet" && <PdfPages title="ML cheat sheet" src={`/api/files/raw?path=${encodeURIComponent(ML_PDF)}`} />}
       </DashboardTabs>
       <section>
         <h2 className="tag mb-2">Recent activity</h2>

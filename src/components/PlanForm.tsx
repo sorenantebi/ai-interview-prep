@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { PlanProgress } from "@/lib/plan";
 
-const AREAS = ["LeetCode (NeetCode roadmap)", "System design", "Mock interviews", "Spaced-repetition reviews"];
+const AREAS = ["LeetCode (NeetCode roadmap)", "ML coding (NumPy, pandas, PyTorch)", "System design", "Mock interviews", "Spaced-repetition reviews"];
 
 const fmtTokens = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
@@ -36,7 +36,7 @@ export default function PlanForm({ today, hasPlan }: { today: string; hasPlan: b
   const router = useRouter();
   const [start, setStart] = useState(today);
   const [weeks, setWeeks] = useState(8);
-  const [focus, setFocus] = useState<string[]>(AREAS);
+  const [focus, setFocus] = useState<string[]>(AREAS.filter((a) => !a.startsWith("ML coding"))); // ML coding is opt-in
   const [notes, setNotes] = useState("");
   const [previous, setPrevious] = useState(false);
   const [busy, setBusy] = useState(false);

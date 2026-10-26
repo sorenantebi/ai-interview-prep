@@ -1,4 +1,5 @@
 # Runs LeetCode-style test cases against attempt.py and the NeetCode reference (reference.py).
+# Also plain functions (ML Coding): numpy / pandas / torch arguments are built from their annotations.
 # Input: spec.json {"cases": [[str, ...]], "names": [...], "anyOrder": bool, "multi": bool} plus starter.py.
 # Output: a JSON list of results after a "__RESULTS__" marker line.
 import ast, contextlib, inspect, io, json, re, sys, traceback
@@ -177,7 +178,52 @@ def parse(text):
             return json.loads(re.sub(r"\bINF\b", "2147483647", text))  # Walls and Gates writes INF
 
 
+def to_lib(ann, v):
+    """ndarray / DataFrame / Series / Tensor arguments from JSON-like values, by annotation."""
+    inner = re.match(r"^(?:typing\.)?[Ll]ist\[(.+)\]$", ann)
+    if inner and isinstance(v, list):  # e.g. list[torch.Tensor]: one tensor per item, shapes may differ
+        return [to_lib(inner.group(1), x) for x in v]
+    if "ndarray" in ann:
+        import numpy as np
+        return np.array(v)
+    if "DataFrame" in ann:
+        import pandas as pd
+        return pd.DataFrame(v)
+    if "Series" in ann:
+        import pandas as pd
+        return pd.Series(v)
+    if "Tensor" in ann:
+        import torch
+        return torch.tensor(v)
+    return v
+
+
+def lib_out(x):
+    """numpy / pandas / torch values as plain lists, dicts and numbers (NaN -> None); None if x is none of them."""
+    mod = type(x).__module__.split(".")[0]
+    if mod == "torch" and hasattr(x, "detach"):
+        return to_out(x.detach().cpu().tolist())
+    if mod == "numpy":
+        return to_out(x.tolist())
+    if mod == "pandas":
+        if hasattr(x, "columns"):  # DataFrame: column -> values, keeping a meaningful index as columns
+            if not (x.index.name is None and list(x.index) == list(range(len(x)))):
+                x = x.reset_index()
+            return {str(k): to_out(v) for k, v in x.to_dict(orient="list").items()}
+        if hasattr(x, "index"):  # Series: a list for a 0..n-1 index, else index -> value
+            if x.index.name is None and list(x.index) == list(range(len(x))):
+                return to_out(x.tolist())
+            return {str(k): to_out(v) for k, v in x.to_dict().items()}
+    return None
+
+
 def to_out(x, by_value=False):
+    if isinstance(x, float) and x != x:
+        return None
+    if type(x).__module__.split(".")[0] in ("numpy", "pandas", "torch"):
+        out = lib_out(x)
+        if out is not None:
+            return out
     if isinstance(x, ListNode):
         return list_values(x)
     if isinstance(x, TreeNode):
@@ -190,6 +236,8 @@ def to_out(x, by_value=False):
         return [to_out(i, by_value) for i in x]
     if isinstance(x, set):
         return sorted(to_out(i) for i in x)
+    if isinstance(x, dict):
+        return {str(k): to_out(v) for k, v in x.items()}
     return x
 
 
@@ -199,12 +247,16 @@ main = next((c for c in classes if c in ("Solution", "Codec")), None)
 method = re.search(r"^\s+def (?!_)(\w+)\(self", STARTER, re.M).group(1) if main else None
 sig = inspect.signature(getattr(st[main], method)) if main else None
 anns = [str(p.annotation) for p in list(sig.parameters.values())[1:]] if sig else []
+if not main and not classes:  # a plain function (ML Coding): its first public top-level def
+    method = re.search(r"^def (?!_)(\w+)\(", STARTER, re.M).group(1)
+    sig = inspect.signature(st[method])
+    anns = [str(p.annotation) for p in sig.parameters.values()]
 returns_none = sig is not None and sig.return_annotation in (None, "None")
 
 
 def run_case(ns, values):
     """Runs one case in a namespace; returns the LeetCode-style output value."""
-    if not main:  # design class: calls + args
+    if not main and not method:  # design class: calls + args
         calls, args = values
         cls = ns[calls[0]]
         obj, out = cls(*args[0]), [None]
@@ -231,6 +283,8 @@ def run_case(ns, values):
                 tree = tree or v
         elif "Node" in ann:
             v = build_graph(v) if Node is GraphNode else build_random(v)
+        else:
+            v = to_lib(ann, v)
         args.append(v)
     if len(values) == len(anns) + 1 and anns and "ListNode" in anns[0] and values[-1] >= 0:  # Linked List Cycle: pos
         tail = args[0]
@@ -244,7 +298,7 @@ def run_case(ns, values):
     result = entry(ns)(*args)
     if returns_none and result is None:
         return to_out(args[0])  # in-place problems: the modified input is the answer
-    if result is None and re.search(r"ListNode|TreeNode|Node", str(sig.return_annotation)):
+    if result is None and re.search(r"ListNode|TreeNode|\bNode", str(sig.return_annotation)):
         return None if by_value else []  # empty list / tree prints as [] on LeetCode
     return to_out(result, by_value)
 
@@ -262,6 +316,19 @@ def canon_flat(x):
     return round(x, 5) if isinstance(x, float) else [canon_flat(i) for i in x] if isinstance(x, list) else x
 
 
+def same(a, b):
+    """Equal, with floats compared to a relative 1e-5 / absolute 1e-6 tolerance (float32 math differs in the last bits)."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a == b
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return math.isclose(a, b, rel_tol=1e-5, abs_tol=1e-6)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(same(x, y) for x, y in zip(a, b))
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(same(a[k], b[k]) for k in a)
+    return a == b
+
+
 def fmt(x):
     """LeetCode's display format: JSON-like, floats with 5 decimals."""
     if x is None:
@@ -274,6 +341,8 @@ def fmt(x):
         return json.dumps(x)
     if isinstance(x, (list, tuple)):
         return "[" + ",".join(fmt(i) for i in x) + "]"
+    if isinstance(x, dict):
+        return "{" + ",".join(f"{json.dumps(k)}:{fmt(v)}" for k, v in x.items()) + "}"
     return repr(x)
 
 
@@ -319,7 +388,7 @@ for raw in spec["cases"]:
         r["output"] = fmt(got)
         if not have_exp:
             r.update(ok=None, note="no reference answer to compare with")
-        elif canon_flat(got) == canon_flat(exp):
+        elif same(got, exp):
             r["ok"] = True
         elif spec.get("anyOrder") and canon(got, False) == canon(exp, False):
             r["ok"] = True

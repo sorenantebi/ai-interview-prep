@@ -11,6 +11,7 @@
 | | |
 |---|---|
 | **LeetCode** | NeetCode 150 on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). |
+| **ML Coding** | 60 NumPy, pandas and PyTorch exercises for ML interviews (tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. |
 | **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests (works without Claude), optionally stating your time and space complexity, which Claude checks against your code. Hints and a complexity check from Claude. Move a problem to any topic. |
 | **System design** | 32 problems with solutions, your Excalidraw diagrams, 17 Hello Interview videos, and your own notes canvas. |
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
@@ -23,6 +24,7 @@
 ## Quick start
 
 Needs **Node 20+** and **Python 3**, on macOS, Linux or Windows. For the AI features, [set up Claude](#set-up-claude) too.
+For ML Coding, run `npm run setup-python` once: it installs numpy, pandas and torch into a project-local `.venv`, which the app then uses.
 
 ```bash
 npm install
@@ -79,6 +81,8 @@ content/
 | `npm test` | Unit tests |
 | `node scripts/generate-tests.ts` | Pre-generate hidden tests for all problems (`--model`, `--jobs`, `--force`) |
 | `npm run fetch` | Re-download LeetCode starters and NeetCode solutions |
+| `npm run setup-python` | Install numpy, pandas and torch into `.venv` for ML Coding |
+| `node scripts/check-problems.ts <dir>` | Check problems: examples run, hidden tests pass with the reference and fail with the starter |
 
 </details>
 

@@ -71,6 +71,19 @@ test("review date can be set by hand", async () => {
 });
 
 
+test("case runner handles plain functions (ML Coding) with a float tolerance", async () => {
+  const { runCases } = await import("./run.ts");
+  const { parseExamples } = await import("./starter.ts");
+  const starter = "def scale(xs: list, k: float) -> list:\n    pass\n";
+  const { names, cases } = parseExamples('Input: xs = [1.0, 2.0], k = 0.1\nOutput: [0.10000,0.20000]\nInput: xs = {"a": [1]}, k = 2.0\n', starter);
+  assert.deepEqual(names, ["xs", "k"]);
+  assert.deepEqual(cases, [["[1.0, 2.0]", "0.1"], ['{"a": [1]}', "2.0"]]);
+  const ref = "def scale(xs, k):\n    return [x * k for x in xs]\n";
+  const r = await runCases({ attempt: "def scale(xs, k):\n    return [x / (1 / k) for x in xs]\n", reference: ref, starter, cases: cases.slice(0, 1), question: "" });
+  assert.equal(r.results![0].ok, true); // equal up to float rounding
+  assert.equal(r.results![0].expected, "[0.10000,0.20000]");
+});
+
 test("case runner compares your output with the reference, LeetCode style", async () => {
   const { runCases } = await import("./run.ts");
   const { parseExamples, starterFrom } = await import("./starter.ts");
@@ -267,6 +280,17 @@ test("adding to a plan day: unsolved as new work, solved as a review; remove dro
   await assert.rejects(addTask("2026-10-26", "mock:system-design", "leetcode/09 P/x")); // wrong kind for that problem
   assert.equal((await removeTask("2026-10-26", 0)).days[0].tasks.length, 4);
   await setProgress("leetcode/09 P/y", null);
+});
+
+test("ML coding problems are plan tasks of their own type", async () => {
+  const { addTask, savePlan, taskDone, validatePlan } = await import("./plan.ts");
+  await write("ml-coding/01 N/soft/question.md", "# Soft\n");
+  await savePlan({ title: "t", created: "", days: [{ date: "2026-10-27", tasks: [] }] });
+  const task = (await addTask("2026-10-27", "ml-coding/01 N/soft")).days[0].tasks[0];
+  assert.deepEqual(task, { type: "ml-coding", path: "ml-coding/01 N/soft", title: "Soft" });
+  assert.equal(taskDone(task, new Set(["ml-coding/01 N/soft"])), true);
+  const plan = validatePlan({ days: [{ date: "2026-11-02", tasks: [{ type: "ml-coding", path: "ml-coding/01 N/soft" }] }] }, new Map([["ml-coding/01 N/soft", "Soft"]]), "2026-11-01", "2026-11-30");
+  assert.deepEqual(plan.days[0].tasks, [{ type: "ml-coding", path: "ml-coding/01 N/soft", title: "Soft" }]);
 });
 
 test("mock interview length follows the kind and difficulty", async () => {

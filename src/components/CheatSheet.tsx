@@ -17,8 +17,9 @@ export type CheatEntry = {
   mine: { time: string; space: string; timeOk: boolean | null; spaceOk: boolean | null; claimed?: { time: string; space: string } } | null; drawing: Stroke[];
 };
 
-// Problem | Your solution | Complexity | Your notes | Drawing
+// Problem | Your solution | Complexity | Your notes | Drawing (ML Coding has no complexity column)
 const COLS = "grid-cols-1 lg:grid-cols-[minmax(200px,1fr)_minmax(0,2fr)_130px_minmax(200px,1.3fr)_minmax(180px,1fr)]";
+const COLS_NO_COMPLEXITY = "grid-cols-1 lg:grid-cols-[minmax(200px,1fr)_minmax(0,2fr)_minmax(200px,1.3fr)_minmax(180px,1fr)]";
 const cell = "border-border p-3 lg:border-l lg:first:border-l-0";
 
 /** Excel-style cell: edits notes.md in place and saves when you click away. */
@@ -45,8 +46,9 @@ export function NotesCell({ path, initial }: { path: string; initial: string }) 
   );
 }
 
-export default function CheatSheet({ groups, today }: { groups: { name: string; entries: CheatEntry[] }[]; today: string }) {
+export default function CheatSheet({ groups, today, complexity = true }: { groups: { name: string; entries: CheatEntry[] }[]; today: string; complexity?: boolean }) {
   const router = useRouter();
+  const cols = complexity ? COLS : COLS_NO_COMPLEXITY;
   async function reset(path: string) {
     if (!confirm("Clear your working code for this problem? You start from the blank template next time. Your passing solution stays in the cheat sheet.")) return;
     await fetch(`/api/files?path=${encodeURIComponent(`${path}/attempt.py`)}`, { method: "DELETE" });
@@ -63,8 +65,8 @@ export default function CheatSheet({ groups, today }: { groups: { name: string; 
           </a>
         ))}
       </nav>
-      <div className={`sticky top-0 z-20 hidden border-b border-fg bg-panel font-mono text-[11px] uppercase tracking-wide text-muted lg:grid ${COLS}`}>
-        {["Problem", "Your solution", "Complexity", "Your notes", "Drawing"].map((h) => <div key={h} className={`${cell} py-2`}>{h}</div>)}
+      <div className={`sticky top-0 z-20 hidden border-b border-fg bg-panel font-mono text-[11px] uppercase tracking-wide text-muted lg:grid ${cols}`}>
+        {["Problem", "Your solution", ...(complexity ? ["Complexity"] : []), "Your notes", "Drawing"].map((h) => <div key={h} className={`${cell} py-2`}>{h}</div>)}
       </div>
       {groups.map((g, i) => (
         <section key={g.name} id={`cheat-${i}`} className="scroll-mt-9">
@@ -72,7 +74,7 @@ export default function CheatSheet({ groups, today }: { groups: { name: string; 
             {g.name} <span className="font-normal text-muted">{g.entries.length}</span>
           </h3>
           {g.entries.map((e) => (
-            <div key={e.path} className={`grid border-b border-border ${COLS}`}>
+            <div key={e.path} className={`grid border-b border-border ${cols}`}>
               <div className={`${cell} space-y-2`}>
                 <Link href={problemHref(e.path)} className="block font-medium decoration-accent decoration-2 underline-offset-2 hover:underline">{e.title}</Link>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -94,7 +96,7 @@ export default function CheatSheet({ groups, today }: { groups: { name: string; 
                   <p className="font-mono text-xs text-muted">No saved code. Pass the tests on the problem page to store your solution here.</p>
                 )}
               </div>
-              <div className={`${cell} space-y-2`}>
+              {complexity && <div className={`${cell} space-y-2`}>
                 {(["time", "space"] as const).map((k) => {
                   const ok = e.mine?.[k === "time" ? "timeOk" : "spaceOk"];
                   return (
@@ -112,7 +114,7 @@ export default function CheatSheet({ groups, today }: { groups: { name: string; 
                     </div>
                   );
                 })}
-              </div>
+              </div>}
               <div className={cell}>
                 <NotesCell path={e.path} initial={e.notes} />
               </div>

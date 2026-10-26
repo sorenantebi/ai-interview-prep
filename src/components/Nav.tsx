@@ -8,6 +8,7 @@ const links = [
   ["/", "Dashboard"],
   ["/plan", "Plan"],
   ["/leetcode", "LeetCode"],
+  ["/ml-coding", "ML Coding"],
   ["/system-design", "System Design"],
   ["/ai", "AI & Interviews"],
   ["/jobs", "Jobs"],

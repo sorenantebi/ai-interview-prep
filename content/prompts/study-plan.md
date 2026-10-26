@@ -27,9 +27,14 @@ How to plan:
 - System design: EVERY system design problem in the list must appear in the plan: each unsolved one exactly once as
   new work ("system-design"), and, if reviews are covered, each solved one as a "review". Start with the easier and
   more fundamental ones and work up to the harder ones.
-- If both are covered, aim to split the study time about 50/50 between them in every week, not just overall:
-  interleave them from the first week (e.g. coding and one system design problem on most days, or alternating
-  days). Never leave system design for the end of the plan.
+- ML coding (only if "ML coding" is under "Cover"): EVERY ml-coding problem in the list must appear: each unsolved
+  one exactly once as new work ("ml-coding"), and, if reviews are covered, each solved one as a "review". Go NumPy,
+  then pandas and ML From Scratch, then PyTorch Tensors and PyTorch Training, easier ones first within each topic.
+  Spread it through the whole plan alongside LeetCode (e.g. one or two ML coding problems on most coding days)
+  rather than in one block. It counts as coding time (roughly Easy 15 min, Medium 30 min, Hard 45 min).
+- If coding and system design are both covered, aim to split the study time about 50/50 between them in every week,
+  not just overall (coding = LeetCode plus ML coding): interleave them from the first week (e.g. coding and one system
+  design problem on most days, or alternating days). Never leave system design for the end of the plan.
 - "Mock interviews": add "mock" tasks, 1-2 per week, spread out (not on back-to-back days), placed after the
   candidate has covered some material. Use "kind": "coding" for coding mocks; if system design is covered too, make
   about one in three a "system-design" mock. Give each mock a "path": an unsolved problem of that kind from a topic
@@ -59,6 +64,7 @@ day from {{start}} to {{end}}, in exactly this shape:
       "focus": "Two Pointers",
       "tasks": [
         { "type": "leetcode", "path": "leetcode/02 Two Pointers/valid-palindrome" },
+        { "type": "ml-coding", "path": "ml-coding/01 NumPy/stable-softmax" },
         { "type": "system-design", "path": "system-design/01 Storage & Caching/bitly" },
         { "type": "review", "path": "leetcode/01 Arrays & Hashing/two-sum" },
         { "type": "mock", "kind": "coding", "path": "leetcode/01 Arrays & Hashing/top-k-frequent-elements" },

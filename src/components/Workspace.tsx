@@ -283,14 +283,14 @@ export default function Workspace(props: {
     setStatus(next ?? undefined);
   }
 
-  const group = path.split("/")[1];
+  const [area, group] = path.split("/");
   return (
     <div className="flex h-[calc(100vh-7.5rem)] flex-col gap-3 max-lg:h-auto">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {props.nav.random ? (
-          <Link href="/leetcode" className="text-muted hover:text-fg">← exit shuffle</Link>
+          <Link href={`/${area}`} className="text-muted hover:text-fg">← exit shuffle</Link>
         ) : (
-          <Link href={`/leetcode?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {group.replace(/^\d+\s*/, "")}</Link>
+          <Link href={`/${area}?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {group.replace(/^\d+\s*/, "")}</Link>
         )}
         <select
           className="border border-border bg-panel px-1.5 py-1 font-mono text-xs text-muted hover:text-fg"
@@ -378,13 +378,13 @@ export default function Workspace(props: {
           </div>
           <div className="flex flex-wrap gap-2">
             <button className="btn" disabled={!!busy} onClick={runCases} title="Run your test cases">▶ Run</button>
-            <span className="inline-flex items-center border border-border bg-panel">
+            {area === "leetcode" && <span className="inline-flex items-center border border-border bg-panel">
               <label className={`flex items-center gap-1 px-2 font-mono text-xs text-muted ${mark("time")}`}>Time<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={myTime} onChange={(e) => setMyTime(e.target.value)} placeholder="O(n)" aria-label="Your solution's time complexity" /></label>
               <label className={`flex items-center gap-1 border-l border-border px-2 font-mono text-xs text-muted ${mark("space")}`}>Space<input className="w-14 bg-transparent py-1.5 text-fg outline-none" value={mySpace} onChange={(e) => setMySpace(e.target.value)} placeholder="O(1)" aria-label="Your solution's space complexity" /></label>
-            </span>
+            </span>}
             <button className="btn-primary" disabled={!!busy} onClick={() => submitCode()} title="Run the hidden tests; passing marks the problem solved. Fill in Time/Space (optional) to have Claude check them">Submit</button>
             <button className="btn" disabled={!!busy} onClick={hint}>Hint</button>
-            <button className="btn" disabled={!!busy} onClick={complexity} title="Claude works out the time and space complexity of your current code">Complexity</button>
+            {area === "leetcode" && <button className="btn" disabled={!!busy} onClick={complexity} title="Claude works out the time and space complexity of your current code">Complexity</button>}
             <button className="btn" disabled={!!busy} onClick={() => confirm("Reset code to the starter template?") && setCode(props.starter)}>Reset</button>
           </div>
           {(busy || submit || coach) && (
@@ -417,7 +417,7 @@ export default function Workspace(props: {
                       <p className="text-xs text-muted">{submit.complexity.why}</p>
                     </div>
                   ))}
-                  {!submit.ok && (
+                  {!submit.ok && area === "leetcode" && ( // ML Coding ships hand-checked tests; the generator is LeetCode-specific
                     <button className="font-mono text-[11px] text-muted hover:text-fg" onClick={() => submitCode(true)} disabled={!!busy}>hidden tests look wrong? regenerate them</button>
                   )}
                 </div>

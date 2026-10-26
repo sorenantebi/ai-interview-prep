@@ -58,8 +58,9 @@ export function starterFrom(code: string): string {
 /** Parameter names of the method you implement ([] for design classes, which take calls + args). */
 export function paramsOf(starter: string): string[] {
   const classes = [...starter.matchAll(/^class (\w+)/gm)].map((m) => m[1]);
-  if (!classes.includes("Solution") && !classes.includes("Codec")) return [];
-  const def = starter.match(/^\s+def (?!_)\w+\(self,?\s*([^)]*)\)/m);
+  // A plain function (ML Coding) takes all its parameters; a design class takes calls + args.
+  const def = !classes.length ? starter.match(/^def (?!_)\w+\(([^)]*)\)/m)
+    : classes.includes("Solution") || classes.includes("Codec") ? starter.match(/^\s+def (?!_)\w+\(self,?\s*([^)]*)\)/m) : null;
   if (!def) return [];
   return def[1].split(",").map((p) => p.split(":")[0].split("=")[0].trim()).filter(Boolean);
 }

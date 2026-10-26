@@ -70,4 +70,9 @@ content/**/notes.excalidraw
 content/**/testcases.json
 content/**/tests.py
 content/**/my_tests.py
+# ML Coding ships its own hidden tests
+!content/ml-coding/**/tests.py
 /.next-test/
+/.venv/
+/.prep-*.pid
+/.prep-*.lock

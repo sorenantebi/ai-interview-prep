@@ -1,9 +1,11 @@
 import { areaStats, localDate, progress, read, write } from "./content.ts";
 import { claudeStream, prompt } from "./claude.ts";
 
-// "review": redo a problem you already solved (done only when ticked); "leetcode"/"system-design": new problems (done when solved).
+// "review": redo a problem you already solved (done only when ticked); "leetcode"/"ml-coding"/"system-design": new problems (done when solved).
+export type Area = "leetcode" | "ml-coding" | "system-design";
+export const AREAS: Area[] = ["leetcode", "ml-coding", "system-design"];
 export type Task =
-  | { type: "leetcode" | "system-design" | "review"; path: string; title: string; done?: boolean }
+  | { type: Area | "review"; path: string; title: string; done?: boolean }
   | { type: "note"; text: string; done?: boolean }
   | { type: "mock"; kind: "coding" | "system-design"; path?: string; title?: string; done?: boolean }; // a mock interview (optionally on one problem); done when ticked
 export type Day = { date: string; focus?: string; tasks: Task[] };
@@ -16,14 +18,14 @@ export async function readPlan(): Promise<Plan | null> {
 export const savePlan = (p: Plan) => write("plan.json", JSON.stringify(p, null, 1));
 
 export type ProblemOption = { path: string; title: string; difficulty?: string; solved: boolean };
-export type ProblemGroup = { area: "leetcode" | "system-design"; name: string; problems: ProblemOption[] };
+export type ProblemGroup = { area: Area; name: string; problems: ProblemOption[] };
 
-/** Every LeetCode and system design problem, by topic, for the "add to day" dropdown. */
+/** Every LeetCode, ML Coding and system design problem, by topic, for the "add to day" dropdown. */
 export async function problemOptions(): Promise<ProblemGroup[]> {
   const prog = await progress();
   const out: ProblemGroup[] = [];
-  for (const area of ["leetcode", "system-design"] as const)
-    for (const g of await areaStats(area))
+  for (const area of AREAS)
+    for (const g of await areaStats(area).catch(() => []))
       out.push({ area, name: g.name, problems: g.problems.map((p) => ({ path: p.path, title: p.title, difficulty: p.difficulty, solved: prog[p.path]?.status === "solved" })) });
   return out;
 }
@@ -73,7 +75,7 @@ export function validatePlan(raw: unknown, titles: Map<string, string>, start: s
     if (!date || date < start || date > end || !Array.isArray(d.tasks)) continue;
     const tasks: Task[] = [];
     for (const t of d.tasks as { type?: unknown; path?: unknown; text?: unknown }[]) {
-      if ((t?.type === "leetcode" || t?.type === "system-design" || t?.type === "review") && typeof t.path === "string" && titles.has(t.path)) tasks.push({ type: t.type, path: t.path, title: titles.get(t.path)! });
+      if ((AREAS.includes(t?.type as Area) || t?.type === "review") && typeof t.path === "string" && titles.has(t.path)) tasks.push({ type: t.type as Area | "review", path: t.path, title: titles.get(t.path)! });
       else if (t?.type === "note" && typeof t.text === "string" && t.text.trim()) tasks.push({ type: "note", text: t.text.trim().slice(0, 300) });
       else if (t?.type === "mock") {
         const kind = (t as { kind?: unknown }).kind === "system-design" ? "system-design" : "coding";
@@ -101,7 +103,7 @@ export function planProgress(partial: string, total: number): Omit<PlanProgress,
  * Makes sure every required problem is in the plan: anything Claude left out is spread evenly over the plan's days,
  * keeping the given (roadmap) order. A problem counts as covered when it appears with the same task type.
  */
-export function coverAll(plan: Plan, required: { type: "leetcode" | "system-design" | "review"; path: string; title: string }[]): Plan {
+export function coverAll(plan: Plan, required: { type: Area | "review"; path: string; title: string }[]): Plan {
   const have = new Set(plan.days.flatMap((d) => d.tasks.map((t) => ("path" in t && t.type !== "mock" ? `${t.type}|${t.path}` : ""))));
   const missing = required.filter((r) => !have.has(`${r.type}|${r.path}`));
   missing.forEach((r, i) => plan.days[Math.floor((i * plan.days.length) / missing.length)].tasks.push({ ...r }));
@@ -131,14 +133,18 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   const titles = new Map<string, string>();
   const lines: string[] = [];
   const required: Parameters<typeof coverAll>[1] = []; // every problem: unsolved as new work, solved as a review
-  for (const area of ["leetcode", "system-design"]) {
-    for (const g of await areaStats(area)) {
+  // Focus labels from the form ("LeetCode (NeetCode roadmap)", "ML coding", "System design", …) name the areas covered.
+  const covers = (label: string) => !s.focus.length || s.focus.some((f) => f.toLowerCase().startsWith(label));
+  const LABEL: Record<Area, string> = { leetcode: "leetcode", "ml-coding": "ml coding", "system-design": "system design" };
+  for (const area of AREAS) {
+    if (area === "ml-coding" && !covers(LABEL[area])) continue; // only listed (and paid for in tokens) when picked
+    for (const g of await areaStats(area).catch(() => [])) {
       for (const p of g.problems) {
         titles.set(p.path, p.title);
         const e = prog[p.path];
         const status = e?.status !== "solved" ? "not solved" : e.review ? `solved, review due ${e.review.due}` : `solved ${e.at.slice(0, 10)}`;
         lines.push(`${p.path} | ${p.title} | ${p.difficulty ?? "?"} | ${status}`);
-        required.push({ type: e?.status === "solved" ? "review" : (area as "leetcode" | "system-design"), path: p.path, title: p.title });
+        required.push({ type: e?.status === "solved" ? "review" : area, path: p.path, title: p.title });
       }
     }
   }
@@ -165,14 +171,13 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   if (old) carryTicks(plan, old);
   // Every problem of each covered area ends up in the plan. Each area's gaps are spread over the whole plan on their
   // own, so leftovers don't pile up as all-coding first and all-system-design last.
-  const covers = (area: string) => !s.focus.length || s.focus.some((f) => f.toLowerCase().startsWith(area));
-  for (const area of ["leetcode", "system design"])
-    if (covers(area)) coverAll(plan, required.filter((r) => r.path.startsWith(area.replace(" ", "-") + "/") && (r.type !== "review" || covers("spaced"))));
+  for (const area of AREAS)
+    if (covers(LABEL[area])) coverAll(plan, required.filter((r) => r.path.startsWith(area + "/") && (r.type !== "review" || covers("spaced"))));
   return plan;
 }
 
 /** Your tick or untick (`done`) wins; untouched new-problem tasks count as done once the problem is solved. */
-export const taskDone = (t: Task, solved: Set<string>) => t.done ?? ((t.type === "leetcode" || t.type === "system-design") && solved.has(t.path));
+export const taskDone = (t: Task, solved: Set<string>) => t.done ?? (AREAS.includes(t.type as Area) && "path" in t && solved.has(t.path!));
 
 /**
  * Solving a problem completes its plan tasks: new-problem tasks on any day, and reviews due today or earlier

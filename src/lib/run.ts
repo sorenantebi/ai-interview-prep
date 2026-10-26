@@ -1,17 +1,26 @@
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
+const WIN = process.platform === "win32";
+const VENV = path.join(process.cwd(), ".venv", WIN ? "Scripts/python.exe" : "bin/python");
+/** PYTHON_BIN, else the project's .venv (npm run setup-python), else the system Python. */
+const python = () => process.env.PYTHON_BIN ?? (existsSync(VENV) ? VENV : WIN ? "python" : "python3");
+
 // Runs the user's own code locally. shortcut: no sandbox, fine for a single-user local app; containerise before hosting.
 export async function runPython(files: Record<string, string>, entry: string): Promise<{ ok: boolean; output: string }> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prep-run-"));
+  // Importing torch alone can take several seconds on a cold start.
+  const limit = Object.values(files).some((f) => /^\s*(import|from) torch\b/m.test(f)) ? 30 : 10;
   try {
     for (const [name, content] of Object.entries(files)) await fs.writeFile(path.join(dir, name), content);
     return await new Promise((resolve) => {
-      execFile(process.env.PYTHON_BIN ?? (process.platform === "win32" ? "python" : "python3"), [entry], { cwd: dir, timeout: 10_000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
+      execFile(python(), [entry], { cwd: dir, timeout: limit * 1000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
         const killed = err && "killed" in err && err.killed;
-        resolve({ ok: !err, output: (stdout + stderr + (killed ? "\n⏱ Timed out after 10s" : "")).trim() });
+        const missing = /No module named '(numpy|pandas|torch)'/.test(stderr) ? "\nThis needs numpy, pandas and torch: run `npm run setup-python` once." : "";
+        resolve({ ok: !err, output: (stdout + stderr + (killed ? `\n⏱ Timed out after ${limit}s` : "") + missing).trim() });
       });
     });
   } finally {
