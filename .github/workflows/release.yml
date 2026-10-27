@@ -1,0 +1,30 @@
+# Builds the desktop app on macOS, Windows and Linux and attaches the installers to a GitHub release.
+# Run it by pushing a version tag: git tag v0.1.0 && git push origin v0.1.0
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run dist
+      - name: Upload installer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Download the installer for your OS below." || true  # another job may have created it
+          gh release upload "$GITHUB_REF_NAME" $(ls dist/prep-*.dmg dist/prep-*.exe dist/prep-*.AppImage 2>/dev/null) --clobber

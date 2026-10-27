@@ -1,0 +1,42 @@
+<!doctype html>
+<!-- The Cmd+F bar. A separate view on top of the page, so searching never matches the text typed here. -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --panel: #fefefe; --fg: #1e1e1e; --muted: #5c6463; --border: #1e1e1e2e; }
+  :root[data-theme="dark"] { --panel: #1e1e1e; --fg: #fefefe; --muted: #abbab9; --border: #ffffff29; }
+  html, body { margin: 0; height: 100%; background: transparent; font: 13px ui-monospace, Menlo, monospace; }
+  form { box-sizing: border-box; height: 100%; display: flex; align-items: center; gap: 4px; padding: 0 6px;
+         background: var(--panel); color: var(--fg); border: 1px solid var(--border); }
+  input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; }
+  span { color: var(--muted); font-size: 12px; min-width: 44px; text-align: right; }
+  button { border: 0; background: transparent; color: var(--muted); font: inherit; cursor: pointer; padding: 2px 5px; }
+  button:hover { color: var(--fg); }
+</style>
+</head>
+<body>
+<form id="f">
+  <input id="q" placeholder="Find on page" aria-label="Find on page" autofocus>
+  <span id="n"></span>
+  <button type="button" id="prev" aria-label="Previous match" title="Previous (Shift+Enter)">↑</button>
+  <button type="button" id="next" aria-label="Next match" title="Next (Enter)">↓</button>
+  <button type="button" id="close" aria-label="Close" title="Close (Esc)">×</button>
+</form>
+<script>
+  const q = document.getElementById("q"), n = document.getElementById("n");
+  const go = (forward) => window.finder.search(q.value, forward, false);
+  q.addEventListener("input", () => { n.textContent = ""; window.finder.search(q.value, true, true); });
+  document.getElementById("f").addEventListener("submit", (e) => e.preventDefault());
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") go(!e.shiftKey);
+    if (e.key === "Escape") window.finder.close();
+  });
+  document.getElementById("prev").onclick = () => go(false);
+  document.getElementById("next").onclick = () => go(true);
+  document.getElementById("close").onclick = () => window.finder.close();
+  window.finder.onResult(({ activeMatchOrdinal, matches }) => { n.textContent = q.value ? `${matches ? activeMatchOrdinal : 0}/${matches}` : ""; });
+  window.finder.onOpen((theme) => { document.documentElement.dataset.theme = theme; q.focus(); q.select(); });
+</script>
+</body>
+</html>

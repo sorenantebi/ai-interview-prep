@@ -33,7 +33,7 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
   const [text, setText] = useState("");
   const [difficulty, setDifficulty] = useState("Medium");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ path?: string; error?: string }>({});
+  const [result, setResult] = useState<{ path?: string; warning?: string; error?: string }>({});
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +45,8 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
       : tab === "ml-coding" ? { action: "generate-ml-coding", group, difficulty, idea: text }
       : { action: "system-design", group, request: text };
     try {
-      setResult({ path: (await api("/api/claude", body)).path });
+      const { path, warning } = await api("/api/claude", body);
+      setResult({ path, warning });
       setText("");
       onCreated();
     } catch (err) {
@@ -92,8 +93,9 @@ function Creator({ tab, tree, onCreated }: { tab: Exclude<Tab, "interview">; tre
         <button className="btn-primary" disabled={busy}>{busy ? "Claude is writing…" : "Create"}</button>
         <Link href={`/files?path=${encodeURIComponent(`prompts/${promptFile}.md`)}`} className="text-xs text-muted hover:text-fg">Edit prompt</Link>
       </div>
-      {busy && <p className="text-sm text-muted" role="status">This usually takes 30–90 seconds.</p>}
+      {busy && <p className="text-sm text-muted" role="status">{tab === "link" || tab === "generate" ? "This usually takes 1–2 minutes (the problem, then its hidden tests)." : "This usually takes 30–90 seconds."}</p>}
       {result.path && <p className="text-sm text-easy">Created: <Link className="underline" href={problemHref(result.path)}>{result.path}</Link></p>}
+      {result.warning && <pre className="whitespace-pre-wrap text-sm text-medium">{result.warning}</pre>}
       {result.error && <pre className="whitespace-pre-wrap text-sm text-hard">{result.error}</pre>}
     </form>
   );

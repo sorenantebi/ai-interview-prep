@@ -32,13 +32,17 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-test/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-test/types/**/*.ts"
+    ".next-electron/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     ".next-test",
+    ".next-electron",
+    ".electron",
+    "dist",
     "content"
   ]
 }

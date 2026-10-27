@@ -71,9 +71,11 @@ content/**/notes.excalidraw
 content/**/testcases.json
 content/**/tests.py
 content/**/my_tests.py
-# ML Coding ships its own hidden tests
+# the hidden tests ship with the app, so Submit works without Claude
 !content/ml-coding/**/tests.py
+!content/leetcode/**/tests.py
 /.next-test/
 /.venv/
-/.prep-*.pid
-/.prep-*.lock
+/.next-electron/
+/.electron/
+/dist/

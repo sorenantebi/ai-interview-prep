@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logActivity, read, safePath, setProgress, write } from "@/lib/content";
-import { claude, files, prompt } from "@/lib/claude";
+import { generateTests } from "@/lib/hidden-tests";
 import { runCases, runPython } from "@/lib/run";
 import { completeTasks } from "@/lib/plan";
 import { checkComplexity } from "@/lib/complexity";
@@ -8,7 +8,7 @@ import { codeBlock, starterFrom } from "@/lib/starter";
 
 /**
  * mode "run": your test cases, compared with the NeetCode reference (like LeetCode's Run).
- * mode "submit": Claude's hidden tests.py, generated on first use (like LeetCode's Submit). Only Submit marks a problem solved.
+ * mode "submit": the hidden tests.py (like LeetCode's Submit), written by Claude when the problem is added, or here if it has none. Only Submit marks a problem solved.
  */
 export async function POST(req: NextRequest) {
   const { path, code, mode, cases, names, regenerate, time, space } = await req.json();
@@ -28,12 +28,7 @@ export async function POST(req: NextRequest) {
     // Stating your complexity is optional; without it Submit doesn't need Claude at all (once tests.py exists).
     const claimed = { time: String(time ?? "").trim(), space: String(space ?? "").trim() };
     let tests = regenerate ? null : await read(`${path}/tests.py`);
-    if (tests === null) {
-      const input = await prompt("generate-tests", { question: question ?? "", solution: solution ?? "" });
-      tests = files((await claude(input)).text)["tests.py"]?.replace(/^```\w*\n|\n?```\s*$/g, "") ?? null;
-      if (!tests) throw new Error("Claude did not return a tests.py section");
-      await write(`${path}/tests.py`, tests);
-    }
+    tests ??= await generateTests(path);
     const r = await runPython({ "attempt.py": code, "tests.py": tests }, "tests.py");
     let complexity = null;
     if (r.ok) {

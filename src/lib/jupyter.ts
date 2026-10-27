@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { python } from "./run";
+import { python, SETUP_HINT } from "./run";
 import { safePath } from "./content";
 
 type Server = { port: number; token: string };
@@ -24,7 +24,7 @@ function start(): Promise<Server> {
     let log = "";
     const fail = (why: string) => { g.jupyter = undefined; reject(new Error(why)); };
     child.on("error", (e) => fail(e.message));
-    child.on("exit", () => fail(/No module named notebook/.test(log) ? "Jupyter isn't installed: run `npm run setup-python` once." : `Jupyter stopped:\n${log.slice(-1500)}`));
+    child.on("exit", () => fail(/No module named notebook/.test(log) ? `Jupyter isn't installed: ${SETUP_HINT}.` : `Jupyter stopped:\n${log.slice(-1500)}`));
     child.stderr.on("data", (d) => {
       log += d;
       const port = log.match(/http:\/\/127\.0\.0\.1:(\d+)\//)?.[1]; // the port Jupyter picked (8899, or the next free one)

@@ -4,6 +4,7 @@ import { areaStats, logActivity, read, safePath, write } from "@/lib/content";
 import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
 import { testsProblem } from "@/lib/run";
+import { generateTests } from "@/lib/hidden-tests";
 import { codeBlock } from "@/lib/starter";
 import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
 import { checkComplexity } from "@/lib/complexity";
@@ -24,6 +25,10 @@ async function saveProblem(text: string, area: string, group: string, extra: str
   for (const name of extra) await write(`${dir}/${name}`, unfence(f[name]));
   return dir;
 }
+
+/** Writes the hidden tests now, so Submit never waits on Claude; if that fails the problem is still kept, and Submit tries again. */
+const testsWarning = (dir: string) =>
+  generateTests(dir).then(() => undefined, (e) => `${(e as Error).message}\n\nThe problem is saved; Submit will try writing the tests again.`);
 
 const topicName = (group: string) => group.replace(/^\d+\s*/, "");
 
@@ -49,13 +54,14 @@ export async function POST(req: NextRequest) {
         const { text } = await claude(input, { tools: ["WebFetch"] });
         const dir = await saveProblem(text, "leetcode", b.group);
         await applyLeetcodeAndNeetcode(dir, b.url).catch(() => {}); // best effort: Claude's files still work without it
-        return NextResponse.json({ path: dir });
+        return NextResponse.json({ path: dir, warning: await testsWarning(dir) });
       }
       case "generate-leetcode": {
         safePath(`leetcode/${b.group}`);
         const format = await prompt("_leetcode-format", { topic: topicName(b.group) });
         const input = await prompt("generate-leetcode", { topic: topicName(b.group), difficulty: b.difficulty, idea: b.idea || "none", format });
-        return NextResponse.json({ path: await saveProblem((await claude(input)).text, "leetcode", b.group) });
+        const dir = await saveProblem((await claude(input)).text, "leetcode", b.group);
+        return NextResponse.json({ path: dir, warning: await testsWarning(dir) });
       }
       case "generate-ml-coding": {
         safePath(`ml-coding/${b.group}`);

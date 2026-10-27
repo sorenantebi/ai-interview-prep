@@ -9,12 +9,10 @@
     "lint": "eslint",
     "test": "node --test --experimental-strip-types src/lib/*.test.ts",
     "fetch": "node scripts/fetch-neetcode.ts",
-    "setup": "node scripts/setup.mjs",
     "setup-python": "node scripts/setup-python.mjs",
     "app": "next build && next start -H 127.0.0.1",
-    "mac-app": "bash scripts/make-mac-app.sh",
-    "linux-app": "bash scripts/make-linux-app.sh",
-    "windows-app": "powershell -ExecutionPolicy Bypass -File scripts/make-windows-app.ps1"
+    "electron": "node scripts/build-electron.mjs --no-pack && electron .",
+    "dist": "node scripts/build-electron.mjs"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.18.0",
@@ -39,9 +37,44 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "44.7.0",
+    "electron-builder": "26.17.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "dev.prep.interview",
+    "productName": "prep",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**",
+      "package.json",
+      "!node_modules/**"
+    ],
+    "mac": {
+      "target": "dmg",
+      "icon": "scripts/app-icon.png",
+      "identity": "-",
+      "category": "public.app-category.education",
+      "hardenedRuntime": false,
+      "artifactName": "prep-mac-${arch}.${ext}"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "scripts/app-icon.ico",
+      "artifactName": "prep-windows-setup.${ext}"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "scripts/app-icon.png",
+      "category": "Education",
+      "artifactName": "prep-linux.${ext}"
+    },
+    "afterPack": "scripts/after-pack.cjs"
   }
 }

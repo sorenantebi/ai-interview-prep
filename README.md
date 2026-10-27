@@ -4,6 +4,8 @@
 
 ![Next.js 15](https://img.shields.io/badge/Next.js-15-1e1e1e) ![Python 3](https://img.shields.io/badge/Python-3-1e1e1e) ![Claude Code](https://img.shields.io/badge/AI-Claude%20Code-09aea1) ![Local first](https://img.shields.io/badge/data-local%20files-abbab9)
 
+**Download:** [macOS (Apple silicon)](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-mac-arm64.dmg) · [Windows](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-windows-setup.exe) · [Linux](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-linux.AppImage) · or [run from source](#run-from-source)
+
 ![Dashboard](docs/dashboard.png)
 
 ## Features
@@ -21,16 +23,34 @@
 
 ![Problem page](docs/problem.png)
 
-## Quick start
+## Desktop app
+
+| macOS (Apple silicon) | Windows | Linux |
+|---|---|---|
+| [prep-mac-arm64.dmg](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-mac-arm64.dmg) | [prep-windows-setup.exe](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-windows-setup.exe) | [prep-linux.AppImage](https://github.com/sorenantebi/prep-app/releases/latest/download/prep-linux.AppImage) |
+
+Install it and open **prep**; no Node needed. Your problems, progress and notes live in **Documents/prep** (Help → Show data folder).
+For ML Coding and notebooks, install Python 3, then use Help → Install Python packages. For the AI features, [set up Claude](#set-up-claude).
+
+The app isn't signed with a paid certificate, so the first launch is blocked once:
+- **macOS:** open System Settings → Privacy & Security and click **Open Anyway** next to prep.
+- **Windows:** in the SmartScreen warning, click **More info → Run anyway**.
+- **Linux:** make the file executable (`chmod +x prep-linux.AppImage`), then run it.
+
+Older versions are on the [Releases page](https://github.com/sorenantebi/prep-app/releases). To build the installer yourself: `npm install && npm run dist` (output in `dist/`).
+New releases are built by GitHub Actions when you push a version tag: `git tag v0.1.0 && git push origin v0.1.0`.
+
+## Run from source
 
 Needs **Node 20+** and **Python 3**, on macOS, Linux or Windows. For the AI features, [set up Claude](#set-up-claude) too.
 
 ```bash
-npm run setup             # installs, builds and creates the app (Dock / app menu / Start Menu)
-npm run setup -- --python # the same, plus numpy, pandas, torch and Jupyter for ML Coding and notebooks
+npm install
+npm run app           # builds, then serves at http://localhost:3000
+npm run setup-python  # optional: numpy, pandas, torch and Jupyter for ML Coding and notebooks
 ```
 
-Then click **prep** to open it. Or run it from the terminal: `npm run app` (http://localhost:3000), or `npm run dev` while editing the code.
+Use `npm run dev` instead of `npm run app` while editing the code. Your data stays in `content/`.
 
 ## Set up Claude
 
@@ -73,12 +93,10 @@ content/
 
 | Command | What it does |
 |---|---|
-| `npm run setup` | One-time setup: install, build and create the app for your OS (`-- --python` adds the Python packages) |
 | `npm run app` | Production build + server (fast) |
 | `npm run dev` | Development server |
-| `npm run mac-app` | Create `/Applications/prep.app` for the Dock: one click starts the server if needed (rebuilding only after code changes) and opens the browser; Quit stops it |
-| `npm run linux-app` | The same as an app-menu entry (right-click → Stop server) |
-| `npm run windows-app` | The same as a Start Menu and Desktop shortcut (close the "prep server" window to stop it) |
+| `npm run dist` | Build the desktop app installer for this OS into `dist/` (uses Documents/prep for your data) |
+| `npm run electron` | Build and open the desktop app without packaging it |
 | `npm test` | Unit tests |
 | `node scripts/generate-tests.ts` | Pre-generate hidden tests for all problems (`--model`, `--jobs`, `--force`) |
 | `npm run fetch` | Re-download LeetCode starters and NeetCode solutions |
