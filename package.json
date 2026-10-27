@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --test --experimental-strip-types src/lib/*.test.ts",
     "fetch": "node scripts/fetch-neetcode.ts",
+    "setup": "node scripts/setup.mjs",
     "setup-python": "node scripts/setup-python.mjs",
     "app": "next build && next start -H 127.0.0.1",
     "mac-app": "bash scripts/make-mac-app.sh",

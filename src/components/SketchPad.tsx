@@ -71,11 +71,15 @@ export default function SketchPad({ path, initial }: { path: string; initial: St
   const current = useRef<Stroke | null>(null);
   const first = useRef(true);
 
+  const pending = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (first.current) { first.current = false; return; }
-    const t = setTimeout(() => putFile(`${path}/drawing.json`, JSON.stringify({ strokes })), 800);
+    const save = () => { pending.current = null; putFile(`${path}/drawing.json`, JSON.stringify({ strokes })); };
+    pending.current = save;
+    const t = setTimeout(save, 800);
     return () => clearTimeout(t);
   }, [strokes, path]);
+  useEffect(() => () => pending.current?.(), []); // leaving the page within 800 ms still saves
 
   const point = (e: React.PointerEvent): [number, number] => {
     const r = svg.current!.getBoundingClientRect();

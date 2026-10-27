@@ -34,6 +34,7 @@ fi
 
 if ! up; then
   say "Starting… (rebuilding after code changes takes about a minute)"
+  [ -d node_modules ] || npm install >"$LOG" 2>&1 || { say "npm install failed, see $LOG"; exit 1; }
   if stale; then
     node_modules/.bin/next build >"$LOG" 2>&1 || { say "Build failed, see $LOG"; exit 1; }
   fi

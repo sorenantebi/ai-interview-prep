@@ -333,8 +333,8 @@ export default function Workspace(props: {
             )}
             {tab === "question" && <Markdown>{props.question}</Markdown>}
             {tab === "solution" && <Markdown>{props.solution || "_No solution file._"}</Markdown>}
-            {tab === "notes" && (
-              <div className="space-y-4">
+            {/* Kept mounted so the drawing and its pending save survive switching tabs. */}
+            <div className={`space-y-4 ${tab === "notes" ? "" : "hidden"}`}>
                 <textarea
                   className="input min-h-48 font-mono"
                   value={notes}
@@ -343,8 +343,7 @@ export default function Workspace(props: {
                   onBlur={() => putFile(`${path}/notes.md`, notes)}
                 />
                 <SketchPad path={path} initial={props.drawing} />
-              </div>
-            )}
+            </div>
           </div>
         </section>
         <Divider

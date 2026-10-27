@@ -24,13 +24,13 @@
 ## Quick start
 
 Needs **Node 20+** and **Python 3**, on macOS, Linux or Windows. For the AI features, [set up Claude](#set-up-claude) too.
-For ML Coding and repo notebooks, run `npm run setup-python` once: it installs numpy, pandas, torch and Jupyter into a project-local `.venv`, which the app then uses.
 
 ```bash
-npm install
-npm run app    # builds once, then opens fast at http://localhost:3000
-npm run dev    # while editing the code (each page compiles on first visit)
+npm run setup             # installs, builds and creates the app (Dock / app menu / Start Menu)
+npm run setup -- --python # the same, plus numpy, pandas, torch and Jupyter for ML Coding and notebooks
 ```
+
+Then click **prep** to open it. Or run it from the terminal: `npm run app` (http://localhost:3000), or `npm run dev` while editing the code.
 
 ## Set up Claude
 
@@ -73,6 +73,7 @@ content/
 
 | Command | What it does |
 |---|---|
+| `npm run setup` | One-time setup: install, build and create the app for your OS (`-- --python` adds the Python packages) |
 | `npm run app` | Production build + server (fast) |
 | `npm run dev` | Development server |
 | `npm run mac-app` | Create `/Applications/prep.app` for the Dock: one click starts the server if needed (rebuilding only after code changes) and opens the browser; Quit stops it |
