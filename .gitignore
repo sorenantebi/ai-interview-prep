@@ -76,6 +76,3 @@ content/**/my_tests.py
 !content/leetcode/**/tests.py
 /.next-test/
 /.venv/
-/.next-electron/
-/.electron/
-/dist/

@@ -5,9 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 const WIN = process.platform === "win32";
-const VENV = path.join(process.env.VENV_DIR ?? path.join(process.cwd(), ".venv"), WIN ? "Scripts/python.exe" : "bin/python");
-/** How to install the Python packages; the desktop app has a menu item instead of the npm script. */
-export const SETUP_HINT = process.env.PYTHON_SETUP_HINT ?? "run `npm run setup-python` once";
+const VENV = path.join(process.cwd(), ".venv", WIN ? "Scripts/python.exe" : "bin/python");
 /** PYTHON_BIN, else the project's .venv (npm run setup-python), else the system Python. */
 export const python = () => process.env.PYTHON_BIN ?? (existsSync(VENV) ? VENV : WIN ? "python" : "python3");
 
@@ -21,7 +19,7 @@ export async function runPython(files: Record<string, string>, entry: string): P
     return await new Promise((resolve) => {
       execFile(python(), [entry], { cwd: dir, timeout: limit * 1000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
         const killed = err && "killed" in err && err.killed;
-        const missing = /No module named '(numpy|pandas|torch)'/.test(stderr) ? `\nThis needs numpy, pandas and torch: ${SETUP_HINT}.` : "";
+        const missing = /No module named '(numpy|pandas|torch)'/.test(stderr) ? "\nThis needs numpy, pandas and torch: run `npm run setup-python` once." : "";
         resolve({ ok: !err, output: (stdout + stderr + (killed ? `\n⏱ Timed out after ${limit}s` : "") + missing).trim() });
       });
     });
