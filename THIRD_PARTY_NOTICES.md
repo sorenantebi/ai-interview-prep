@@ -2,7 +2,7 @@
 
 ## NeetCode solutions
 
-The Python solution code shown in each LeetCode problem's `solution.md` (under `content/leetcode/`) comes from
+The Python and C++ solution code shown in each LeetCode problem's `solution.md` (under `content/leetcode/`) comes from
 [neetcode-gh/leetcode](https://github.com/neetcode-gh/leetcode) by NeetCode, used under the MIT License below.
 Thank you to NeetCode for the solutions, the NeetCode 150 list and the roadmap this app's LeetCode section follows.
 
@@ -40,3 +40,7 @@ SOFTWARE.
 - **ML Coding** (`content/ml-coding/`): problems, solutions and tests written for this project. They are common
   interview exercises; public collections such as rougier/numpy-100, guipsamora/pandas_exercises, srush/Tensor-Puzzles,
   eriklindernoren/ML-From-Scratch and Deep-ML were inspiration only, and no text or code is copied from them.
+- **Quant Dev**: the C++ problems and the question bank (`content/quant-dev/`, `content/quant-questions/`) are original,
+  written for this project. Their topics follow common quant-developer interviews, getcracked.io, quantquestions.io and
+  the chapters of *Trading Systems Developer Interview Guide (C++ Edition)* by Jeff Vogels; no text or code is copied
+  from them. The book itself is not included: put your own copy in `content/misc/` (git-ignored) to read it in the app.

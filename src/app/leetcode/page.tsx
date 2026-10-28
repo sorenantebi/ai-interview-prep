@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Roadmap from "@/components/Roadmap";
+import Roadmap, { TopicButton } from "@/components/Roadmap";
 import ProblemList, { problemHref } from "@/components/ProblemList";
 import { orderQuery, sequence } from "@/lib/order";
 import { areaStats, progress } from "@/lib/content";
@@ -65,9 +65,9 @@ export default async function LeetcodePage({ searchParams }: { searchParams: Pro
         <div className="flex flex-wrap gap-2 text-sm">
           <span className="text-muted">Other topics:</span>
           {extra.map((s) => (
-            <Link key={s.group} href={`/leetcode?topic=${encodeURIComponent(s.group)}#topic-problems`} className={`btn ${s.group === selected?.group ? "border-accent" : ""}`}>
+            <TopicButton key={s.group} group={s.group} className={`btn ${s.group === selected?.group ? "border-accent" : ""}`}>
               {s.name} <span className="text-muted">{s.solved}/{s.total}</span>
-            </Link>
+            </TopicButton>
           ))}
         </div>
       )}

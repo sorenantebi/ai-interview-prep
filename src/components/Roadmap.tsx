@@ -44,12 +44,21 @@ export default function Roadmap({ stats, selected }: { stats: Stat[]; selected?:
         nodesDraggable={false}
         nodesConnectable={false}
         proOptions={{ hideAttribution: true }}
-        onNodeClick={(_, n) => {
-          router.push(`/leetcode?topic=${encodeURIComponent((n.data as TopicData).group)}`, { scroll: false });
-          document.getElementById("topic-problems")?.scrollIntoView({ behavior: "smooth" });
-        }}
+        onNodeClick={(_, n) => showTopic(router, (n.data as TopicData).group)}
         style={{ background: "transparent" }}
       />
     </div>
   );
+}
+
+/** Shows a topic's problems and scrolls to them. No #hash in the URL, so reopening /leetcode later starts at the top. */
+function showTopic(router: ReturnType<typeof useRouter>, group: string) {
+  router.push(`/leetcode?topic=${encodeURIComponent(group)}`, { scroll: false });
+  document.getElementById("topic-problems")?.scrollIntoView({ behavior: "smooth" });
+}
+
+/** A topic button outside the roadmap ("Other topics"), behaving like a roadmap node. */
+export function TopicButton({ group, className, children }: { group: string; className: string; children: React.ReactNode }) {
+  const router = useRouter();
+  return <button className={className} onClick={() => showTopic(router, group)}>{children}</button>;
 }

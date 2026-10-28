@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"int\npush 3\npush 7\nmax\nswap\npop\nsize\n","stdout":"7\n3\n1\n","example":true},
+    {"name":"Example 2","stdin":"string\npop\npush beta\npush alpha\nmax\n","stdout":"empty\nbeta\n","example":true},
+    {"name":"full stack","stdin":"int\npush 1\npush 2\npush 3\npush 4\npush 5\nsize\npop\npop\n","stdout":"full\n4\n4\n3\n"},
+    {"name":"need two","stdin":"int\nmax\nswap\npush 9\nmax\nswap\nsize\n","stdout":"need 2\nneed 2\nneed 2\nneed 2\n1\n"},
+    {"name":"string swap","stdin":"string\npush aa\npush b\nswap\npop\npop\npop\n","stdout":"aa\nb\nempty\n"},
+    {"name":"equal max and negatives","stdin":"int\npush -5\npush -5\nmax\npush -1\nmax\n","stdout":"-5\n-1\n"},
+    {"name":"refill after pop","stdin":"string\npush a\npush b\npush c\npush d\npush e\npop\npush e\npop\nsize\n","stdout":"full\nd\ne\n3\n"}
+  ]
+}

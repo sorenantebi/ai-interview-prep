@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import Timer from "./Timer";
 import ThemeToggle from "./ThemeToggle";
 
@@ -9,6 +10,7 @@ const links = [
   ["/plan", "Plan"],
   ["/leetcode", "LeetCode"],
   ["/ml-coding", "ML Coding"],
+  ["/quant-dev", "Quant Dev"],
   ["/system-design", "System Design"],
   ["/ai", "AI & Interviews"],
   ["/jobs", "Jobs"],
@@ -21,6 +23,10 @@ const box = "whitespace-nowrap px-2.5 py-1 text-[15px]";
 /** Top bar of square boxes; the current section is inverted. */
 export default function Nav({ authEnabled }: { authEnabled: boolean }) {
   const path = usePathname();
+  // Every new page starts at the top (Next keeps the old scroll when the new page's top is already in view).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [path]);
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
   return (
     <header className="sticky top-0 z-50 bg-bg/90 backdrop-blur">

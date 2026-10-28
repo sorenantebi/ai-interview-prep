@@ -1,7 +1,7 @@
 // Pure helpers shared by the server, the browser and scripts/fetch-neetcode.ts.
 
-/** First ```python block of a markdown file. */
-export const codeBlock = (md: string) => md.match(/```python\n([\s\S]*?)```/)?.[1] ?? "";
+/** First ```python (or ```cpp …) block of a markdown file. */
+export const codeBlock = (md: string, lang = "python") => md.match(new RegExp("```" + lang + "\\n([\\s\\S]*?)```"))?.[1] ?? "";
 
 /** LeetCode snippets leave method bodies empty; give each one a `pass` so the file is valid Python. */
 export function fillEmptyBodies(snippet: string): string {
@@ -116,3 +116,6 @@ export function parseExamples(question: string, starter: string): Cases {
 export function strokesOf(json: string | null): { d: [number, number][]; w: number; accent?: boolean }[] {
   try { return JSON.parse(json ?? "{}").strokes ?? []; } catch { return []; }
 }
+
+/** solution.md with NeetCode's C++ solution as a "## C++" section at the end (replacing an older one). */
+export const withCpp = (md: string, cpp: string) => md.replace(/\n## C\+\+\n[\s\S]*$/, "").trimEnd() + "\n\n## C++\n\n```cpp\n" + cpp.trimEnd() + "\n```\n";

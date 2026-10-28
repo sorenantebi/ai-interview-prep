@@ -13,7 +13,7 @@ import type { Review } from "@/lib/content";
 
 export type CheatEntry = {
   path: string; title: string; difficulty?: string; at: string; review?: Review; hasAttempt: boolean;
-  code: string; codeSource: "passed" | "latest" | null; time?: string; space?: string; notes: string;
+  code: string; lang: "python" | "cpp"; codeSource: "passed" | "latest" | null; time?: string; space?: string; notes: string;
   mine: { time: string; space: string; timeOk: boolean | null; spaceOk: boolean | null; claimed?: { time: string; space: string } } | null; drawing: Stroke[];
 };
 
@@ -49,9 +49,9 @@ export function NotesCell({ path, initial }: { path: string; initial: string }) 
 export default function CheatSheet({ groups, today, complexity = true }: { groups: { name: string; entries: CheatEntry[] }[]; today: string; complexity?: boolean }) {
   const router = useRouter();
   const cols = complexity ? COLS : COLS_NO_COMPLEXITY;
-  async function reset(path: string) {
-    if (!confirm("Clear your working code for this problem? You start from the blank template next time. Your passing solution stays in the cheat sheet.")) return;
-    await fetch(`/api/files?path=${encodeURIComponent(`${path}/attempt.py`)}`, { method: "DELETE" });
+  async function reset(path: string, lang: CheatEntry["lang"]) {
+    if (!confirm(`Clear your working ${lang === "cpp" ? "C++" : "Python"} code for this problem? You start from the blank template next time. Your passing solution stays in the cheat sheet.`)) return;
+    await fetch(`/api/files?path=${encodeURIComponent(`${path}/attempt.${lang === "cpp" ? "cpp" : "py"}`)}`, { method: "DELETE" });
     router.refresh();
   }
   if (!groups.length) return <p className="card p-4 text-sm text-muted">Solved problems show up here as a cheat sheet, grouped by topic.</p>;
@@ -82,14 +82,14 @@ export default function CheatSheet({ groups, today, complexity = true }: { group
                   <span className="font-mono text-xs text-muted">solved {fmtDate(e.at)}</span>
                 </div>
                 <ReviewControls path={e.path} review={e.review} today={today} />
-                {e.hasAttempt && <button className="btn px-2 py-1 text-xs" onClick={() => reset(e.path)}>Reset code</button>}
+                {e.hasAttempt && <button className="btn px-2 py-1 text-xs" onClick={() => reset(e.path, e.lang)}>Reset code</button>}
               </div>
               <div className={`${cell} min-w-0`}>
                 {e.code ? (
                   <>
                     <div className="mb-1 font-mono text-[11px] text-muted">{e.codeSource === "passed" ? "passing solution" : "latest code (tests not passed yet)"}</div>
                     <div className="max-h-64 overflow-y-auto text-xs [&_.md]:text-xs [&_pre]:mb-0">
-                      <Markdown>{"```python\n" + e.code + "\n```"}</Markdown>
+                      <Markdown>{"```" + e.lang + "\n" + e.code + "\n```"}</Markdown>
                     </div>
                   </>
                 ) : (

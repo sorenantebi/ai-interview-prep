@@ -10,7 +10,7 @@ Never reveal the full solution or write the code for them.
 {{question}}
 
 # Candidate's code
-```python
+```{{lang}}
 {{code}}
 ```
 

@@ -162,7 +162,7 @@ for i, grid in enumerate(inputs, 1):
     work = [row[:] for row in grid]
     try:
         sol = ns["Solution"]()
-        ret = sol.walls_and_gates(work)
+        ret = (getattr(sol, "wallsAndGates", None) or sol.walls_and_gates)(work)  # the starter uses LeetCode's camelCase name
         if work == expected:
             print(f"PASS case {i}")
             passed += 1

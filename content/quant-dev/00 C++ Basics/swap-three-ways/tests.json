@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"3 7\n","stdout":"value: 3 7\npointer: 7 3\nreference: 7 3\n","example":true},
+    {"name":"Example 2","stdin":"-5 5\n","stdout":"value: -5 5\npointer: 5 -5\nreference: 5 -5\n","example":true},
+    {"name":"equal values","stdin":"4 4\n","stdout":"value: 4 4\npointer: 4 4\nreference: 4 4\n"},
+    {"name":"zero and negative","stdin":"0 -1\n","stdout":"value: 0 -1\npointer: -1 0\nreference: -1 0\n"},
+    {"name":"large values","stdin":"1000000000 -1000000000\n","stdout":"value: 1000000000 -1000000000\npointer: -1000000000 1000000000\nreference: -1000000000 1000000000\n"},
+    {"name":"separate lines","stdin":"12\n34\n","stdout":"value: 12 34\npointer: 34 12\nreference: 34 12\n"},
+    {"name":"already ordered descending","stdin":"9 2\n","stdout":"value: 9 2\npointer: 2 9\nreference: 2 9\n"}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"4\n3 + 4\n10 / 3\n7 % 0\n2 ^ 10\n","stdout":"7\n3\nerror\n1024\n","example":true},
+    {"name":"Example 2","stdin":"2\n5 ? 1\n-6 * 7\n","stdout":"unknown\n-42\n","example":true},
+    {"name":"negative division truncates","stdin":"2\n-7 / 2\n-7 % 2\n","stdout":"-3\n-1\n"},
+    {"name":"subtract and zero power","stdin":"2\n5 - 9\n9 ^ 0\n","stdout":"-4\n1\n"},
+    {"name":"division by zero","stdin":"2\n1 / 0\n0 / 5\n","stdout":"error\n0\n"},
+    {"name":"unknown operators","stdin":"3\n1 & 2\n3 x 4\n5 + 6\n","stdout":"unknown\nunknown\n11\n"},
+    {"name":"large power and product","stdin":"2\n10 ^ 18\n1000000 * -1000000\n","stdout":"1000000000000000000\n-1000000000000\n"}
+  ]
+}

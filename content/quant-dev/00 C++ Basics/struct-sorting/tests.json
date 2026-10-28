@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"symbol\n4\nMSFT 300 10\nAAPL 150.5 20\nAAPL 151 5\nMSFT 300 2\n","stdout":"AAPL 151.00 5 755.00\nAAPL 150.50 20 3010.00\nMSFT 300.00 2 600.00\nMSFT 300.00 10 3000.00\ntotal 7365.00\n","example":true},
+    {"name":"Example 2","stdin":"notional\n3\nA 10 10\nB 50 1\nC 1 100\n","stdout":"A 10.00 10 100.00\nC 1.00 100 100.00\nB 50.00 1 50.00\ntotal 250.00\n","example":true},
+    {"name":"single trade","stdin":"symbol\n1\nZ 0.01 1\n","stdout":"Z 0.01 1 0.01\ntotal 0.01\n"},
+    {"name":"notional ties broken by symbol","stdin":"notional\n3\nZZ 2 50\nAA 1 100\nMM 4 25\n","stdout":"AA 1.00 100 100.00\nMM 4.00 25 100.00\nZZ 2.00 50 100.00\ntotal 300.00\n"},
+    {"name":"symbol prefix order","stdin":"symbol\n3\nAB 1 1\nA 1 1\nABC 1 1\n","stdout":"A 1.00 1 1.00\nAB 1.00 1 1.00\nABC 1.00 1 1.00\ntotal 3.00\n"},
+    {"name":"same symbol price descending","stdin":"symbol\n3\nX 1.5 3\nX 2.25 1\nX 0.75 2\n","stdout":"X 2.25 1 2.25\nX 1.50 3 4.50\nX 0.75 2 1.50\ntotal 8.25\n"},
+    {"name":"large notionals","stdin":"notional\n2\nBIG 100000 10000\nSMALL 0.5 3\n","stdout":"BIG 100000.00 10000 1000000000.00\nSMALL 0.50 3 1.50\ntotal 1000000001.50\n"}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"250\n1000\n","stdout":"binary trader\nobject file main.o\n250 -> 2 lots\n1000 -> 10 lots\n","example":true},
+    {"name":"no quantities","stdin":"","stdout":"binary trader\nobject file main.o\n"},
+    {"name":"round lots","stdin":"100\n500\n","stdout":"binary trader\nobject file main.o\n100 -> 1 lots\n500 -> 5 lots\n"},
+    {"name":"under one lot","stdin":"99\n","stdout":"binary trader\nobject file main.o\n99 -> 0 lots\n"},
+    {"name":"many","stdin":"101\n199\n200\n","stdout":"binary trader\nobject file main.o\n101 -> 1 lots\n199 -> 1 lots\n200 -> 2 lots\n"}
+  ]
+}

@@ -13,6 +13,8 @@ import type { Review } from "@/lib/content";
 import type { CaseResult } from "@/lib/run";
 
 type Tab = "question" | "solution" | "notes" | "tests";
+type Lang = "python" | "cpp";
+const LANG_LABEL: Record<Lang, string> = { python: "Python", cpp: "C++" };
 type Run = { results?: CaseResult[]; error?: string };
 
 const mark = (ok?: boolean | null) => (ok === true ? "✓" : ok === false ? "✗" : "?");
@@ -70,7 +72,9 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
         <span className="flex-1" />
         <button className="btn px-2 py-1 text-xs" onClick={props.onRun} disabled={props.busy}>▶ Run</button>
       </div>
-      {view === "cases" ? (
+      {view === "cases" && !names.length ? (
+        <p className="p-3 font-mono text-xs text-muted">Run compiles your code and runs the examples from the question. Submit runs the hidden tests too.</p>
+      ) : view === "cases" ? (
         <div className="space-y-3 p-3">
           <div className="flex flex-wrap items-center gap-1">
             {cases.map((_, k) => (
@@ -124,7 +128,7 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
                 );
                 return (
                   <div className="space-y-2">
-                    {box("Input", r.input.map((v, n) => `${names[n] ?? `arg${n + 1}`} = ${v}`).join("\n"))}
+                    {box(names.length ? "Input" : "Case", names.length ? r.input.map((v, n) => `${names[n] ?? `arg${n + 1}`} = ${v}`).join("\n") : r.input.join("\n"))}
                     {r.error ? box("Error", r.error, "text-hard") : r.output !== undefined && box("Output", r.output, r.ok === false ? "text-hard" : "")}
                     {r.expected !== undefined && box("Expected", r.expected)}
                     {r.stdout && box("Stdout", r.stdout)}
@@ -141,14 +145,26 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
 }
 
 export default function Workspace(props: {
-  path: string; question: string; solution: string; attempt: string | null; starter: string; fresh?: boolean; // fresh: a review, start from the starter
+  path: string; question: string; solution: string; fresh?: boolean; // fresh: a review, start from the starter
+  langs: Lang[]; attempts: Record<Lang, string | null>; starters: Record<Lang, string>; // the languages this problem offers
   names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
   topics: string[];
 }) {
   const { path } = props;
   const [tab, setTab] = useState<Tab>((useSearchParams().get("tab") as Tab) ?? "question");
-  const [code, setCode] = useState(props.fresh ? props.starter : (props.attempt ?? props.starter));
+  const [lang, setLang] = useState<Lang>(props.langs[0]);
+  useEffect(() => {
+    try { const l = localStorage.getItem("codeLang") as Lang | null; if (l && props.langs.includes(l)) setLang(l); } catch {}
+  }, [props.langs]);
+  const switchLang = (l: Lang) => {
+    setLang(l);
+    try { localStorage.setItem("codeLang", l); } catch {}
+  };
+  const saved = (l: Lang) => props.attempts[l] ?? props.starters[l];
+  const [codes, setCodes] = useState<Record<Lang, string>>({ python: props.fresh ? props.starters.python : saved("python"), cpp: props.fresh ? props.starters.cpp : saved("cpp") });
+  const code = codes[lang];
+  const setCode = (v: string) => setCodes((c) => ({ ...c, [lang]: v }));
   const [notes, setNotes] = useState(props.notes);
   const [cases, setCases] = useState(props.cases);
   const [run, setRun] = useState<Run | null>(null);
@@ -198,12 +214,13 @@ export default function Workspace(props: {
     url.searchParams.delete("review");
     router.replace(url.pathname + url.search, { scroll: false });
   }, [props.fresh, router]);
-  // Autosave attempt.py and your test cases one second after you stop typing.
+  // Autosave attempt.py / attempt.cpp and your test cases one second after you stop typing.
+  const unchanged = code === saved(lang);
   useEffect(() => {
-    if (code === (props.attempt ?? props.starter)) return;
-    const t = setTimeout(() => putFile(`${path}/attempt.py`, code), 1000);
+    if (unchanged) return;
+    const t = setTimeout(() => putFile(`${path}/attempt.${lang === "cpp" ? "cpp" : "py"}`, code), 1000);
     return () => clearTimeout(t);
-  }, [code, path, props.attempt, props.starter]);
+  }, [code, lang, path, unchanged]);
   useEffect(() => {
     if (cases === props.cases) return;
     const t = setTimeout(() => putFile(`${path}/testcases.json`, JSON.stringify({ names: props.names, cases }, null, 2)), 1000);
@@ -214,7 +231,7 @@ export default function Workspace(props: {
     setTab("tests");
     setBusy("Running your test cases…");
     try {
-      setRun(await api("/api/run", { path, code, mode: "run", cases, names: props.names }));
+      setRun(await api("/api/run", { path, code, lang, mode: "run", cases, names: props.names }));
     } catch (e) {
       setRun({ error: (e as Error).message });
     } finally {
@@ -234,7 +251,7 @@ export default function Workspace(props: {
     setBusy(regenerate ? "Claude is writing new hidden tests…" : myTime.trim() || mySpace.trim() ? "Submitting, then Claude checks your complexity…" : "Submitting…");
     setSubmit(null);
     try {
-      const r = await api("/api/run", { path, code, mode: "submit", regenerate, time: myTime, space: mySpace });
+      const r = await api("/api/run", { path, code, lang, mode: "submit", regenerate, time: myTime, space: mySpace });
       setSubmit(r);
       setStatus((s) => (r.ok ? "solved" : s === "solved" ? s : "attempted"));
     } catch (e) {
@@ -247,7 +264,7 @@ export default function Workspace(props: {
   async function hint() {
     setBusy("Asking for a hint…");
     try {
-      setCoach((await api("/api/claude", { action: "hint", path, code, output: submit?.output ?? "" })).text);
+      setCoach((await api("/api/claude", { action: "hint", path, code, lang, output: submit?.output ?? "" })).text);
     } catch (e) {
       setCoach("**Error:** " + (e as Error).message);
     } finally {
@@ -258,7 +275,7 @@ export default function Workspace(props: {
   async function complexity() {
     setBusy("Working out your code's complexity…");
     try {
-      const r: Verdict = await api("/api/claude", { action: "complexity", path, code });
+      const r: Verdict = await api("/api/claude", { action: "complexity", path, code, lang });
       setCoach(`**Your code's complexity**\n\n- Time: \`${r.time}\`\n- Space: \`${r.space}\`\n\n${r.why}`);
     } catch (e) {
       setCoach("**Error:** " + (e as Error).message);
@@ -360,14 +377,21 @@ export default function Workspace(props: {
                   {label}
                 </button>
               ))}
+              {props.langs.length > 1 && (
+                <span className="ml-2 flex shrink-0 items-center gap-1 border-l border-border pl-2" role="radiogroup" aria-label="Language">
+                  {props.langs.map((l) => (
+                    <button key={l} role="radio" aria-checked={lang === l} onClick={() => switchLang(l)} className={`whitespace-nowrap px-3 py-1 font-mono text-xs ${lang === l ? "bg-fg text-panel" : "text-muted hover:text-fg"}`}>{LANG_LABEL[l]}</button>
+                  ))}
+                </span>
+              )}
               <span className="ml-2 truncate font-mono text-[11px] text-muted">
                 {mode === "doc" ? "blank sheet: no highlighting, no autocomplete, like a Google interview" : "syntax highlighting, still no autocomplete"}
               </span>
             </div>
             <div className="min-h-0 flex-1">
               <Editor
-                key={mode}
-                language={mode === "doc" ? "plaintext" : "python"}
+                key={`${mode}-${lang}`}
+                language={mode === "doc" ? "plaintext" : lang}
                 value={code}
                 onChange={(v) => setCode(v ?? "")}
                 theme={mode === "doc" ? "light" : dark ? "vs-dark" : "light"}
@@ -384,7 +408,7 @@ export default function Workspace(props: {
             <button className="btn-primary" disabled={!!busy} onClick={() => submitCode()} title="Run the hidden tests; passing marks the problem solved. Fill in Time/Space (optional) to have Claude check them">Submit</button>
             <button className="btn" disabled={!!busy} onClick={hint}>Hint</button>
             {area === "leetcode" && <button className="btn" disabled={!!busy} onClick={complexity} title="Claude works out the time and space complexity of your current code">Complexity</button>}
-            <button className="btn" disabled={!!busy} onClick={() => confirm("Reset code to the starter template?") && setCode(props.starter)}>Reset</button>
+            <button className="btn" disabled={!!busy} onClick={() => confirm("Reset code to the starter template?") && setCode(props.starters[lang])}>Reset</button>
           </div>
           {(busy || submit || coach) && (
             <>

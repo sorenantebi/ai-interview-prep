@@ -346,3 +346,28 @@ test("offline: Claude calls fail fast instead of hanging", async () => {
   assert.ok(Date.now() - t0 < 5000);
   if (!(await online())) await assert.rejects(claude("hi"), { message: OFFLINE }); // only checkable when actually offline
 });
+
+test("question bank files parse into questions with answers", async () => {
+  const { parseQuiz } = await import("./quiz.ts");
+  const t = parseQuiz("01 C++ Output & UB.md", '---\ntopic: "X"\n---\n# C++ Output\n\nIntro line.\n\n## Wrap · Easy\n\n```cpp\nint a;\n```\n\n### Answer\n\n`1`. Because.\n\n## No answer · Hard\n\nQ only\n');
+  assert.equal(t.name, "C++ Output");
+  assert.equal(t.intro, "Intro line.");
+  assert.equal(t.questions.length, 2);
+  assert.deepEqual(t.questions[0], { id: "01-c-output-ub/wrap", title: "Wrap", difficulty: "Easy", body: "```cpp\nint a;\n```", answer: "`1`. Because." });
+  assert.equal(t.questions[1].answer, "");
+  const { quizTopics } = await import("./quiz.ts");
+  for (const topic of await quizTopics()) {
+    assert.ok(topic.questions.length > 0, topic.file);
+    for (const q of topic.questions) assert.ok(q.answer && /^(Easy|Medium|Hard)$/.test(q.difficulty), `${topic.file}: ${q.title}`);
+    assert.equal(new Set(topic.questions.map((q) => q.id)).size, topic.questions.length, `${topic.file}: duplicate titles`);
+  }
+});
+
+test("your own compile lines: parsed in order, only a compiler with a plain -o name", async () => {
+  const { compileCommands } = await import("./run.ts");
+  assert.equal(compileCommands("int main() {}"), null);
+  assert.deepEqual(compileCommands(`// compile: g++ -c -DNAME="a b" main.cpp -o main.o\n// compile: g++ main.o -o app\nint main() {}`), [["g++", "-c", "-DNAME=a b", "main.cpp", "-o", "main.o"], ["g++", "main.o", "-o", "app"]]);
+  assert.throws(() => compileCommands("// compile: rm -rf ."));
+  assert.throws(() => compileCommands("// compile: g++ -c main.cpp\n// compile: g++ -o ../app main.o"));
+  assert.throws(() => compileCommands("// compile: g++ main.cpp -o"));
+});

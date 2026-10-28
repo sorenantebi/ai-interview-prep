@@ -1,9 +1,9 @@
 import { areaStats, localDate, progress, read, write } from "./content.ts";
 import { claudeStream, prompt } from "./claude.ts";
 
-// "review": redo a problem you already solved (done only when ticked); "leetcode"/"ml-coding"/"system-design": new problems (done when solved).
-export type Area = "leetcode" | "ml-coding" | "system-design";
-export const AREAS: Area[] = ["leetcode", "ml-coding", "system-design"];
+// "review": redo a problem you already solved (done only when ticked); "leetcode"/"ml-coding"/"quant-dev"/"system-design": new problems (done when solved).
+export type Area = "leetcode" | "ml-coding" | "quant-dev" | "system-design";
+export const AREAS: Area[] = ["leetcode", "ml-coding", "quant-dev", "system-design"];
 export type Task =
   | { type: Area | "review"; path: string; title: string; done?: boolean }
   | { type: "note"; text: string; done?: boolean }
@@ -20,7 +20,7 @@ export const savePlan = (p: Plan) => write("plan.json", JSON.stringify(p, null, 
 export type ProblemOption = { path: string; title: string; difficulty?: string; solved: boolean };
 export type ProblemGroup = { area: Area; name: string; problems: ProblemOption[] };
 
-/** Every LeetCode, ML Coding and system design problem, by topic, for the "add to day" dropdown. */
+/** Every LeetCode, ML Coding, Quant Dev and system design problem, by topic, for the "add to day" dropdown. */
 export async function problemOptions(): Promise<ProblemGroup[]> {
   const prog = await progress();
   const out: ProblemGroup[] = [];
@@ -141,9 +141,9 @@ export async function generatePlan(s: PlanSettings, onProgress: (p: PlanProgress
   const required: Parameters<typeof coverAll>[1] = []; // every problem: unsolved as new work, solved as a review
   // Focus labels from the form ("LeetCode (NeetCode roadmap)", "ML coding", "System design", …) name the areas covered.
   const covers = (label: string) => !s.focus.length || s.focus.some((f) => f.toLowerCase().startsWith(label));
-  const LABEL: Record<Area, string> = { leetcode: "leetcode", "ml-coding": "ml coding", "system-design": "system design" };
+  const LABEL: Record<Area, string> = { leetcode: "leetcode", "ml-coding": "ml coding", "quant-dev": "quant dev", "system-design": "system design" };
   for (const area of AREAS) {
-    if (area === "ml-coding" && !covers(LABEL[area])) continue; // only listed (and paid for in tokens) when picked
+    if ((area === "ml-coding" || area === "quant-dev") && !covers(LABEL[area])) continue; // only listed (and paid for in tokens) when picked
     for (const g of await areaStats(area).catch(() => [])) {
       for (const p of g.problems) {
         titles.set(p.path, p.title);

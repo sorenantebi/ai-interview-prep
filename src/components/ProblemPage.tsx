@@ -10,13 +10,13 @@ export type ProblemPageProps = {
   searchParams: Promise<{ order?: string; seed?: string; only?: string; review?: string }>;
 };
 
-/** The coding problem page of an area ("leetcode" or "ml-coding"): editor, tests, notes, prev / next. */
+/** The coding problem page of an area ("leetcode", "ml-coding" or "quant-dev"): editor, tests, notes, prev / next. */
 export default async function ProblemPage({ area, params, searchParams }: ProblemPageProps & { area: string }) {
   const { group, slug } = await params;
   const q = await searchParams;
   const path = `${area}/${decodeURIComponent(group)}/${decodeURIComponent(slug)}`;
-  const [question, solution, attempt, notes, starterFile, saved, drawing] = await Promise.all(
-    ["question.md", "solution.md", "attempt.py", "notes.md", "starter.py", "testcases.json", "drawing.json"].map((f) => read(`${path}/${f}`)),
+  const [question, solution, attempt, notes, starterFile, saved, drawing, attemptCpp, starterCpp] = await Promise.all(
+    ["question.md", "solution.md", "attempt.py", "notes.md", "starter.py", "testcases.json", "drawing.json", "attempt.cpp", "starter.cpp"].map((f) => read(`${path}/${f}`)),
   );
   if (question === null) notFound();
   const prog = await progress();
@@ -35,8 +35,11 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
   const link = (p?: string) => (p ? problemHref(p) + orderQuery(order) : null);
   const nav = { prev: link(seq[at - 1]), next: link(seq[at + 1]), pos: at + 1, total: seq.length, random: order.random, unsolved: order.unsolved };
   // LeetCode's starter when we have it; otherwise signatures only, taken from the reference solution.
-  const starter = starterFile ?? starterFrom(codeBlock(solution ?? ""));
-  const examples = parseExamples(question, starter);
+  // Quant Dev is C++ only (its own tests), ML Coding Python only, LeetCode both when there's a C++ starter.
+  const cppOnly = area === "quant-dev";
+  const starter = cppOnly ? "" : (starterFile ?? starterFrom(codeBlock(solution ?? "")));
+  const examples = cppOnly ? { names: [], cases: [] } : parseExamples(question, starter);
+  const langs = cppOnly ? (["cpp"] as const) : starterCpp !== null ? (["python", "cpp"] as const) : (["python"] as const);
   let mine: Cases | null = null;
   try { mine = saved ? JSON.parse(saved) : null; } catch {}
   return (
@@ -44,9 +47,10 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
       path={path}
       question={order.random ? question.replace(/\*\*Topic:\*\*[^·\n]*·\s*/, "") : question} // shuffle mode hides the topic: it gives the pattern away
       solution={solution ?? ""}
-      attempt={attempt}
+      langs={[...langs]}
+      attempts={{ python: attempt, cpp: attemptCpp }}
       fresh={review}
-      starter={starter}
+      starters={{ python: starter, cpp: starterCpp ?? "" }}
       names={examples.names}
       cases={mine?.cases?.length ? mine.cases : examples.cases}
       examples={examples.cases}

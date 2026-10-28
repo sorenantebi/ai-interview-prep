@@ -32,8 +32,13 @@ How to plan:
   then pandas and ML From Scratch, then PyTorch Tensors and PyTorch Training, easier ones first within each topic.
   Spread it through the whole plan alongside LeetCode (e.g. one or two ML coding problems on most coding days)
   rather than in one block. It counts as coding time (roughly Easy 15 min, Medium 30 min, Hard 45 min).
+- Quant dev (only if "Quant dev" is under "Cover"): EVERY quant-dev problem in the list must appear: each unsolved one
+  exactly once as new work ("quant-dev"), and, if reviews are covered, each solved one as a "review". Start with
+  C++ Basics, then Smart Pointers & RAII and Containers & Allocators, Templates, Low Latency & Bits, then
+  Multithreading and Lock-free, and Trading Systems last; easier ones first within each topic. Spread it through the
+  plan alongside LeetCode, like ML coding. It counts as coding time (roughly Easy 15 min, Medium 30 min, Hard 45 min).
 - If coding and system design are both covered, aim to split the study time about 50/50 between them in every week,
-  not just overall (coding = LeetCode plus ML coding): interleave them from the first week (e.g. coding and one system
+  not just overall (coding = LeetCode plus ML coding plus Quant dev): interleave them from the first week (e.g. coding and one system
   design problem on most days, or alternating days). Never leave system design for the end of the plan.
 - "Mock interviews": add "mock" tasks, 1-2 per week, spread out (not on back-to-back days), placed after the
   candidate has covered some material. Use "kind": "coding" for coding mocks; if system design is covered too, make
@@ -65,6 +70,7 @@ day from {{start}} to {{end}}, in exactly this shape:
       "tasks": [
         { "type": "leetcode", "path": "leetcode/02 Two Pointers/valid-palindrome" },
         { "type": "ml-coding", "path": "ml-coding/01 NumPy/stable-softmax" },
+        { "type": "quant-dev", "path": "quant-dev/02 Containers & Allocators/ring-buffer" },
         { "type": "system-design", "path": "system-design/01 Storage & Caching/bitly" },
         { "type": "review", "path": "leetcode/01 Arrays & Hashing/two-sum" },
         { "type": "mock", "kind": "coding", "path": "leetcode/01 Arrays & Hashing/top-k-frequent-elements" },

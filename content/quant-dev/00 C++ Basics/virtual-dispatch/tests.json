@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"3\ncircle 1\nrect 2 3\nsquare 2\n","stdout":"circle 3.14\nrect 6.00\nsquare 4.00\ntotal 13.14\n","example":true},
+    {"name":"Example 2","stdin":"1\nsquare 5\n","stdout":"square 25.00\ntotal 25.00\n","example":true},
+    {"name":"only circles","stdin":"2\ncircle 2\ncircle 0.5\n","stdout":"circle 12.57\ncircle 0.79\ntotal 13.35\n"},
+    {"name":"fractional rect","stdin":"1\nrect 1.5 2.5\n","stdout":"rect 3.75\ntotal 3.75\n"},
+    {"name":"mixed order","stdin":"4\nsquare 1\ncircle 3\nrect 10 0.1\nsquare 3\n","stdout":"square 1.00\ncircle 28.27\nrect 1.00\nsquare 9.00\ntotal 39.27\n"},
+    {"name":"large","stdin":"2\nrect 1000 1000\ncircle 1000\n","stdout":"rect 1000000.00\ncircle 3141592.65\ntotal 4141592.65\n"},
+    {"name":"single circle","stdin":"1\ncircle 10\n","stdout":"circle 314.16\ntotal 314.16\n"}
+  ]
+}

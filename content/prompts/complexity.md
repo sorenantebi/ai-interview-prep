@@ -4,7 +4,7 @@ You are checking the time and space complexity of a candidate's solution to a co
 {{question}}
 
 # Candidate's code
-```python
+```{{lang}}
 {{code}}
 ```
 

@@ -44,3 +44,32 @@ class Solution:
 ## Key Takeaway
 
 `res = (res << 1) | (n & 1); n >>= 1` moves bits from one integer to another in reverse order. Fix the iteration count at the word size so that leading zeros are reversed too.
+
+## C++
+
+```cpp
+/*
+    Reverse bits of a given integer
+    Ex. n = 10011100 -> 00111001 = 57
+
+    Shift into result & shift out of n
+
+    Time: O(1)
+    Space: O(1)
+*/
+
+class Solution {
+public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t result = 0;
+        
+        for (int i = 0; i < 32; i++) {
+            result <<= 1;
+            result |= n & 1;
+            n >>= 1;
+        }
+        
+        return result;
+    }
+};
+```

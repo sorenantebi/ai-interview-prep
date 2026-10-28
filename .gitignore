@@ -64,7 +64,10 @@ content/repos/*
 # your code, notes, drawings and tests per problem
 content/**/attempt.py
 content/**/solved.py
+content/**/attempt.cpp
+content/**/solved.cpp
 content/**/complexity.json
+content/**/complexity.cpp.json
 content/**/notes.md
 content/**/drawing.json
 content/**/notes.excalidraw
@@ -76,3 +79,4 @@ content/**/my_tests.py
 !content/leetcode/**/tests.py
 /.next-test/
 /.venv/
+content/quiz.json

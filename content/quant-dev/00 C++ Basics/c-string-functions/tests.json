@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"2\ncat dog\napple apple\n","stdout":"3 3 -1 catdog\n5 5 0 appleapple\n","example":true},
+    {"name":"Example 2","stdin":"1\nzebra ant\n","stdout":"5 3 1 zebraant\n","example":true},
+    {"name":"prefix is smaller","stdin":"1\nabc abcd\n","stdout":"3 4 -1 abcabcd\n"},
+    {"name":"longer is greater","stdin":"1\nabcd abc\n","stdout":"4 3 1 abcdabc\n"},
+    {"name":"single chars","stdin":"3\na b\nb a\nx x\n","stdout":"1 1 -1 ab\n1 1 1 ba\n1 1 0 xx\n"},
+    {"name":"mixed case","stdin":"1\nApple apple\n","stdout":"5 5 -1 Appleapple\n"},
+    {"name":"digits and symbols","stdin":"2\n123 45\nx_y x-y\n","stdout":"3 2 -1 12345\n3 3 1 x_yx-y\n"}
+  ]
+}

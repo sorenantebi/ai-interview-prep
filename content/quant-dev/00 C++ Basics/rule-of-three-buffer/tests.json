@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"hello world\n","stdout":"a = hello (5)\nb = #ello (5)\nc = helloworld (10)\n","example":true},
+    {"name":"Example 2","stdin":"a b\n","stdout":"a = a (1)\nb = # (1)\nc = ab (2)\n","example":true},
+    {"name":"same words","stdin":"abc abc\n","stdout":"a = abc (3)\nb = #bc (3)\nc = abcabc (6)\n"},
+    {"name":"long suffix","stdin":"x yyyyyyyyyy\n","stdout":"a = x (1)\nb = # (1)\nc = xyyyyyyyyyy (11)\n"},
+    {"name":"digits","stdin":"12345 678\n","stdout":"a = 12345 (5)\nb = #2345 (5)\nc = 12345678 (8)\n"},
+    {"name":"two letters","stdin":"ok go\n","stdout":"a = ok (2)\nb = #k (2)\nc = okgo (4)\n"},
+    {"name":"separate lines","stdin":"market\ndata\n","stdout":"a = market (6)\nb = #arket (6)\nc = marketdata (10)\n"}
+  ]
+}

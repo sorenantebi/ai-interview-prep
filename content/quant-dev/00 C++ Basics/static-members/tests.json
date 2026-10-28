@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"create\ncreate\nstats\ndestroy 1\nstats\n","stdout":"created 1\ncreated 2\nalive 2 created 2\ndestroyed 1\nalive 1 created 2\nalive 0 created 2\n","example":true},
+    {"name":"Example 2","stdin":"stats\ndestroy 5\n","stdout":"alive 0 created 0\nno order 5\nalive 0 created 0\n","example":true},
+    {"name":"destroy twice","stdin":"create\ndestroy 1\ndestroy 1\nstats\n","stdout":"created 1\ndestroyed 1\nno order 1\nalive 0 created 1\nalive 0 created 1\n"},
+    {"name":"ids never reused","stdin":"create\ncreate\ndestroy 2\ncreate\nstats\n","stdout":"created 1\ncreated 2\ndestroyed 2\ncreated 3\nalive 2 created 3\nalive 0 created 3\n"},
+    {"name":"leftovers freed at end","stdin":"create\ncreate\ncreate\n","stdout":"created 1\ncreated 2\ncreated 3\nalive 0 created 3\n"},
+    {"name":"destroy out of order","stdin":"create\ncreate\ncreate\ndestroy 2\ndestroy 3\nstats\ndestroy 1\n","stdout":"created 1\ncreated 2\ncreated 3\ndestroyed 2\ndestroyed 3\nalive 1 created 3\ndestroyed 1\nalive 0 created 3\n"},
+    {"name":"only stats","stdin":"stats\nstats\n","stdout":"alive 0 created 0\nalive 0 created 0\nalive 0 created 0\n"}
+  ]
+}

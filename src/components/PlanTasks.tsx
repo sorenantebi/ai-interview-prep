@@ -61,7 +61,7 @@ function AddTask({ date }: { date: string }) {
         <option value="mock:system-design">Mock system design interview</option>
       </optgroup>
       {groups.map((g) => (
-        <optgroup key={g.area + g.name} label={`${{ leetcode: "LeetCode", "ml-coding": "ML coding", "system-design": "System design" }[g.area]} · ${g.name}`}>
+        <optgroup key={g.area + g.name} label={`${{ leetcode: "LeetCode", "ml-coding": "ML coding", "quant-dev": "Quant dev", "system-design": "System design" }[g.area]} · ${g.name}`}>
           {g.problems.map((p) => <option key={p.path} value={p.path}>{p.title}{p.difficulty ? ` (${p.difficulty})` : ""}{p.solved ? " ✓" : ""}</option>)}
         </optgroup>
       ))}
@@ -90,7 +90,7 @@ export default function PlanTasks({ day, solved }: { day: Day; solved: string[] 
     <ul className="space-y-1">
       {day.tasks.map((t, i) => {
         // Same rule as taskDone() in lib/plan.ts (not imported: that module is server-only).
-        const auto = t.done === undefined && (t.type === "leetcode" || t.type === "ml-coding" || t.type === "system-design") && done.has(t.path);
+        const auto = t.done === undefined && (t.type === "leetcode" || t.type === "ml-coding" || t.type === "quant-dev" || t.type === "system-design") && done.has(t.path);
         const isDone = ticked[i] ?? t.done ?? auto;
         return (
           <li key={i} className="flex items-start gap-2 text-sm">
@@ -111,7 +111,7 @@ export default function PlanTasks({ day, solved }: { day: Day; solved: string[] 
               </Link>
             ) : (
               <Link href={problemHref(t.path) + (t.type === "review" ? "?review=1" : "")} className={`decoration-accent decoration-2 underline-offset-2 hover:underline ${isDone ? "text-muted line-through" : ""}`}>
-                <span className="mr-1.5 font-mono text-[11px] text-muted no-underline" title={{ leetcode: "New LeetCode problem", "ml-coding": "New ML coding problem", "system-design": "System design", review: "Review: redo it from scratch" }[t.type]}>{{ leetcode: "LC", "ml-coding": "ML", "system-design": "SD", review: "↻ review" }[t.type]}</span>
+                <span className="mr-1.5 font-mono text-[11px] text-muted no-underline" title={{ leetcode: "New LeetCode problem", "ml-coding": "New ML coding problem", "quant-dev": "New Quant Dev (C++) problem", "system-design": "System design", review: "Review: redo it from scratch" }[t.type]}>{{ leetcode: "LC", "ml-coding": "ML", "quant-dev": "QD", "system-design": "SD", review: "↻ review" }[t.type]}</span>
                 {t.title}
               </Link>
             )}

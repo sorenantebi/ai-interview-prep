@@ -92,10 +92,10 @@ CASES = [
     ("AaAa", "Aa", 3),
     ("aaaaa", "aaa", 10),
     ("cba", "abc", 0),
-    ("ab" * 500, "ab" * 100, reference("ab" * 500, "ab" * 100)),
+    ("ab" * 25, "ab" * 6, reference("ab" * 25, "ab" * 6)),  # LeetCode guarantees the answer fits in 32 bits
     ("a" * 1000, "b", 0),
     ("a" * 1000, "a" * 1000, 1),
-    ("abcde" * 200, "ace" * 50, reference("abcde" * 200, "ace" * 50)),
+    ("abcde" * 20, "ace" * 4, reference("abcde" * 20, "ace" * 4)),
 ]
 
 

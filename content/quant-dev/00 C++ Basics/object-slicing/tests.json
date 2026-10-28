@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"2\nB 3\nD 5 7\n","stdout":"value: Base(3) | ref: Base(3) | ptr: Base(3)\nvalue: Base(5) | ref: Derived(5,7) | ptr: Derived(5,7)\n","example":true},
+    {"name":"Example 2","stdin":"1\nD 1 2\n","stdout":"value: Base(1) | ref: Derived(1,2) | ptr: Derived(1,2)\n","example":true},
+    {"name":"only base","stdin":"2\nB 0\nB -4\n","stdout":"value: Base(0) | ref: Base(0) | ptr: Base(0)\nvalue: Base(-4) | ref: Base(-4) | ptr: Base(-4)\n"},
+    {"name":"negative bonus","stdin":"1\nD 10 -3\n","stdout":"value: Base(10) | ref: Derived(10,-3) | ptr: Derived(10,-3)\n"},
+    {"name":"alternating","stdin":"4\nD 1 1\nB 2\nD 3 3\nB 4\n","stdout":"value: Base(1) | ref: Derived(1,1) | ptr: Derived(1,1)\nvalue: Base(2) | ref: Base(2) | ptr: Base(2)\nvalue: Base(3) | ref: Derived(3,3) | ptr: Derived(3,3)\nvalue: Base(4) | ref: Base(4) | ptr: Base(4)\n"},
+    {"name":"large values","stdin":"1\nD 2000000000 -2000000000\n","stdout":"value: Base(2000000000) | ref: Derived(2000000000,-2000000000) | ptr: Derived(2000000000,-2000000000)\n"},
+    {"name":"single base","stdin":"1\nB 42\n","stdout":"value: Base(42) | ref: Base(42) | ptr: Base(42)\n"}
+  ]
+}

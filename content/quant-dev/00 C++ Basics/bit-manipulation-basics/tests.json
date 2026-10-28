@@ -1,0 +1,11 @@
+{
+  "cases": [
+    {"name":"Example 1","stdin":"5 6\nprint\nset 1\nprint\ntest 2\ncount\npow2\n","stdout":"0000000000000101 5\n0000000000000111 7\n1\n3\nno\n","example":true},
+    {"name":"Example 2","stdin":"0 4\npow2\ntoggle 15\nprint\npow2\n","stdout":"no\n1000000000000000 32768\nyes\n","example":true},
+    {"name":"clear bits","stdin":"255 3\nclear 0\nclear 7\nprint\n","stdout":"0000000001111110 126\n"},
+    {"name":"all ones","stdin":"65535 3\ncount\npow2\nprint\n","stdout":"16\nno\n1111111111111111 65535\n"},
+    {"name":"toggle twice","stdin":"1024 4\ntoggle 3\ntoggle 3\nprint\npow2\n","stdout":"0000010000000000 1024\nyes\n"},
+    {"name":"set already set and clear already clear","stdin":"8 4\nset 3\nclear 4\nprint\ntest 4\n","stdout":"0000000000001000 8\n0\n"},
+    {"name":"power of two checks","stdin":"1 5\npow2\nset 0\npow2\nset 1\npow2\n","stdout":"yes\nyes\nno\n"}
+  ]
+}

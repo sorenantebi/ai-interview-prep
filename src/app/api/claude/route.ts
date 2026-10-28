@@ -5,7 +5,7 @@ import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
 import { testsProblem } from "@/lib/run";
 import { generateTests } from "@/lib/hidden-tests";
-import { codeBlock } from "@/lib/starter";
+import { codeBlock, withCpp } from "@/lib/starter";
 import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
 import { checkComplexity } from "@/lib/complexity";
 
@@ -32,15 +32,18 @@ const testsWarning = (dir: string) =>
 
 const topicName = (group: string) => group.replace(/^\d+\s*/, "");
 
-/** LeetCode's starter -> starter.py, NeetCode's code -> the solution's code block (as for the seeded problems). */
+/** LeetCode's starters -> starter.py / starter.cpp, NeetCode's code -> the solution's code block and its C++ section. */
 async function applyLeetcodeAndNeetcode(dir: string, url: string) {
   const slug = slugOf(url);
   if (!slug) return;
   const info = await leetcodeInfo(slug);
   if (info.starter) await write(`${dir}/starter.py`, info.starter);
-  const nc = await neetcodeSolution(info.id);
-  const solution = await read(`${dir}/solution.md`);
-  if (nc && solution?.includes("```python")) await write(`${dir}/solution.md`, solution.replace(/```python\n[\s\S]*?```/, () => "```python\n" + nc + "```"));
+  if (info.cppStarter) await write(`${dir}/starter.cpp`, info.cppStarter);
+  const [nc, ncCpp] = await Promise.all([neetcodeSolution(info.id), neetcodeSolution(info.id, "cpp")]);
+  let solution = await read(`${dir}/solution.md`);
+  if (nc && solution?.includes("```python")) solution = solution.replace(/```python\n[\s\S]*?```/, () => "```python\n" + nc + "```");
+  if (ncCpp && solution) solution = withCpp(solution, ncCpp);
+  if (solution) await write(`${dir}/solution.md`, solution);
 }
 
 export async function POST(req: NextRequest) {
@@ -82,11 +85,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ path: await saveProblem((await claude(input, { tools: ["WebFetch"] })).text, "system-design", b.group) });
       }
       case "hint": {
-        const input = await prompt("hint", { question: (await read(`${b.path}/question.md`)) ?? "", code: b.code, output: b.output || "(not run yet)" });
+        const input = await prompt("hint", { question: (await read(`${b.path}/question.md`)) ?? "", code: b.code, lang: b.lang === "cpp" ? "cpp" : "python", output: b.output || "(not run yet)" });
         return NextResponse.json({ text: (await claude(input)).text });
       }
       case "complexity": {
-        return NextResponse.json(await checkComplexity((await read(`${b.path}/question.md`)) ?? "", String(b.code ?? "")));
+        return NextResponse.json(await checkComplexity((await read(`${b.path}/question.md`)) ?? "", String(b.code ?? ""), undefined, b.lang === "cpp" ? "cpp" : "python"));
       }
       case "interview": {
         await logActivity();
