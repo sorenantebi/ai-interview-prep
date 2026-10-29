@@ -17,3 +17,4 @@ These are the instructions the app sends to Claude Code (`claude -p`). Edit them
 | `study-plan.md` | Plan → Make plan |
 | `interview-coding.md` | Mock interview (coding) |
 | `interview-system-design.md` | Mock interview (system design, including ML) |
+| `generate-deck.md` | Cards → Generate with Claude (a new deck, or more cards for one) |

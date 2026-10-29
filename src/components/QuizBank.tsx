@@ -6,7 +6,7 @@ import type { QuizMarks, QuizQuestion } from "@/lib/quiz";
 
 type Filter = "all" | "new" | "again" | "known";
 
-/** getcracked-style questions: think (or type) your answer, reveal, then mark it "got it" or "again". */
+/** getcracked-style questions: think (or type) your answer, reveal, then mark it "got it" or "again" (which hides the answer for a fresh try). */
 export default function QuizBank({ questions, initial }: { questions: QuizQuestion[]; initial: QuizMarks }) {
   const [marks, setMarks] = useState(initial);
   const [open, setOpen] = useState<Record<string, boolean>>({});
@@ -52,7 +52,7 @@ export default function QuizBank({ questions, initial }: { questions: QuizQuesti
               <Markdown>{q.answer}</Markdown>
               <div className="flex gap-2">
                 <button className={`btn ${markOf(q.id) === "known" ? "border-easy text-easy" : ""}`} onClick={() => mark(q.id, "known")}>✓ Got it</button>
-                <button className={`btn ${markOf(q.id) === "again" ? "border-hard text-hard" : ""}`} onClick={() => mark(q.id, "again")}>↻ Again</button>
+                <button className={`btn ${markOf(q.id) === "again" ? "border-hard text-hard" : ""}`} onClick={() => { mark(q.id, "again"); setOpen((o) => ({ ...o, [q.id]: false })); }}>↻ Again</button>
                 <button className="btn" onClick={() => setOpen((o) => ({ ...o, [q.id]: false }))}>Hide answer</button>
               </div>
             </div>

@@ -28,10 +28,7 @@ export default async function QuantDevPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="page-title">Quant Dev</h1>
-        <p className="mt-1 text-sm text-muted">C++ for quant developer and trading-systems interviews: write and compile real C++ against hidden tests, drill getcracked-style questions, and read the guide.</p>
-      </div>
+      <h1 className="page-title">Quant Dev</h1>
       <div className="flex flex-wrap gap-1 border-b border-border" role="tablist">
         {tabs.map(([t, label]) => (
           <Link key={t} role="tab" aria-selected={tab === t} href={`/quant-dev?tab=${t}`} scroll={false} className={`-mb-px border-b-2 px-3 py-2 text-sm ${tab === t ? "border-fg font-medium" : "border-transparent text-muted hover:text-fg"}`}>
@@ -55,8 +52,7 @@ async function Coding({ topic }: { topic?: string }) {
   const first = sequence(all, { random: true, seed, unsolved: true }, solvedSet)[0];
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">C++ Basics are whole programs you compile and run yourself; the rest are classes and functions checked by hidden C++ tests (compiled with <code>-std=c++20</code> and the undefined-behaviour sanitizer).</p>
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex items-center gap-2">
           <span className="mr-2 text-sm tabular-nums text-muted">{solved} / {total} solved</span>
           {first && <Link href={problemHref(first) + orderQuery({ random: true, seed, unsolved: true })} className="btn-primary">⤮ Shuffle unsolved</Link>}
@@ -96,7 +92,6 @@ async function Questions({ topic }: { topic?: string }) {
           </Link>
         ))}
       </div>
-      {selected.intro && <p className="text-sm text-muted">{selected.intro}</p>}
       <QuizBank key={selected.file} questions={selected.questions} initial={marks} />
     </>
   );
@@ -116,7 +111,6 @@ async function Book() {
       </section>
       <section className="space-y-2">
         <h2 className="font-medium">Trading Systems Developer Interview Guide (C++ Edition)</h2>
-        <p className="text-sm text-muted">Highly recommended for what to expect, but the authors&apos; answers aren&apos;t always optimal: focus on the questions.</p>
         {hasBook ? (
           <PdfPages title="Trading Systems Developer Interview Guide" src={`/api/files/raw?path=${encodeURIComponent(BOOK)}`} />
         ) : (

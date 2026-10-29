@@ -371,3 +371,36 @@ test("your own compile lines: parsed in order, only a compiler with a plain -o n
   assert.throws(() => compileCommands("// compile: g++ -c main.cpp\n// compile: g++ -o ../app main.o"));
   assert.throws(() => compileCommands("// compile: g++ main.cpp -o"));
 });
+
+test("cards: a deck file reads back as written, and SM-2 schedules like Anki", async () => {
+  const { parseDeck, deckToMd, next, dueToday, NEW_PER_DAY } = await import("./cards.ts");
+  const cards = [{ front: "What is RAII?", back: "Tie a resource to an object's lifetime.\n\n```cpp\nstd::lock_guard g(m);\n```" }, { front: "Two\nline front", back: "## not a heading" }];
+  const d = parseDeck("x", deckToMd("C++", cards));
+  assert.equal(d.name, "C++");
+  assert.deepEqual(d.cards.map(({ front, back }) => ({ front, back })), [cards[0], { front: "Two\nline front", back: "## not a heading" }]);
+  assert.equal(parseDeck("x", deckToMd("C++", cards)).cards[0].id, d.cards[0].id); // stable ids
+
+  const t = "2026-01-10";
+  assert.equal(next(undefined, 1, t).due, t); // Again: back today
+  assert.equal(next(undefined, 3, t).due, "2026-01-11");
+  assert.equal(next(undefined, 4, t).ivl, 4);
+  const s = { due: t, ivl: 10, ease: 2.5, reps: 3, lapses: 0, first: "2026-01-01" };
+  assert.equal(next(s, 3, t).ivl, 25);
+  assert.equal(next(s, 2, t).ivl, 12);
+  assert.ok(next(s, 4, t).ivl > 25);
+  assert.deepEqual([next(s, 1, t).ivl, next(s, 1, t).lapses, next(s, 1, t).ease], [0, 1, 2.3]);
+
+  const many = parseDeck("big", deckToMd("Big", Array.from({ length: 30 }, (_, i) => ({ front: `q${i}`, back: "a" }))));
+  const sched = { [`big/${many.cards[0].id}`]: { ...s, due: "2026-01-09" }, [`big/${many.cards[1].id}`]: { ...s, due: "2026-02-01", first: t } };
+  const today = dueToday(many, sched, t);
+  assert.equal(today.due.length, 1);
+  assert.equal(today.fresh.length, NEW_PER_DAY - 1); // one new card was already started today
+});
+
+test("anki: field HTML becomes Markdown, cloze notes hide their answers", async () => {
+  const { htmlToMd, noteToCard } = await import("./anki.ts");
+  assert.equal(htmlToMd("<div>a &amp; b<br>c</div><div><b>bold</b> <img src=\"x.png\"></div>[sound:s.mp3]", (n) => `/m/${n}`), "a & b\nc\n**bold** ![](/m/x.png)");
+  assert.equal(htmlToMd("<ul><li>one</li><li>two</li></ul>"), "- one\n- two");
+  assert.deepEqual(noteToCard(["{{c1::RAII}} ties resources to {{c2::scope::when}}", "extra"]), { front: "[…] ties resources to [when]", back: "**RAII** ties resources to **scope**\n\nextra" });
+  assert.deepEqual(noteToCard(["Q", "A"]), { front: "Q", back: "A" });
+});

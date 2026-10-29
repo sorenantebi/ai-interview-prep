@@ -12,6 +12,7 @@ import SystemDesignSheet, { type SDEntry } from "@/components/SystemDesignSheet"
 import { parseScene } from "@/components/ExcalidrawView";
 import ReviewControls from "@/components/ReviewControls";
 import { problemHref } from "@/components/ProblemList";
+import { decks, dueToday, schedule } from "@/lib/cards";
 import { activityDays, areaStats, complexity, localDate, progress, read, safePath, streaks } from "@/lib/content";
 import { strokesOf } from "@/lib/starter";
 import fs from "node:fs/promises";
@@ -99,6 +100,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     .sort((a, b) => a[1].review!.due.localeCompare(b[1].review!.due));
   const recent = Object.entries(prog).sort((a, b) => b[1].at.localeCompare(a[1].at)).slice(0, 8);
 
+  const [allDecks, sched] = await Promise.all([decks(), schedule()]);
+  const cardsToday = allDecks.map((d) => ({ d, ...dueToday(d, sched, today) })).filter((r) => r.due.length + r.fresh.length);
+
   let todos: Todo[] = [];
   try { todos = JSON.parse((await read("todos.json")) ?? "[]"); } catch {}
 
@@ -140,6 +144,20 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               </li>
             ))}
           </ul>
+        </section>
+      )}
+      {cardsToday.length > 0 && (
+        <section>
+          <h2 className="tag mb-2">Cards today ({cardsToday.reduce((n, r) => n + r.due.length + r.fresh.length, 0)})</h2>
+          <div className="card flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm">
+            {cardsToday.map(({ d, due, fresh }) => (
+              <Link key={d.file} href={`/cards/review?deck=${encodeURIComponent(d.file)}`} className="decoration-accent decoration-2 underline-offset-2 hover:underline">
+                {d.name} <span className="font-mono text-xs text-muted">{due.length > 0 && <span className="text-hard">{due.length} due</span>}{due.length > 0 && fresh.length > 0 && " · "}{fresh.length > 0 && <span className="text-accent">{fresh.length} new</span>}</span>
+              </Link>
+            ))}
+            <span className="flex-1" />
+            <Link href="/cards/review" className="btn-primary px-3 py-1">Review all</Link>
+          </div>
         </section>
       )}
       <DashboardTabs active={tabs.findIndex((t) => t.view === tab)} tabs={tabs.map((t) => ({ label: t.label, href: t.view ? `/?view=${t.view}` : "/" }))}>

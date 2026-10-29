@@ -1,6 +1,6 @@
 "use client";
 import Editor from "@monaco-editor/react";
-import { DOC, NO_ASSIST } from "./editor-options";
+import { DOC, NO_ASSIST, docLanguage, registerDocLanguages } from "./editor-options";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -391,7 +391,8 @@ export default function Workspace(props: {
             <div className="min-h-0 flex-1">
               <Editor
                 key={`${mode}-${lang}`}
-                language={mode === "doc" ? "plaintext" : lang}
+                language={mode === "doc" ? docLanguage(lang) : lang}
+                beforeMount={registerDocLanguages}
                 value={code}
                 onChange={(v) => setCode(v ?? "")}
                 theme={mode === "doc" ? "light" : dark ? "vs-dark" : "light"}

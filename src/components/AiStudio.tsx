@@ -7,7 +7,7 @@ import { problemHref } from "./ProblemList";
 import { api, putFile } from "@/lib/client";
 import Editor from "@monaco-editor/react";
 import { timerCommand } from "./Timer";
-import { DOC } from "./editor-options";
+import { DOC, docLanguage, registerDocLanguages } from "./editor-options";
 import type { TreeNode } from "@/lib/content";
 
 type Tab = "link" | "generate" | "ml-coding" | "system-design" | "interview";
@@ -238,7 +238,7 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
           <span className="font-mono text-[11px] text-muted">{code.trim() && code !== sentCode.current ? "changed · sent with your next message" : "the interviewer sees this when you send"}</span>
         </div>
         <div className="min-h-0 flex-1 bg-white">
-          <Editor language="plaintext" theme="light" value={code} onChange={(v) => setCode(v ?? "")} options={DOC} />
+          <Editor language={docLanguage("python")} beforeMount={registerDocLanguages} theme="light" value={code} onChange={(v) => setCode(v ?? "")} options={DOC} />
         </div>
       </section>
     </div>

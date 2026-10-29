@@ -80,3 +80,5 @@ content/**/my_tests.py
 /.next-test/
 /.venv/
 content/quiz.json
+content/cards.json
+content/decks/
