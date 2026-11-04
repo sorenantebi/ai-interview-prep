@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=B7m8UmZE-vw
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/partition-labels/

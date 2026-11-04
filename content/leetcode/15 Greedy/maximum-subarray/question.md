@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5WZl3MMT0Eg
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/maximum-subarray/

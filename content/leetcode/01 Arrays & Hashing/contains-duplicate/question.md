@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=3OamzN90kPg
 topic: "Arrays & Hashing"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/contains-duplicate/

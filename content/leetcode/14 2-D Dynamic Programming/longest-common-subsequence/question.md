@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Ua0GhsJSlWM
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/longest-common-subsequence/

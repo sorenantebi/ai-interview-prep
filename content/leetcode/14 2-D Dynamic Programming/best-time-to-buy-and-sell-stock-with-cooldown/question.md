@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=I7j0F7AHpb8
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/

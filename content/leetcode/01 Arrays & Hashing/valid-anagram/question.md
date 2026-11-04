@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=9UtInBqnCgA
 topic: "Arrays & Hashing"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/valid-anagram/

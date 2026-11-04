@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=iu0082c4HDE
 topic: "Stack"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/evaluate-reverse-polish-notation/

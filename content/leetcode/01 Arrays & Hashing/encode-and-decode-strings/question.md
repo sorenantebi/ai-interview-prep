@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=B1k_sxOSgv8
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/encode-and-decode-strings/

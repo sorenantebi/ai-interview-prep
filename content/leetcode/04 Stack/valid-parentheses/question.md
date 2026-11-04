@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=WTzjTskDFMg
 topic: "Stack"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/valid-parentheses/

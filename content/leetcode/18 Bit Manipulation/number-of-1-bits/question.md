@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5Km3utixwZs
 topic: "Bit Manipulation"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/number-of-1-bits/

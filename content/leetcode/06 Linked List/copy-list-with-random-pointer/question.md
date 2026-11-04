@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5Y2EiZST97Y
 topic: "Linked List"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/copy-list-with-random-pointer/

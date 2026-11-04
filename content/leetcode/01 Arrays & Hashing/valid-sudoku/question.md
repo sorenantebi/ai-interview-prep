@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=TjFXEUCMqI8
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/valid-sudoku/

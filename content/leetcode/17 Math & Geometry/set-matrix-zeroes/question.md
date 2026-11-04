@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=T41rL0L3Pnw
 topic: "Math & Geometry"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/set-matrix-zeroes/

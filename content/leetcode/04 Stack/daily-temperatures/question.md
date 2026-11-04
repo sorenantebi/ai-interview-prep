@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=cTBiBSnjO3c
 topic: "Stack"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/daily-temperatures/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=1vZswirL8Y8
 topic: "Math & Geometry"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/multiply-strings/

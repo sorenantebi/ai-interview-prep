@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=jJXJ16kPFWg
 topic: "Two Pointers"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/valid-palindrome/

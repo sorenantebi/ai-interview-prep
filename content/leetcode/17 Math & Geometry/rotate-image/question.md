@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=fMSJSS7eO1w
 topic: "Math & Geometry"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/rotate-image/

@@ -88,7 +88,7 @@ export function parseExamples(question: string, starter: string): Cases {
   let names: string[] | null = null;
   const lines = question.split("\n");
   lines.forEach((line, i) => {
-    const m = line.match(/^Input:\s*(.*)$/);
+    const m = line.match(/^Input(?::\s*|\s*$)(.*)$/); // "Input:" or a bare "Input" line (design problems)
     if (!m) return;
     let text = m[1];
     for (let j = i + 1; j < lines.length && !/^(Output|Explanation|```)/.test(lines[j].trim()); j++) text += "\n" + lines[j];

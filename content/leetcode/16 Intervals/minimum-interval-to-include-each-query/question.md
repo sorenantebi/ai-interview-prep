@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5hQ5WWW5awQ
 topic: "Intervals"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/minimum-interval-to-include-each-query/

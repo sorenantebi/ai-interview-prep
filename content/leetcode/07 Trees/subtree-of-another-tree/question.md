@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=E36O5SWp-LE
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/subtree-of-another-tree/

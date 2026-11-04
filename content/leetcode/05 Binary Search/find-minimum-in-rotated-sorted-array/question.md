@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=nIVW4P8b1VA
 topic: "Binary Search"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/

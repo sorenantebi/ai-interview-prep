@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=amvrKlMLuGY
 topic: "Advanced Graphs"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/swim-in-rising-water/

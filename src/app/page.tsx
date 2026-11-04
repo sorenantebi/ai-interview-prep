@@ -13,7 +13,7 @@ import { parseScene } from "@/components/ExcalidrawView";
 import ReviewControls from "@/components/ReviewControls";
 import { problemHref } from "@/components/ProblemList";
 import { decks, dueToday, schedule } from "@/lib/cards";
-import { activityDays, areaStats, complexity, localDate, progress, read, safePath, streaks } from "@/lib/content";
+import { activityDays, areaStats, complexity, localDate, progress, read, safePath, streaks, hiDiagrams } from "@/lib/content";
 import { strokesOf } from "@/lib/starter";
 import fs from "node:fs/promises";
 
@@ -42,10 +42,9 @@ async function yourCode(path: string, lang: Lang) {
 }
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const [lc, ml, qd, sd, prog, interviews] = await Promise.all([
+  const [lc, ml, sd, prog, interviews] = await Promise.all([
     areaStats("leetcode"),
     areaStats("ml-coding").catch(() => []),
-    areaStats("quant-dev").catch(() => []),
     areaStats("system-design"),
     progress(),
     fs.readdir(safePath("interviews")).then((f) => f.filter((n) => n.endsWith(".md")), () => []),
@@ -54,7 +53,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const today = localDate(new Date());
   const hasPdf = await fs.access(safePath(ML_PDF)).then(() => true, () => false);
   const tabs = [
-    { view: "", label: "LeetCode · Python" }, { view: "leetcode-cpp", label: "LeetCode · C++" }, { view: "ml-coding", label: "ML coding" }, { view: "quant-dev", label: "Quant dev" }, { view: "system-design", label: "System design" },
+    { view: "", label: "LeetCode · Python" }, { view: "leetcode-cpp", label: "LeetCode · C++" }, { view: "ml-coding", label: "ML coding" }, { view: "system-design", label: "System design" },
     { view: "patterns", label: "Patterns" }, ...(hasPdf ? [{ view: "ml-cheat-sheet", label: "ML cheat sheet" }] : []),
   ];
   const requested = (await searchParams).view ?? "";
@@ -69,20 +68,20 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       entries: await Promise.all(
         g.problems.map(async (p): Promise<SDEntry> => {
           const [diagram, notes, drawing] = await Promise.all(["diagram.excalidraw", "notes.md", "notes.excalidraw"].map((f) => read(`${p.path}/${f}`)));
-          return { path: p.path, title: p.title, difficulty: p.difficulty, done: prog[p.path]?.status === "solved" ? prog[p.path].at : undefined, diagram: parseScene(diagram), notes: notes ?? "", drawing: parseScene(drawing) };
+          return { path: p.path, title: p.title, difficulty: p.difficulty, done: prog[p.path]?.status === "solved" ? prog[p.path].at : undefined, diagram: (await hiDiagrams(p.path)).hld ?? parseScene(diagram), notes: notes ?? "", drawing: parseScene(drawing) };
         }),
       ),
     })),
   );
 
-  // Cheat sheet: solved LeetCode (Python or C++), ML Coding or Quant Dev problems per topic, with your code in that language.
+  // Cheat sheet: solved LeetCode (Python or C++) or ML Coding problems per topic, with your code in that language.
   // A LeetCode problem shows under Python unless you've only passed it in C++, and under C++ once you have.
-  const lang: Lang = tab === "leetcode-cpp" || tab === "quant-dev" ? "cpp" : "python";
+  const lang: Lang = tab === "leetcode-cpp" ? "cpp" : "python";
   const has = (p: string, f: string) => fs.access(safePath(`${p}/${f}`)).then(() => true, () => false);
   const listed = async (p: string) => tab === "leetcode-cpp" ? has(p, "solved.cpp") : tab === "" ? (await has(p, "solved.py")) || !(await has(p, "solved.cpp")) : true;
-  const cheat = !["", "leetcode-cpp", "ml-coding", "quant-dev"].includes(tab) ? [] : (
+  const cheat = !["", "leetcode-cpp", "ml-coding"].includes(tab) ? [] : (
     await Promise.all(
-      (tab === "ml-coding" ? ml : tab === "quant-dev" ? qd : lc).map(async (g) => ({
+      (tab === "ml-coding" ? ml : lc).map(async (g) => ({
         name: g.name,
         entries: (await Promise.all(
           g.problems
@@ -109,7 +108,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const tiles = [
     { label: "LeetCode solved", value: `${sum(lc, "solved")} / ${sum(lc, "total")}`, href: "/leetcode" },
     { label: "ML coding solved", value: `${sum(ml, "solved")} / ${sum(ml, "total")}`, href: "/ml-coding" },
-    { label: "Quant dev solved", value: `${sum(qd, "solved")} / ${sum(qd, "total")}`, href: "/quant-dev" },
     { label: "System design done", value: `${sum(sd, "solved")} / ${sum(sd, "total")}`, href: "/system-design" },
     { label: "Saved interviews", value: String(interviews.length), href: "/files?path=interviews" },
   ];
@@ -148,22 +146,21 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       )}
       {cardsToday.length > 0 && (
         <section>
-          <h2 className="tag mb-2">Cards today ({cardsToday.reduce((n, r) => n + r.due.length + r.fresh.length, 0)})</h2>
+          <h2 className="tag mb-2">Anki today ({cardsToday.reduce((n, r) => n + r.due.length + r.fresh.length, 0)})</h2>
           <div className="card flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm">
             {cardsToday.map(({ d, due, fresh }) => (
-              <Link key={d.file} href={`/cards/review?deck=${encodeURIComponent(d.file)}`} className="decoration-accent decoration-2 underline-offset-2 hover:underline">
+              <Link key={d.file} href={`/anki/review?deck=${encodeURIComponent(d.file)}`} className="decoration-accent decoration-2 underline-offset-2 hover:underline">
                 {d.name} <span className="font-mono text-xs text-muted">{due.length > 0 && <span className="text-hard">{due.length} due</span>}{due.length > 0 && fresh.length > 0 && " · "}{fresh.length > 0 && <span className="text-accent">{fresh.length} new</span>}</span>
               </Link>
             ))}
             <span className="flex-1" />
-            <Link href="/cards/review" className="btn-primary px-3 py-1">Review all</Link>
+            <Link href="/anki/review" className="btn-primary px-3 py-1">Review all</Link>
           </div>
         </section>
       )}
       <DashboardTabs active={tabs.findIndex((t) => t.view === tab)} tabs={tabs.map((t) => ({ label: t.label, href: t.view ? `/?view=${t.view}` : "/" }))}>
         {(tab === "" || tab === "leetcode-cpp") && <CheatSheet key={tab} groups={cheat} today={today} />}
         {tab === "ml-coding" && <CheatSheet groups={cheat} today={today} complexity={false} />}
-        {tab === "quant-dev" && <CheatSheet groups={cheat} today={today} complexity={false} />}
         {tab === "system-design" && <SystemDesignSheet groups={sdSheet} />}
         {tab === "patterns" && <Patterns markdown={patterns ?? ""} />}
         {tab === "ml-cheat-sheet" && <PdfPages title="ML cheat sheet" src={`/api/files/raw?path=${encodeURIComponent(ML_PDF)}`} />}

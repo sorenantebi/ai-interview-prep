@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=jzZsG8n2R9A
 topic: "Two Pointers"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/3sum/

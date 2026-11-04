@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=s8p8ukTyA2I
 topic: "Heap / Priority Queue"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/task-scheduler/

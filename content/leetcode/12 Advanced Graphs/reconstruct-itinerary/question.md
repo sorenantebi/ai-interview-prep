@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=ZyB_gQ8vqGA
 topic: "Advanced Graphs"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/reconstruct-itinerary/

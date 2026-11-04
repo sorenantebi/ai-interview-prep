@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=hOjcdrqMoQ8
 topic: "Heap / Priority Queue"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/kth-largest-element-in-a-stream/

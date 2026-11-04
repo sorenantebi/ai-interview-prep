@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=pV2kpPD66nE
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/number-of-islands/

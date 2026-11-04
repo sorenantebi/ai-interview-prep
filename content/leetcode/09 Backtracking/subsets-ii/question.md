@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Vn2v6ajA7U0
 topic: "Backtracking"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/subsets-ii/

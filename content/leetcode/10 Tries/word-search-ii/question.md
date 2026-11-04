@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=asbcE9mZz_U
 topic: "Tries"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/word-search-ii/

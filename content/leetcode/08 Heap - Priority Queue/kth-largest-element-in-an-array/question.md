@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=XEmy13g1Qxc
 topic: "Heap / Priority Queue"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/kth-largest-element-in-an-array/

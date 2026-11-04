@@ -10,12 +10,11 @@
 
 | | |
 |---|---|
-| **LeetCode** | NeetCode 150 on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). Solve in **Python or C++** (LeetCode's C++ starters, NeetCode's C++ solutions, the same hidden tests). |
+| **LeetCode** | NeetCode 250, plus Union-Find, Segment Tree and Line Sweep topics, on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). Solve in **Python or C++** (LeetCode's C++ starters, NeetCode's C++ solutions, the same hidden tests). |
 | **ML Coding** | 60 NumPy, pandas and PyTorch exercises for ML interviews (tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. Have Claude generate more, or add your own from `content/ml-coding/_template/`. |
-| **Quant Dev** | 63 C++ problems with hidden C++ tests: C++ basics you compile yourself (pointers, memory, classes), smart pointers, containers and allocators, templates, multithreading, lock-free, low-latency bit tricks and trading systems (order book, matching engine, FIX parser). Plus 165 getcracked-style questions (C++ output and UB, concurrency, OS and networking, low latency, trading, probability) and the trading-systems interview guide as a PDF tab. |
 | **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests (works without Claude), optionally stating your time and space complexity, which Claude checks against your code. Hints and a complexity check from Claude. Move a problem to any topic. |
 | **System design** | 32 problems with solutions, your Excalidraw diagrams, 17 Hello Interview videos, and your own notes canvas. |
-| **Cards** | Anki-style flashcards with spaced repetition: import an Anki deck (`.apkg` or plain text, with images; needs Node 22.15+), edit cards in the app, or have Claude generate a deck on any topic. Today's due and new cards show on the dashboard. Decks are Markdown files in `content/decks/`. |
+| **Anki** | Anki-style flashcards with spaced repetition: import an Anki deck (`.apkg` or plain text, with images; needs Node 22.15+), edit cards in the app, or have Claude generate a deck on any topic. Today's due and new cards show on the dashboard. Decks are Markdown files in `content/decks/`. |
 | **Mock interviews** | Coding or system design interviews with Claude. The timer starts on its own, and you get feedback and a saved transcript. |
 | **Review** | A dashboard cheat sheet of your solved problems (your code, notes, drawings), spaced repetition and a patterns sheet. |
 | **Plan** | Claude writes a day-by-day study plan from your progress, including reviews. Streak calendar on the dashboard. |
@@ -64,18 +63,7 @@ The AI features (adding and generating problems, hidden tests, hints, mock inter
 
 ### How C++ answers are compiled
 
-Each Run or Submit writes your code to a temporary folder and compiles it with your system compiler (`c++`, or `g++` on Windows; set `CXX` to use another), then runs it on your machine.
-
-| Where | Flags | Why |
-|---|---|---|
-| **Quant Dev** (with its `tests.cpp`, or alone for C++ Basics) | `-std=c++20 -O1 -g -pthread` | C++20, light optimisation and debug info, so crashes and failures point at real lines |
-| | `-fsanitize=undefined -fno-sanitize-recover=undefined` | Undefined behaviour (signed overflow, bad shifts, null dereference…) stops the program and fails the test instead of silently "working" |
-| | `-D_LIBCPP_HARDENING_MODE=…EXTENSIVE` / `-D_GLIBCXX_ASSERTIONS` | The standard library checks bounds, e.g. `vec[i]` past the end crashes instead of reading garbage |
-| **LeetCode in C++** | `-std=c++20 -O2` (plus libc++'s fast bounds checks on macOS) | Speed like LeetCode's judge. Your file is compiled together with a small `main` that the Python tests talk to, plus LeetCode's usual setup: the common headers, `using namespace std`, `ListNode` and `TreeNode` |
-
-A C++ Basics program whose first lines are `// compile: g++ …` commands is built with exactly those, in order, instead; the **Compile It Yourself** exercise practises compiling (`-c`) and linking as two steps.
-
-Compiling takes about a second; a LeetCode answer that hasn't changed isn't compiled again. A Quant Dev program gets 20 seconds to run and a LeetCode run 30 seconds including compiling, so an infinite loop or a deadlock shows up as a timeout. A crash, such as a double free or a dangling pointer, is reported with its signal. AddressSanitizer, which would also catch use-after-free, is off: its programs hang on current macOS. On Windows the sanitizer flags are dropped, since MinGW doesn't support them.
+Each Run or Submit of a C++ LeetCode answer compiles it with your system compiler (`c++`, or `g++` on Windows; set `CXX` to use another) with `-std=c++20 -O2` (plus libc++'s fast bounds checks on macOS), for speed like LeetCode's judge. Your file is compiled together with a small `main` that the Python tests talk to, plus LeetCode's usual setup: the common headers, `using namespace std`, `ListNode` and `TreeNode`. Compiling takes about a second, and an answer that hasn't changed isn't compiled again. A run gets 30 seconds including compiling.
 
 ```
 content/
@@ -95,6 +83,9 @@ content/
 | `npm test` | Unit tests |
 | `node scripts/generate-tests.ts` | Pre-generate hidden tests for all problems (`--model`, `--jobs`, `--force`) |
 | `npm run fetch` | Re-download LeetCode starters and NeetCode solutions |
+| `node scripts/fetch-hld.ts` | Download Hello Interview's high-level and final design diagrams for the free breakdowns (git-ignored, shown instead of the Excalidraw ones) |
+| `node scripts/add-problems.ts <list.json>` | Add LeetCode problems in bulk, like Add from link (Claude writes them, then their hidden tests). `scripts/new-problems.json` is the list used for the NeetCode 250 |
+| `node scripts/fetch-videos.ts` | Add NeetCode's YouTube video to each LeetCode problem (shown in the Solution tab) |
 | `node scripts/fetch-cpp.ts` | Re-download LeetCode's C++ starters and NeetCode's C++ solutions |
 | `npm run setup-python` | Install numpy, pandas, torch and Jupyter into `.venv` for ML Coding and notebooks |
 | `node scripts/check-problems.ts <dir>` | Check problems (Python or C++): examples run, hidden tests pass with the reference and fail with the starter |
@@ -105,4 +96,4 @@ content/
 
 ## Credits
 
-Solutions from [NeetCode](https://neetcode.io) ([neetcode-gh/leetcode](https://github.com/neetcode-gh/leetcode), MIT), following the NeetCode 150 roadmap. Problems and starter code from [LeetCode](https://leetcode.com). System design videos by [Hello Interview](https://www.hellointerview.com). Not affiliated with any of them. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Solutions from [NeetCode](https://neetcode.io) ([neetcode-gh/leetcode](https://github.com/neetcode-gh/leetcode), MIT), following the NeetCode roadmap (NeetCode 250). Problems and starter code from [LeetCode](https://leetcode.com). System design videos by [Hello Interview](https://www.hellointerview.com). Not affiliated with any of them. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

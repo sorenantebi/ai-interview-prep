@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=wCc_nd-GiEc
 topic: "2-D Dynamic Programming"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/longest-increasing-path-in-a-matrix/

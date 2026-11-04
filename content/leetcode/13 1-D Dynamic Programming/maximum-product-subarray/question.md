@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=lXVy6YWFcRM
 topic: "1-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/maximum-product-subarray/

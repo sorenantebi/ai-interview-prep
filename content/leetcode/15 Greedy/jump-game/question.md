@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Yan0cv2cLy8
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/jump-game/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=EaphyqKU4PQ
 topic: "Advanced Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/network-delay-time/

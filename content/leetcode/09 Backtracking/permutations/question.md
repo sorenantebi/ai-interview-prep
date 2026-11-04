@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=s7AvT7cGdSo
 topic: "Backtracking"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/permutations/

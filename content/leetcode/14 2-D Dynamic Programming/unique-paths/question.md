@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=IlEsdxuD4lY
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/unique-paths/

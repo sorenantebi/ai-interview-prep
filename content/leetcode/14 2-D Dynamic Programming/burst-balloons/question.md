@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=VFskby7lUbw
 topic: "2-D Dynamic Programming"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/burst-balloons/

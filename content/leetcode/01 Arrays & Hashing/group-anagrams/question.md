@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=vzdNOK2oB2E
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/group-anagrams/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=WnPLSRLSANE
 topic: "Bit Manipulation"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/missing-number/

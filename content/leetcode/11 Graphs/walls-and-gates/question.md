@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=e69C6xhiSQE
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/walls-and-gates/

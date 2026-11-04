@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=vRbbcKXCxOw
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/same-tree/

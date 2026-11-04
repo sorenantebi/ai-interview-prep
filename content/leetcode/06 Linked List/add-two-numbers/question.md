@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=wgFPrzTjm7s
 topic: "Linked List"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/add-two-numbers/

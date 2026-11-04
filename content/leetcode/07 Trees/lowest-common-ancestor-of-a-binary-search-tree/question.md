@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=gs2LMfuOR9k
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/

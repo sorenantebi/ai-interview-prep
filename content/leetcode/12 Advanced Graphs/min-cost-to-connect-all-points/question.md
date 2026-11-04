@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=f7JOBJIC-NA
 topic: "Advanced Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/min-cost-to-connect-all-points/

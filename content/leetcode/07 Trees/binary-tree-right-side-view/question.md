@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=d4zLyf32e3I
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/binary-tree-right-side-view/

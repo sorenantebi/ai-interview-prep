@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=ihj4IQGZ2zc
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/

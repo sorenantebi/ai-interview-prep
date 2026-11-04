@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=s6ATEkipzow
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/validate-binary-search-tree/

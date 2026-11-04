@@ -145,7 +145,7 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
 }
 
 export default function Workspace(props: {
-  path: string; question: string; solution: string; fresh?: boolean; // fresh: a review, start from the starter
+  path: string; question: string; solution: string; video?: string; fresh?: boolean; // fresh: a review, start from the starter
   langs: Lang[]; attempts: Record<Lang, string | null>; starters: Record<Lang, string>; // the languages this problem offers
   names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
@@ -349,7 +349,22 @@ export default function Workspace(props: {
               <TestsPanel names={props.names} cases={cases} examples={props.examples} onChange={setCases} run={run} busy={!!busy} onRun={runCases} />
             )}
             {tab === "question" && <Markdown>{props.question}</Markdown>}
-            {tab === "solution" && <Markdown>{props.solution || "_No solution file._"}</Markdown>}
+            {tab === "solution" && (
+              <>
+                {props.video && (
+                  <div className="mb-4 aspect-video overflow-hidden border border-border">
+                    <iframe
+                      className="h-full w-full"
+                      src={`https://www.youtube-nocookie.com/embed/${props.video}`}
+                      title="NeetCode video solution"
+                      allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+                <Markdown>{props.solution || "_No solution file._"}</Markdown>
+              </>
+            )}
             {/* Kept mounted so the drawing and its pending save survive switching tabs. */}
             <div className={`space-y-4 ${tab === "notes" ? "" : "hidden"}`}>
                 <textarea

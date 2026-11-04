@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=7cp5imvDzl4
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/count-good-nodes-in-binary-tree/

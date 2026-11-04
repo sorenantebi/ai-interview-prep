@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5LUXSvjmGCw
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/kth-smallest-element-in-a-bst/

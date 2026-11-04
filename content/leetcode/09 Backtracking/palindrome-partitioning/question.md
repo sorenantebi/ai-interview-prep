@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=3jvWodd7ht0
 topic: "Backtracking"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/palindrome-partitioning/

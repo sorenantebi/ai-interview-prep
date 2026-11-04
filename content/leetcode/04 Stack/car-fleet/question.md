@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Pr6T-3yB9RM
 topic: "Stack"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/car-fleet/

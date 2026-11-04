@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=QfJsau0ItOY
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/balanced-binary-tree/

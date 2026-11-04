@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=QhPdNS143Qg
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/valid-parenthesis-string/

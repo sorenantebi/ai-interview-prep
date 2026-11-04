@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=kShkQLQZ9K4
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/merge-triplets-to-form-target-triplet/

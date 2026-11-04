@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=rI2EBUEMfTk
 topic: "Heap / Priority Queue"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/k-closest-points-to-origin/

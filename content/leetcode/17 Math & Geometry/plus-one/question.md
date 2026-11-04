@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=jIaA8boiG1s
 topic: "Math & Geometry"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/plus-one/

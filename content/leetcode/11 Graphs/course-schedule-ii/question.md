@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Akt3glAwyfY
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/course-schedule-ii/

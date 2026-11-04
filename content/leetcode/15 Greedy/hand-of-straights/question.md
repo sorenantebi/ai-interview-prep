@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=amnrMCVd2YI
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/hand-of-straights/

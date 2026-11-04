@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=gqXU1UyA8pk
 topic: "Sliding Window"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/longest-repeating-character-replacement/

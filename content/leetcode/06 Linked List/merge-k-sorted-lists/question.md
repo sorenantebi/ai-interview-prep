@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=q5a5OiGbT6Q
 topic: "Linked List"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/merge-k-sorted-lists/

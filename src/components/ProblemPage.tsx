@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Workspace from "@/components/Workspace";
-import { areaStats, localDate, progress, read, write } from "@/lib/content";
+import { areaStats, localDate, parse, progress, read, write } from "@/lib/content";
 import { orderQuery, sequence, type Order } from "@/lib/order";
 import { problemHref } from "@/components/ProblemList";
 import { codeBlock, parseExamples, starterFrom, strokesOf, type Cases } from "@/lib/starter";
@@ -10,7 +10,7 @@ export type ProblemPageProps = {
   searchParams: Promise<{ order?: string; seed?: string; only?: string; review?: string }>;
 };
 
-/** The coding problem page of an area ("leetcode", "ml-coding" or "quant-dev"): editor, tests, notes, prev / next. */
+/** The coding problem page of an area ("leetcode" or "ml-coding"): editor, tests, notes, prev / next. */
 export default async function ProblemPage({ area, params, searchParams }: ProblemPageProps & { area: string }) {
   const { group, slug } = await params;
   const q = await searchParams;
@@ -35,11 +35,10 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
   const link = (p?: string) => (p ? problemHref(p) + orderQuery(order) : null);
   const nav = { prev: link(seq[at - 1]), next: link(seq[at + 1]), pos: at + 1, total: seq.length, random: order.random, unsolved: order.unsolved };
   // LeetCode's starter when we have it; otherwise signatures only, taken from the reference solution.
-  // Quant Dev is C++ only (its own tests), ML Coding Python only, LeetCode both when there's a C++ starter.
-  const cppOnly = area === "quant-dev";
-  const starter = cppOnly ? "" : (starterFile ?? starterFrom(codeBlock(solution ?? "")));
-  const examples = cppOnly ? { names: [], cases: [] } : parseExamples(question, starter);
-  const langs = cppOnly ? (["cpp"] as const) : starterCpp !== null ? (["python", "cpp"] as const) : (["python"] as const);
+  // ML Coding is Python only, LeetCode both when there's a C++ starter.
+  const starter = starterFile ?? starterFrom(codeBlock(solution ?? ""));
+  const examples = parseExamples(question, starter);
+  const langs = starterCpp !== null ? (["python", "cpp"] as const) : (["python"] as const);
   let mine: Cases | null = null;
   try { mine = saved ? JSON.parse(saved) : null; } catch {}
   return (
@@ -47,6 +46,7 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
       path={path}
       question={order.random ? question.replace(/\*\*Topic:\*\*[^·\n]*·\s*/, "") : question} // shuffle mode hides the topic: it gives the pattern away
       solution={solution ?? ""}
+      video={String(parse(question).data.video ?? "").match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1]}
       langs={[...langs]}
       attempts={{ python: attempt, cpp: attemptCpp }}
       fresh={review}

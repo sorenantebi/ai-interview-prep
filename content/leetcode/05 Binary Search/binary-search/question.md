@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=s4DPM8ct1pI
 topic: "Binary Search"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/binary-search/

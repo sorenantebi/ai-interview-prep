@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=pNichitDD2E
 topic: "Heap / Priority Queue"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/design-twitter/

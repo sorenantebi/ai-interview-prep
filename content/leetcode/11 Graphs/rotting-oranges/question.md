@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=y704fEOx0s0
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/rotting-oranges/

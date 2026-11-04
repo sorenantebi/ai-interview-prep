@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=oobqoCJlHA0
 topic: "Tries"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/implement-trie-prefix-tree/

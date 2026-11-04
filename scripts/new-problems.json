@@ -1,0 +1,680 @@
+[
+ {
+  "url": "https://leetcode.com/problems/concatenation-of-array/",
+  "group": "01 Arrays & Hashing",
+  "video": "68isPRHgcFQ",
+  "neetcode": "https://neetcode.io/problems/concatenation-of-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/longest-common-prefix/",
+  "group": "01 Arrays & Hashing",
+  "video": "0sWShKIJoo4",
+  "neetcode": "https://neetcode.io/problems/longest-common-prefix"
+ },
+ {
+  "url": "https://leetcode.com/problems/remove-element/",
+  "group": "01 Arrays & Hashing",
+  "video": "Pcd1ii9P9ZI",
+  "neetcode": "https://neetcode.io/problems/remove-element"
+ },
+ {
+  "url": "https://leetcode.com/problems/majority-element/",
+  "group": "01 Arrays & Hashing",
+  "video": "7pnhv842keE",
+  "neetcode": "https://neetcode.io/problems/majority-element"
+ },
+ {
+  "url": "https://leetcode.com/problems/design-hashset/",
+  "group": "01 Arrays & Hashing",
+  "video": "VymjPQUXjL8",
+  "neetcode": "https://neetcode.io/problems/design-hashset"
+ },
+ {
+  "url": "https://leetcode.com/problems/design-hashmap/",
+  "group": "01 Arrays & Hashing",
+  "video": "cNWsgbKwwoU",
+  "neetcode": "https://neetcode.io/problems/design-hashmap"
+ },
+ {
+  "url": "https://leetcode.com/problems/sort-an-array/",
+  "group": "01 Arrays & Hashing",
+  "video": "MsYZSinhuFo",
+  "neetcode": "https://neetcode.io/problems/sort-an-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/sort-colors/",
+  "group": "01 Arrays & Hashing",
+  "video": "4xbWSRZHqac",
+  "neetcode": "https://neetcode.io/problems/sort-colors"
+ },
+ {
+  "url": "https://leetcode.com/problems/range-sum-query-2d-immutable/",
+  "group": "01 Arrays & Hashing",
+  "video": "KE8MQuwE2yA",
+  "neetcode": "https://neetcode.io/problems/range-sum-query-2d-immutable"
+ },
+ {
+  "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/",
+  "group": "01 Arrays & Hashing",
+  "video": "3SJ3pUkPQMc",
+  "neetcode": "https://neetcode.io/problems/best-time-to-buy-and-sell-stock-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/majority-element-ii/",
+  "group": "01 Arrays & Hashing",
+  "video": "Eua-UrQ_ANo",
+  "neetcode": "https://neetcode.io/problems/majority-element-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/subarray-sum-equals-k/",
+  "group": "01 Arrays & Hashing",
+  "video": "fFVZt-6sgyo",
+  "neetcode": "https://neetcode.io/problems/subarray-sum-equals-k"
+ },
+ {
+  "url": "https://leetcode.com/problems/first-missing-positive/",
+  "group": "01 Arrays & Hashing",
+  "video": "8g78yfzMlao",
+  "neetcode": "https://neetcode.io/problems/first-missing-positive"
+ },
+ {
+  "url": "https://leetcode.com/problems/reverse-string/",
+  "group": "02 Two Pointers",
+  "video": "_d0T_2Lk2qA",
+  "neetcode": "https://neetcode.io/problems/reverse-string"
+ },
+ {
+  "url": "https://leetcode.com/problems/valid-palindrome-ii/",
+  "group": "02 Two Pointers",
+  "video": "JrxRYBwG6EI",
+  "neetcode": "https://neetcode.io/problems/valid-palindrome-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/merge-strings-alternately/",
+  "group": "02 Two Pointers",
+  "video": "LECWOvTo-Sc",
+  "neetcode": "https://neetcode.io/problems/merge-strings-alternately"
+ },
+ {
+  "url": "https://leetcode.com/problems/merge-sorted-array/",
+  "group": "02 Two Pointers",
+  "video": "P1Ic85RarKY",
+  "neetcode": "https://neetcode.io/problems/merge-sorted-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-array/",
+  "group": "02 Two Pointers",
+  "video": "DEJAZBq0FDA",
+  "neetcode": "https://neetcode.io/problems/remove-duplicates-from-sorted-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/4sum/",
+  "group": "02 Two Pointers",
+  "video": "EYeR-_1NRlQ",
+  "neetcode": "https://neetcode.io/problems/4sum"
+ },
+ {
+  "url": "https://leetcode.com/problems/rotate-array/",
+  "group": "02 Two Pointers",
+  "video": "BHr381Guz3Y",
+  "neetcode": "https://neetcode.io/problems/rotate-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/boats-to-save-people/",
+  "group": "02 Two Pointers",
+  "video": "XbaxWuHIWUs",
+  "neetcode": "https://neetcode.io/problems/boats-to-save-people"
+ },
+ {
+  "url": "https://leetcode.com/problems/contains-duplicate-ii/",
+  "group": "03 Sliding Window",
+  "video": "ypn0aZ0nrL4",
+  "neetcode": "https://neetcode.io/problems/contains-duplicate-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/minimum-size-subarray-sum/",
+  "group": "03 Sliding Window",
+  "video": "aYqYMIqZx5s",
+  "neetcode": "https://neetcode.io/problems/minimum-size-subarray-sum"
+ },
+ {
+  "url": "https://leetcode.com/problems/find-k-closest-elements/",
+  "group": "03 Sliding Window",
+  "video": "o-YDQzHoaKM",
+  "neetcode": "https://neetcode.io/problems/find-k-closest-elements"
+ },
+ {
+  "url": "https://leetcode.com/problems/baseball-game/",
+  "group": "04 Stack",
+  "video": "Id_tqGdsZQI",
+  "neetcode": "https://neetcode.io/problems/baseball-game"
+ },
+ {
+  "url": "https://leetcode.com/problems/implement-stack-using-queues/",
+  "group": "04 Stack",
+  "video": "rW4vm0-DLYc",
+  "neetcode": "https://neetcode.io/problems/implement-stack-using-queues"
+ },
+ {
+  "url": "https://leetcode.com/problems/implement-queue-using-stacks/",
+  "group": "04 Stack",
+  "video": "eanwa3ht3YQ",
+  "neetcode": "https://neetcode.io/problems/implement-queue-using-stacks"
+ },
+ {
+  "url": "https://leetcode.com/problems/asteroid-collision/",
+  "group": "04 Stack",
+  "video": "LN7KjRszjk4",
+  "neetcode": "https://neetcode.io/problems/asteroid-collision"
+ },
+ {
+  "url": "https://leetcode.com/problems/online-stock-span/",
+  "group": "04 Stack",
+  "video": "slYh0ZNEqSw",
+  "neetcode": "https://neetcode.io/problems/online-stock-span"
+ },
+ {
+  "url": "https://leetcode.com/problems/simplify-path/",
+  "group": "04 Stack",
+  "video": "qYlHrAKJfyA",
+  "neetcode": "https://neetcode.io/problems/simplify-path"
+ },
+ {
+  "url": "https://leetcode.com/problems/decode-string/",
+  "group": "04 Stack",
+  "video": "qB0zZpBJlh8",
+  "neetcode": "https://neetcode.io/problems/decode-string"
+ },
+ {
+  "url": "https://leetcode.com/problems/maximum-frequency-stack/",
+  "group": "04 Stack",
+  "video": "Z6idIicFDOE",
+  "neetcode": "https://neetcode.io/problems/maximum-frequency-stack"
+ },
+ {
+  "url": "https://leetcode.com/problems/search-insert-position/",
+  "group": "05 Binary Search",
+  "video": "K-RYzDZkzCI",
+  "neetcode": "https://neetcode.io/problems/search-insert-position"
+ },
+ {
+  "url": "https://leetcode.com/problems/guess-number-higher-or-lower/",
+  "group": "05 Binary Search",
+  "video": "xW4QsTtaCa4",
+  "neetcode": "https://neetcode.io/problems/guess-number-higher-or-lower"
+ },
+ {
+  "url": "https://leetcode.com/problems/sqrtx/",
+  "group": "05 Binary Search",
+  "video": "zdMhGxRWutQ",
+  "neetcode": "https://neetcode.io/problems/sqrtx"
+ },
+ {
+  "url": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
+  "group": "05 Binary Search",
+  "video": "ER_oLmdc-nw",
+  "neetcode": "https://neetcode.io/problems/capacity-to-ship-packages-within-d-days"
+ },
+ {
+  "url": "https://leetcode.com/problems/search-in-rotated-sorted-array-ii/",
+  "group": "05 Binary Search",
+  "video": "oUnF7o88_Xc",
+  "neetcode": "https://neetcode.io/problems/search-in-rotated-sorted-array-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/split-array-largest-sum/",
+  "group": "05 Binary Search",
+  "video": "YUF3_eBdzsk",
+  "neetcode": "https://neetcode.io/problems/split-array-largest-sum"
+ },
+ {
+  "url": "https://leetcode.com/problems/find-in-mountain-array/",
+  "group": "05 Binary Search",
+  "video": "BGgYC-YkGvc",
+  "neetcode": "https://neetcode.io/problems/find-in-mountain-array"
+ },
+ {
+  "url": "https://leetcode.com/problems/reverse-linked-list-ii/",
+  "group": "06 Linked List",
+  "video": "RF_M9tX4Eag",
+  "neetcode": "https://neetcode.io/problems/reverse-linked-list-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/design-circular-queue/",
+  "group": "06 Linked List",
+  "video": "aBbsfn863oA",
+  "neetcode": "https://neetcode.io/problems/design-circular-queue"
+ },
+ {
+  "url": "https://leetcode.com/problems/binary-tree-inorder-traversal/",
+  "group": "07 Trees",
+  "video": "g_S5WuasWUE",
+  "neetcode": "https://neetcode.io/problems/binary-tree-inorder-traversal"
+ },
+ {
+  "url": "https://leetcode.com/problems/binary-tree-preorder-traversal/",
+  "group": "07 Trees",
+  "video": "afTpieEZXck",
+  "neetcode": "https://neetcode.io/problems/binary-tree-preorder-traversal"
+ },
+ {
+  "url": "https://leetcode.com/problems/binary-tree-postorder-traversal/",
+  "group": "07 Trees",
+  "video": "QhszUQhGGlA",
+  "neetcode": "https://neetcode.io/problems/binary-tree-postorder-traversal"
+ },
+ {
+  "url": "https://leetcode.com/problems/insert-into-a-binary-search-tree/",
+  "group": "07 Trees",
+  "video": "Cpg8f79luEA",
+  "neetcode": "https://neetcode.io/problems/insert-into-a-binary-search-tree"
+ },
+ {
+  "url": "https://leetcode.com/problems/delete-node-in-a-bst/",
+  "group": "07 Trees",
+  "video": "LFzAoJJt92M",
+  "neetcode": "https://neetcode.io/problems/delete-node-in-a-bst"
+ },
+ {
+  "url": "https://leetcode.com/problems/construct-quad-tree/",
+  "group": "07 Trees",
+  "video": "UQ-1sBMV0v4",
+  "neetcode": "https://neetcode.io/problems/construct-quad-tree"
+ },
+ {
+  "url": "https://leetcode.com/problems/house-robber-iii/",
+  "group": "07 Trees",
+  "video": "nHR8ytpzz7c",
+  "neetcode": "https://neetcode.io/problems/house-robber-iii"
+ },
+ {
+  "url": "https://leetcode.com/problems/delete-leaves-with-a-given-value/",
+  "group": "07 Trees",
+  "video": "FqAoYAwbwV8",
+  "neetcode": "https://neetcode.io/problems/delete-leaves-with-a-given-value"
+ },
+ {
+  "url": "https://leetcode.com/problems/single-threaded-cpu/",
+  "group": "08 Heap - Priority Queue",
+  "video": "RR1n-d4oYqE",
+  "neetcode": "https://neetcode.io/problems/single-threaded-cpu"
+ },
+ {
+  "url": "https://leetcode.com/problems/reorganize-string/",
+  "group": "08 Heap - Priority Queue",
+  "video": "2g_b1aYTHeg",
+  "neetcode": "https://neetcode.io/problems/reorganize-string"
+ },
+ {
+  "url": "https://leetcode.com/problems/longest-happy-string/",
+  "group": "08 Heap - Priority Queue",
+  "video": "8u-H6O_XQKE",
+  "neetcode": "https://neetcode.io/problems/longest-happy-string"
+ },
+ {
+  "url": "https://leetcode.com/problems/car-pooling/",
+  "group": "08 Heap - Priority Queue",
+  "video": "08sn_w4LWEE",
+  "neetcode": "https://neetcode.io/problems/car-pooling"
+ },
+ {
+  "url": "https://leetcode.com/problems/ipo/",
+  "group": "08 Heap - Priority Queue",
+  "video": "1IUzNJ6TPEM",
+  "neetcode": "https://neetcode.io/problems/ipo"
+ },
+ {
+  "url": "https://leetcode.com/problems/sum-of-all-subset-xor-totals/",
+  "group": "09 Backtracking",
+  "video": "LI7YR-bwNYY",
+  "neetcode": "https://neetcode.io/problems/sum-of-all-subset-xor-totals"
+ },
+ {
+  "url": "https://leetcode.com/problems/combinations/",
+  "group": "09 Backtracking",
+  "video": "q0s6m7AiM7o",
+  "neetcode": "https://neetcode.io/problems/combinations"
+ },
+ {
+  "url": "https://leetcode.com/problems/permutations-ii/",
+  "group": "09 Backtracking",
+  "video": "qhBVWf0YafA",
+  "neetcode": "https://neetcode.io/problems/permutations-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/matchsticks-to-square/",
+  "group": "09 Backtracking",
+  "video": "hUe0cUKV-YY",
+  "neetcode": "https://neetcode.io/problems/matchsticks-to-square"
+ },
+ {
+  "url": "https://leetcode.com/problems/partition-to-k-equal-sum-subsets/",
+  "group": "09 Backtracking",
+  "video": "mBk4I0X46oI",
+  "neetcode": "https://neetcode.io/problems/partition-to-k-equal-sum-subsets"
+ },
+ {
+  "url": "https://leetcode.com/problems/n-queens-ii/",
+  "group": "09 Backtracking",
+  "video": "nalYyLZgvCY",
+  "neetcode": "https://neetcode.io/problems/n-queens-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/word-break-ii/",
+  "group": "09 Backtracking",
+  "video": "QgLKdluDo08",
+  "neetcode": "https://neetcode.io/problems/word-break-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/extra-characters-in-a-string/",
+  "group": "10 Tries",
+  "video": "ONstwO1cD7c",
+  "neetcode": "https://neetcode.io/problems/extra-characters-in-a-string"
+ },
+ {
+  "url": "https://leetcode.com/problems/island-perimeter/",
+  "group": "11 Graphs",
+  "video": "fISIuAFRM2s",
+  "neetcode": "https://neetcode.io/problems/island-perimeter"
+ },
+ {
+  "url": "https://leetcode.com/problems/verifying-an-alien-dictionary/",
+  "group": "11 Graphs",
+  "video": "OVgPAJIyX6o",
+  "neetcode": "https://neetcode.io/problems/verifying-an-alien-dictionary"
+ },
+ {
+  "url": "https://leetcode.com/problems/find-the-town-judge/",
+  "group": "11 Graphs",
+  "video": "QiGaxdUINJ8",
+  "neetcode": "https://neetcode.io/problems/find-the-town-judge"
+ },
+ {
+  "url": "https://leetcode.com/problems/open-the-lock/",
+  "group": "11 Graphs",
+  "video": "Pzg3bCDY87w",
+  "neetcode": "https://neetcode.io/problems/open-the-lock"
+ },
+ {
+  "url": "https://leetcode.com/problems/course-schedule-iv/",
+  "group": "11 Graphs",
+  "video": "cEW05ofxhn0",
+  "neetcode": "https://neetcode.io/problems/course-schedule-iv"
+ },
+ {
+  "url": "https://leetcode.com/problems/accounts-merge/",
+  "group": "11 Graphs",
+  "video": "6st4IxEF-90",
+  "neetcode": "https://neetcode.io/problems/accounts-merge"
+ },
+ {
+  "url": "https://leetcode.com/problems/evaluate-division/",
+  "group": "11 Graphs",
+  "video": "Uei1fwDoyKk",
+  "neetcode": "https://neetcode.io/problems/evaluate-division"
+ },
+ {
+  "url": "https://leetcode.com/problems/minimum-height-trees/",
+  "group": "11 Graphs",
+  "video": "wQGQnyv_9hI",
+  "neetcode": "https://neetcode.io/problems/minimum-height-trees"
+ },
+ {
+  "url": "https://leetcode.com/problems/path-with-minimum-effort/",
+  "group": "12 Advanced Graphs",
+  "video": "XQlxCCx2vI4",
+  "neetcode": "https://neetcode.io/problems/path-with-minimum-effort"
+ },
+ {
+  "url": "https://leetcode.com/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree/",
+  "group": "12 Advanced Graphs",
+  "video": "83JnUxrLKJU",
+  "neetcode": "https://neetcode.io/problems/find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree"
+ },
+ {
+  "url": "https://leetcode.com/problems/build-a-matrix-with-conditions/",
+  "group": "12 Advanced Graphs",
+  "video": "khTKB1PzCuw",
+  "neetcode": "https://neetcode.io/problems/build-a-matrix-with-conditions"
+ },
+ {
+  "url": "https://leetcode.com/problems/greatest-common-divisor-traversal/",
+  "group": "12 Advanced Graphs",
+  "video": "jZ-RVp5CVYY",
+  "neetcode": "https://neetcode.io/problems/greatest-common-divisor-traversal"
+ },
+ {
+  "url": "https://leetcode.com/problems/n-th-tribonacci-number/",
+  "group": "13 1-D Dynamic Programming",
+  "video": "3lpNp5Ojvrw",
+  "neetcode": "https://neetcode.io/problems/n-th-tribonacci-number"
+ },
+ {
+  "url": "https://leetcode.com/problems/combination-sum-iv/",
+  "group": "13 1-D Dynamic Programming",
+  "video": "dw2nMCxG0ik",
+  "neetcode": "https://neetcode.io/problems/combination-sum-iv"
+ },
+ {
+  "url": "https://leetcode.com/problems/perfect-squares/",
+  "group": "13 1-D Dynamic Programming",
+  "video": "HLZLwjzIVGo",
+  "neetcode": "https://neetcode.io/problems/perfect-squares"
+ },
+ {
+  "url": "https://leetcode.com/problems/integer-break/",
+  "group": "13 1-D Dynamic Programming",
+  "video": "in6QbUPMJ3I",
+  "neetcode": "https://neetcode.io/problems/integer-break"
+ },
+ {
+  "url": "https://leetcode.com/problems/stone-game-iii/",
+  "group": "13 1-D Dynamic Programming",
+  "video": "HsLG5QW9CFQ",
+  "neetcode": "https://neetcode.io/problems/stone-game-iii"
+ },
+ {
+  "url": "https://leetcode.com/problems/unique-paths-ii/",
+  "group": "14 2-D Dynamic Programming",
+  "video": "d3UOz7zdE4I",
+  "neetcode": "https://neetcode.io/problems/unique-paths-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/minimum-path-sum/",
+  "group": "14 2-D Dynamic Programming",
+  "video": "pGMsrvt0fpk",
+  "neetcode": "https://neetcode.io/problems/minimum-path-sum"
+ },
+ {
+  "url": "https://leetcode.com/problems/last-stone-weight-ii/",
+  "group": "14 2-D Dynamic Programming",
+  "video": "gdXkkmzvR3c",
+  "neetcode": "https://neetcode.io/problems/last-stone-weight-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/stone-game/",
+  "group": "14 2-D Dynamic Programming",
+  "video": "uhgdXOlGYqE",
+  "neetcode": "https://neetcode.io/problems/stone-game"
+ },
+ {
+  "url": "https://leetcode.com/problems/stone-game-ii/",
+  "group": "14 2-D Dynamic Programming",
+  "video": "I-z-u0zfQtg",
+  "neetcode": "https://neetcode.io/problems/stone-game-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/lemonade-change/",
+  "group": "15 Greedy",
+  "video": "mSVAw0AUZgA",
+  "neetcode": "https://neetcode.io/problems/lemonade-change"
+ },
+ {
+  "url": "https://leetcode.com/problems/maximum-sum-circular-subarray/",
+  "group": "15 Greedy",
+  "video": "fxT9KjakYPM",
+  "neetcode": "https://neetcode.io/problems/maximum-sum-circular-subarray"
+ },
+ {
+  "url": "https://leetcode.com/problems/longest-turbulent-subarray/",
+  "group": "15 Greedy",
+  "video": "V_iHUhR8Dek",
+  "neetcode": "https://neetcode.io/problems/longest-turbulent-subarray"
+ },
+ {
+  "url": "https://leetcode.com/problems/jump-game-vii/",
+  "group": "15 Greedy",
+  "video": "v1HpZUnQ4Yo",
+  "neetcode": "https://neetcode.io/problems/jump-game-vii"
+ },
+ {
+  "url": "https://leetcode.com/problems/dota2-senate/",
+  "group": "15 Greedy",
+  "video": "zZA5KskfMuQ",
+  "neetcode": "https://neetcode.io/problems/dota2-senate"
+ },
+ {
+  "url": "https://leetcode.com/problems/candy/",
+  "group": "15 Greedy",
+  "video": "1IzCRCcK17A",
+  "neetcode": "https://neetcode.io/problems/candy"
+ },
+ {
+  "url": "https://leetcode.com/problems/meeting-rooms-iii/",
+  "group": "16 Intervals",
+  "video": "2VLwjvODQbA",
+  "neetcode": "https://neetcode.io/problems/meeting-rooms-iii"
+ },
+ {
+  "url": "https://leetcode.com/problems/excel-sheet-column-title/",
+  "group": "17 Math & Geometry",
+  "video": "X_vJDpCCuoA",
+  "neetcode": "https://neetcode.io/problems/excel-sheet-column-title"
+ },
+ {
+  "url": "https://leetcode.com/problems/greatest-common-divisor-of-strings/",
+  "group": "17 Math & Geometry",
+  "video": "i5I_wrbUdzM",
+  "neetcode": "https://neetcode.io/problems/greatest-common-divisor-of-strings"
+ },
+ {
+  "url": "https://leetcode.com/problems/insert-greatest-common-divisors-in-linked-list/",
+  "group": "17 Math & Geometry",
+  "video": "SS_IlBrocYQ",
+  "neetcode": "https://neetcode.io/problems/insert-greatest-common-divisors-in-linked-list"
+ },
+ {
+  "url": "https://leetcode.com/problems/transpose-matrix/",
+  "group": "17 Math & Geometry",
+  "video": "DzMT3bDgVn0",
+  "neetcode": "https://neetcode.io/problems/transpose-matrix"
+ },
+ {
+  "url": "https://leetcode.com/problems/roman-to-integer/",
+  "group": "17 Math & Geometry",
+  "video": "3jdxYj3DD98",
+  "neetcode": "https://neetcode.io/problems/roman-to-integer"
+ },
+ {
+  "url": "https://leetcode.com/problems/add-binary/",
+  "group": "18 Bit Manipulation",
+  "video": "keuWJ47xG8g",
+  "neetcode": "https://neetcode.io/problems/add-binary"
+ },
+ {
+  "url": "https://leetcode.com/problems/bitwise-and-of-numbers-range/",
+  "group": "18 Bit Manipulation",
+  "video": "R3T0olAhUq0",
+  "neetcode": "https://neetcode.io/problems/bitwise-and-of-numbers-range"
+ },
+ {
+  "url": "https://leetcode.com/problems/minimum-array-end/",
+  "group": "18 Bit Manipulation",
+  "video": "4pP-0UpEok4",
+  "neetcode": "https://neetcode.io/problems/minimum-array-end"
+ },
+ {
+  "url": "https://leetcode.com/problems/number-of-provinces/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/satisfiability-of-equality-equations/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/number-of-operations-to-make-network-connected/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/smallest-string-with-swaps/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/",
+  "group": "19 Union Find",
+  "video": "booGwg5wYm4",
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/range-sum-query-mutable/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/queries-on-a-permutation-with-key/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/count-of-smaller-numbers-after-self/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/create-sorted-array-through-instructions/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/falling-squares/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/longest-increasing-subsequence-ii/",
+  "group": "20 Segment Tree",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/number-of-islands-ii/",
+  "group": "19 Union Find",
+  "video": null,
+  "neetcode": "https://neetcode.io/problems/number-of-islands-ii"
+ },
+ {
+  "url": "https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/",
+  "group": "03 Sliding Window",
+  "video": "V-ecDfY5xEw",
+  "neetcode": "https://neetcode.io/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit"
+ }
+]

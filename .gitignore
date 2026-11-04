@@ -79,6 +79,8 @@ content/**/my_tests.py
 !content/leetcode/**/tests.py
 /.next-test/
 /.venv/
-content/quiz.json
 content/cards.json
 content/decks/
+# Hello Interview's diagrams (their work): download with node scripts/fetch-hld.ts
+content/system-design/**/hld.*
+content/system-design/**/final-design.*

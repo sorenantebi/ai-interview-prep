@@ -57,7 +57,7 @@ export default function DeckTools({ decks }: { decks: { file: string; name: stri
         </div>
         <button className="btn-primary" disabled={!!busy}>Generate</button>
       </form>
-      <form className="card space-y-3 p-4" onSubmit={(e) => { e.preventDefault(); go("Creating…", async () => { const r = await api("/api/cards", { action: "create", name }); router.push(`/cards/${encodeURIComponent(r.file)}`); return `Created ${r.file}`; }); }}>
+      <form className="card space-y-3 p-4" onSubmit={(e) => { e.preventDefault(); go("Creating…", async () => { const r = await api("/api/cards", { action: "create", name }); router.push(`/anki/${encodeURIComponent(r.file)}`); return `Created ${r.file}`; }); }}>
         <h2 className="font-medium">New deck</h2>
         <input className="input" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Deck name" />
         <button className="btn" disabled={!!busy}>Create and edit</button>

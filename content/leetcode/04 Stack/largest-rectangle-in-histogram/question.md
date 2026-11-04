@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=zx5Sw9130L0
 topic: "Stack"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/largest-rectangle-in-histogram/

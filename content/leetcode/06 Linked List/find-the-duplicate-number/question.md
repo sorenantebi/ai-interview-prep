@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=wjYnzkAhcNk
 topic: "Linked List"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/find-the-duplicate-number/

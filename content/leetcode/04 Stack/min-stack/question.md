@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=qkLl7nAwDPo
 topic: "Stack"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/min-stack/

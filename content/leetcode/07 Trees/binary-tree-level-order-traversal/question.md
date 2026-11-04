@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=6ZnyEApgFYg
 topic: "Trees"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/binary-tree-level-order-traversal/

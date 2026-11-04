@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=UcoN6UjAI64
 topic: "Bit Manipulation"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/reverse-bits/

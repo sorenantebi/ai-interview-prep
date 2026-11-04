@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=gVUrDV4tZfY
 topic: "Bit Manipulation"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/sum-of-two-integers/

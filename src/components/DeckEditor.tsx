@@ -32,17 +32,18 @@ export default function DeckEditor({ file, name: initialName, cards: initial }: 
   async function del() {
     if (!confirm(`Delete the deck "${name}" and all its cards?`)) return;
     await api("/api/cards", { action: "delete", deck: file });
-    router.push("/cards");
+    router.push("/anki");
   }
 
   return (
     <div className="mx-auto max-w-5xl space-y-4">
-      <Link href="/cards" className="font-mono text-xs text-muted hover:text-fg">← Cards</Link>
+      <Link href="/anki" className="font-mono text-xs text-muted hover:text-fg">← Anki</Link>
       <div className="flex flex-wrap items-center gap-2">
         <input className="input flex-1 font-display text-2xl font-medium" value={name} onChange={(e) => setName(e.target.value)} aria-label="Deck name" />
+        <button className="btn" onClick={() => { setPreview(false); setCards((cs) => [{ front: "", back: "" }, ...cs]); }}>+ card</button>
         <button className="btn" onClick={() => setPreview((p) => !p)}>{preview ? "Edit" : "Preview"}</button>
         <button className="btn-primary" disabled={!dirty} onClick={save}>{dirty ? "Save" : "Saved"}</button>
-        <Link href={`/cards/review?deck=${encodeURIComponent(file)}`} className="btn">Review</Link>
+        <Link href={`/anki/review?deck=${encodeURIComponent(file)}`} className="btn">Review</Link>
         <button className="btn text-hard" onClick={del}>Delete deck</button>
       </div>
       {error && <p className="font-mono text-xs text-hard">{error}</p>}
@@ -65,7 +66,6 @@ export default function DeckEditor({ file, name: initialName, cards: initial }: 
           </li>
         ))}
       </ol>
-      <button className="btn" onClick={() => { setPreview(false); setCards((cs) => [...cs, { front: "", back: "" }]); }}>+ card</button>
     </div>
   );
 }

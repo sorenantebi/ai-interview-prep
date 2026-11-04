@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=UbyhOgBN834
 topic: "Sliding Window"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/permutation-in-string/

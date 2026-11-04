@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=KLlXCFG5TnA
 topic: "Arrays & Hashing"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/two-sum/

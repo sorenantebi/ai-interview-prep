@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=PaJxqZVPhbg
 topic: "Intervals"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/meeting-rooms/

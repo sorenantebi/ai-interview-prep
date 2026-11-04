@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=3Rw3p9LrgvE
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/interleaving-string/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=s-VkcjHqkGI
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/pacific-atlantic-water-flow/

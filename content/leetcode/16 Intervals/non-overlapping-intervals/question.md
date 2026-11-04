@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=nONCGxWoUfM
 topic: "Intervals"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/non-overlapping-intervals/

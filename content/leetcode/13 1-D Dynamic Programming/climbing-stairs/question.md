@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Y0lT9Fck7qI
 topic: "1-D Dynamic Programming"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/climbing-stairs/

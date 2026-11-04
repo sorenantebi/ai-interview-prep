@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=itmhHWaHupI
 topic: "Heap / Priority Queue"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/find-median-from-data-stream/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=ljz85bxOYJ0
 topic: "Math & Geometry"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/happy-number/

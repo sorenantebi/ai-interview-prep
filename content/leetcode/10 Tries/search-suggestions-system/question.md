@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=D4T2N0yAr20
 topic: "Tries"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/search-suggestions-system/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bkxqA8Rfv04
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/diameter-of-binary-tree/

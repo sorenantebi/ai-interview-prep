@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=wiGpQwVHdE0
 topic: "Sliding Window"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/longest-substring-without-repeating-characters/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=h9iTnkgv05E
 topic: "Graphs"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/word-ladder/

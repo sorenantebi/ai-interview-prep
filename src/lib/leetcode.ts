@@ -1,12 +1,12 @@
 import { fillEmptyBodies } from "./starter.ts";
 
-/** Problem number and Python / C++ starters from LeetCode's public GraphQL API (no starters for premium problems). */
-export async function leetcodeInfo(slug: string): Promise<{ id: string; paid: boolean; starter: string | null; cppStarter: string | null }> {
+/** Problem number, statement (HTML) and Python / C++ starters from LeetCode's public GraphQL API (no starters for premium problems). */
+export async function leetcodeInfo(slug: string): Promise<{ id: string; paid: boolean; starter: string | null; cppStarter: string | null; content: string | null }> {
   const res = await fetch("https://leetcode.com/graphql", {
     method: "POST",
     headers: { "Content-Type": "application/json", Referer: "https://leetcode.com" },
     body: JSON.stringify({
-      query: "query q($s: String!) { question(titleSlug: $s) { questionFrontendId isPaidOnly codeSnippets { langSlug code } } }",
+      query: "query q($s: String!) { question(titleSlug: $s) { questionFrontendId isPaidOnly content codeSnippets { langSlug code } } }",
       variables: { s: slug },
     }),
   });
@@ -14,7 +14,7 @@ export async function leetcodeInfo(slug: string): Promise<{ id: string; paid: bo
   if (!q) throw new Error(`LeetCode has no problem "${slug}"`);
   const snippet = (lang: string): string | undefined => q.codeSnippets?.find((s: { langSlug: string }) => s.langSlug === lang)?.code;
   const py = snippet("python3"), cpp = snippet("cpp");
-  return { id: q.questionFrontendId, paid: q.isPaidOnly, starter: py ? fillEmptyBodies(py) : null, cppStarter: cpp ? cpp.trimEnd() + "\n" : null };
+  return { id: q.questionFrontendId, paid: q.isPaidOnly, starter: py ? fillEmptyBodies(py) : null, cppStarter: cpp ? cpp.trimEnd() + "\n" : null, content: q.content ?? null };
 }
 
 let ncFiles: Promise<string[]> | null = null;

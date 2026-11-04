@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bXsUuownnoQ
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/graph-valid-tree/

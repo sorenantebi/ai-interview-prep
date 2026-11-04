@@ -29,6 +29,16 @@ export async function tree(rel = ""): Promise<TreeNode[]> {
   return nodes;
 }
 
+/** Hello Interview's diagrams saved by scripts/fetch-hld.ts (hld.<ext>, final-design.<ext>), as URLs, or undefined. */
+export async function hiDiagrams(dir: string) {
+  const files = await fs.readdir(safePath(dir)).catch(() => [] as string[]);
+  const url = (name: string) => {
+    const f = files.find((x) => x.startsWith(`${name}.`));
+    return f ? `/api/files/raw?path=${encodeURIComponent(`${dir}/${f}`)}` : undefined;
+  };
+  return { hld: url("hld"), final: url("final-design") };
+}
+
 export async function read(rel: string): Promise<string | null> {
   try {
     return await fs.readFile(safePath(rel), "utf8");

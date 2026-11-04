@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=FXWRE67PLL0
 topic: "Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/redundant-connection/

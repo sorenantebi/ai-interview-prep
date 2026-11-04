@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=u4JAi2JJhI8
 topic: "Trees"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/serialize-and-deserialize-binary-tree/

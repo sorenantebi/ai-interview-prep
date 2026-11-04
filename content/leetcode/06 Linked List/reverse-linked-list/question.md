@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=G0_I-ZF0S38
 topic: "Linked List"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/reverse-linked-list/

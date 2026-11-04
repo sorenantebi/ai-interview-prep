@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Mjy4hd2xgrs
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/coin-change-ii/

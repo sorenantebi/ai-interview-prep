@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=OnSn2XEQ4MY
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/invert-binary-tree/

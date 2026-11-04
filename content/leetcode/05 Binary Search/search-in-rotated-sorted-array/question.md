@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=U8XENwh8Oy8
 topic: "Binary Search"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/search-in-rotated-sorted-array/

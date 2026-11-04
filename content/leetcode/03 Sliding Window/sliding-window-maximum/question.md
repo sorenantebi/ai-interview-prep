@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=DfljaUwZsOk
 topic: "Sliding Window"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/sliding-window-maximum/

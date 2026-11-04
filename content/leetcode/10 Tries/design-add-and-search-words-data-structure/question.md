@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=BTf05gs_8iU
 topic: "Tries"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/design-add-and-search-words-data-structure/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=qMPX1AOa83k
 topic: "Bit Manipulation"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/single-number/

@@ -7,7 +7,8 @@ import { NotesCell } from "./CheatSheet";
 import { problemHref } from "./ProblemList";
 import { fmtDate } from "@/lib/format";
 
-export type SDEntry = { path: string; title: string; difficulty?: string; done?: string; diagram: Scene | null; notes: string; drawing: Scene | null };
+// diagram: an Excalidraw scene, or an image URL (Hello Interview's HLD)
+export type SDEntry = { path: string; title: string; difficulty?: string; done?: string; diagram: Scene | string | null; notes: string; drawing: Scene | null };
 
 // Problem | Solution diagram | Your notes
 const COLS = "grid-cols-1 lg:grid-cols-[minmax(200px,0.8fr)_minmax(0,2.4fr)_minmax(240px,1.2fr)]";
@@ -48,7 +49,12 @@ export default function SystemDesignSheet({ groups }: { groups: { name: string; 
               <div className={`${cell} min-w-0`}>
                 {e.diagram ? (
                   <Link href={problemHref(e.path)} className="block border border-border hover:border-fg" title="Open the problem">
-                    <ExcalidrawView scene={e.diagram} title={`${e.title} solution diagram`} className="max-h-80 w-full" />
+                    {typeof e.diagram === "string" ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={e.diagram} alt={`${e.title} high-level design`} className="max-h-80 w-full bg-white object-contain" loading="lazy" />
+                    ) : (
+                      <ExcalidrawView scene={e.diagram} title={`${e.title} solution diagram`} className="max-h-80 w-full" />
+                    )}
                   </Link>
                 ) : (
                   <p className="font-mono text-xs text-muted">No diagram.</p>

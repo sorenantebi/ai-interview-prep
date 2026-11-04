@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=S5bfdUTrKLM
 topic: "Linked List"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/reorder-list/

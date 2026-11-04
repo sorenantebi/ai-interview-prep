@@ -5,7 +5,7 @@ import ExcalidrawView, { parseScene } from "@/components/ExcalidrawView";
 import SDNotes from "@/components/SDNotes";
 import Difficulty from "@/components/Difficulty";
 import SolvedToggle from "@/components/SolvedToggle";
-import { parse, progress, read } from "@/lib/content";
+import { hiDiagrams, parse, progress, read } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,12 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
   const [question, solution, notes, diagramFile, deepDiveFile, notesDrawing] = await Promise.all(
     ["question.md", "solution.md", "notes.md", "diagram.excalidraw", "deep-dive.excalidraw", "notes.excalidraw"].map((f) => read(`${path}/${f}`)),
   );
-  const diagrams = [["Solution diagram", parseScene(diagramFile)], ["Deep dive", parseScene(deepDiveFile)]] as const;
+  const hi = await hiDiagrams(path);
+  // Hello Interview's own diagrams when downloaded (scripts/fetch-hld.ts), else the Excalidraw ones.
+  const diagrams = [
+    ["High-level design", hi.hld ?? parseScene(diagramFile)],
+    [hi.final ? "Final design" : "Deep dive", hi.final ?? parseScene(deepDiveFile)],
+  ] as const;
   if (question === null) notFound();
   const { data } = parse(question);
   const vid = youtubeId(data.video);
@@ -51,9 +56,14 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
           <div className="space-y-6 border-t border-border p-6">
             {diagrams.map(([label, scene]) => scene && (
               <figure key={label} className="space-y-2">
-                <figcaption className="tag">{label}</figcaption>
+                <figcaption className="tag">{label}{typeof scene === "string" && " · Hello Interview"}</figcaption>
                 <div className="overflow-x-auto border border-border">
-                  <ExcalidrawView scene={scene} title={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px]" />
+                  {typeof scene === "string" ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={scene} alt={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px] bg-white" />
+                  ) : (
+                    <ExcalidrawView scene={scene} title={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px]" />
+                  )}
                 </div>
               </figure>
             ))}

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=pfiQ_PS1g8E
 topic: "Backtracking"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/word-search/

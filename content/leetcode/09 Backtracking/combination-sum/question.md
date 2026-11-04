@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=GBKI9VSKdGg
 topic: "Backtracking"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/combination-sum/

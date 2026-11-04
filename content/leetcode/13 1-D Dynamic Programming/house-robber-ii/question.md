@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=rWAJCfYYOvM
 topic: "1-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/house-robber-ii/

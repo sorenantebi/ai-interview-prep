@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=1pkOgXD63yU
 topic: "Sliding Window"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/

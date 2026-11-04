@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=5eIK3zUdYmE
 topic: "Advanced Graphs"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/cheapest-flights-within-k-stops/

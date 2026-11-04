@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=P6RZZMu_maU
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/longest-consecutive-sequence/

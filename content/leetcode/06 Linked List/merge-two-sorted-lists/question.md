@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=XIdigk956u0
 topic: "Linked List"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/merge-two-sorted-lists/

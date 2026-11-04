@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=g9YQyYi4IQQ
 topic: "Math & Geometry"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/powx-n/

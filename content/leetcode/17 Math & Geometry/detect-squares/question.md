@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bahebearrDc
 topic: "Math & Geometry"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/detect-squares/

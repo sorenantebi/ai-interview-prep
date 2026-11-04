@@ -1,50 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { difficultyOf, interviewMinutes } from "@/lib/interview";
-import { areaStats, logActivity, read, safePath, write } from "@/lib/content";
+import { areaStats, logActivity, read, safePath } from "@/lib/content";
 import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
 import { testsProblem } from "@/lib/run";
 import { generateTests } from "@/lib/hidden-tests";
-import { codeBlock, withCpp } from "@/lib/starter";
-import { leetcodeInfo, neetcodeSolution, slugOf } from "@/lib/leetcode";
+import { codeBlock } from "@/lib/starter";
+import { addFromLink, saveProblem, topicName, unfence } from "@/lib/add-problem";
 import { checkComplexity } from "@/lib/complexity";
-
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-const unfence = (code: string) => code.replace(/^```\w*\n|\n?```\s*$/g, "");
-
-/** Writes question.md/solution.md (and any `extra` files) from a model reply into <area>/<group>/<slug of title>. */
-async function saveProblem(text: string, area: string, group: string, extra: string[] = []) {
-  const f = files(text);
-  if (!f["question.md"] || !f["solution.md"]) throw new Error("Claude's reply did not contain question.md and solution.md:\n\n" + text.slice(0, 1500));
-  const title = f["question.md"].match(/^# (?:Design )?(.+)$/m)?.[1] ?? "untitled";
-  const dir = `${area}/${group}/${slug(title)}`;
-  if ((await read(`${dir}/question.md`)) !== null) throw new Error(`${dir} already exists`);
-  await write(`${dir}/question.md`, f["question.md"]);
-  await write(`${dir}/solution.md`, f["solution.md"]);
-  for (const name of extra) await write(`${dir}/${name}`, unfence(f[name]));
-  return dir;
-}
 
 /** Writes the hidden tests now, so Submit never waits on Claude; if that fails the problem is still kept, and Submit tries again. */
 const testsWarning = (dir: string) =>
   generateTests(dir).then(() => undefined, (e) => `${(e as Error).message}\n\nThe problem is saved; Submit will try writing the tests again.`);
-
-const topicName = (group: string) => group.replace(/^\d+\s*/, "");
-
-/** LeetCode's starters -> starter.py / starter.cpp, NeetCode's code -> the solution's code block and its C++ section. */
-async function applyLeetcodeAndNeetcode(dir: string, url: string) {
-  const slug = slugOf(url);
-  if (!slug) return;
-  const info = await leetcodeInfo(slug);
-  if (info.starter) await write(`${dir}/starter.py`, info.starter);
-  if (info.cppStarter) await write(`${dir}/starter.cpp`, info.cppStarter);
-  const [nc, ncCpp] = await Promise.all([neetcodeSolution(info.id), neetcodeSolution(info.id, "cpp")]);
-  let solution = await read(`${dir}/solution.md`);
-  if (nc && solution?.includes("```python")) solution = solution.replace(/```python\n[\s\S]*?```/, () => "```python\n" + nc + "```");
-  if (ncCpp && solution) solution = withCpp(solution, ncCpp);
-  if (solution) await write(`${dir}/solution.md`, solution);
-}
 
 export async function POST(req: NextRequest) {
   const b = await req.json();
@@ -52,11 +19,7 @@ export async function POST(req: NextRequest) {
     switch (b.action) {
       case "add-leetcode": {
         safePath(`leetcode/${b.group}`);
-        const format = await prompt("_leetcode-format", { topic: topicName(b.group) });
-        const input = await prompt("add-leetcode-from-link", { url: b.url, format });
-        const { text } = await claude(input, { tools: ["WebFetch"] });
-        const dir = await saveProblem(text, "leetcode", b.group);
-        await applyLeetcodeAndNeetcode(dir, b.url).catch(() => {}); // best effort: Claude's files still work without it
+        const dir = await addFromLink(String(b.url), b.group);
         return NextResponse.json({ path: dir, warning: await testsWarning(dir) });
       }
       case "generate-leetcode": {

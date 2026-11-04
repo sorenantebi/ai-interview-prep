@@ -9,7 +9,7 @@ from collections import *  # noqa: F401,F403
 from functools import *  # noqa: F401,F403
 from heapq import *  # noqa: F401,F403
 from itertools import *  # noqa: F401,F403
-from math import inf  # noqa: F401
+from math import ceil, comb, factorial, floor, gcd, inf, isqrt, lcm, log, log2, sqrt  # noqa: F401  (LeetCode has these; not pow, which would shadow the 3-arg built-in)
 from typing import *  # noqa: F401,F403
 
 sys.setrecursionlimit(10000)

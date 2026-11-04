@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=XYi2-LPrwm4
 topic: "2-D Dynamic Programming"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/edit-distance/

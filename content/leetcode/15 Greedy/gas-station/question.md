@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=lJwbPZGo05A
 topic: "Greedy"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/gas-station/

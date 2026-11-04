@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=q6IEA26hvXc
 topic: "Binary Search"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/median-of-two-sorted-arrays/

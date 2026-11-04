@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=YPTqKIgVk-k
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/top-k-frequent-elements/

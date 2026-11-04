@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bNvIQI2wAjk
 topic: "Arrays & Hashing"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/product-of-array-except-self/

@@ -12,9 +12,9 @@ export const NO_ASSIST: EditorProps["options"] = {
   hover: { enabled: "off" }, autoClosingBrackets: "never", autoClosingQuotes: "never", autoSurround: "never", formatOnType: false,
   occurrencesHighlight: "off", selectionHighlight: false, codeLens: false,
 };
-// "Doc" = Google-interview style blank white sheet: no highlighting, line numbers, guides or auto-indent.
+// "Doc" = Google-interview style blank white sheet: no highlighting, guides or auto-indent (line numbers stay, to talk about lines).
 export const DOC: EditorProps["options"] = {
-  ...NO_ASSIST, lineNumbers: "off", glyphMargin: false, folding: false, lineDecorationsWidth: 16, renderLineHighlight: "none",
+  ...NO_ASSIST, lineNumbers: "on", glyphMargin: false, folding: false, lineDecorationsWidth: 12, renderLineHighlight: "none",
   guides: { indentation: false, bracketPairs: false }, matchBrackets: "never", autoIndent: "none", renderWhitespace: "none",
   padding: { top: 16 }, wordWrap: "on",
 };

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=gBTe7lFR3vc
 topic: "Linked List"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/linked-list-cycle/

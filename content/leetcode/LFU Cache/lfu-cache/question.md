@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bLEIHn-DgoA
 topic: "LFU Cache"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/lfu-cache/

@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=U2SozAs9RzA
 topic: "Binary Search"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/koko-eating-bananas/

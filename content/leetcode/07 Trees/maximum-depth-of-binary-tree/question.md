@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=hTM3phVI6YQ
 topic: "Trees"
 difficulty: Easy
 leetcode: https://leetcode.com/problems/maximum-depth-of-binary-tree/

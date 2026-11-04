@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Hr5cWUld4vU
 topic: "Trees"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/binary-tree-maximum-path-sum/

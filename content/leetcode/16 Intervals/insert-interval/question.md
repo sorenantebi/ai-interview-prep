@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=A8NUOmlwOlM
 topic: "Intervals"
 difficulty: Medium
 leetcode: https://leetcode.com/problems/insert-interval/

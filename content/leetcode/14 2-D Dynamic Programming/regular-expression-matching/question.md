@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=HAA8mgxlov8
 topic: "2-D Dynamic Programming"
 difficulty: Hard
 leetcode: https://leetcode.com/problems/regular-expression-matching/
