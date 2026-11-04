@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **LeetCode** | NeetCode 250, plus Union-Find, Segment Tree and Line Sweep topics, on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). Solve in **Python or C++** (LeetCode's C++ starters, NeetCode's C++ solutions, the same hidden tests). |
-| **ML Coding** | 60 NumPy, pandas and PyTorch exercises for ML interviews (tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. Have Claude generate more, or add your own from `content/ml-coding/_template/`. |
+| **ML Coding** | 85 NumPy, pandas and PyTorch exercises for ML interviews (NumPy and pandas basics, tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. Have Claude generate more, or add your own from `content/ml-coding/_template/`. |
 | **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests (works without Claude), optionally stating your time and space complexity, which Claude checks against your code. Hints and a complexity check from Claude. Move a problem to any topic. |
 | **System design** | 32 problems with solutions, your Excalidraw diagrams, 17 Hello Interview videos, and your own notes canvas. |
 | **Anki** | Anki-style flashcards with spaced repetition: import an Anki deck (`.apkg` or plain text, with images; needs Node 22.15+), edit cards in the app, or have Claude generate a deck on any topic. Today's due and new cards show on the dashboard. Decks are Markdown files in `content/decks/`. |
