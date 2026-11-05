@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logActivity, read, safePath, setProgress, write } from "@/lib/content";
+import { logActivity, read, safePath, saveSubmission, setProgress, write } from "@/lib/content";
 import { generateTests } from "@/lib/hidden-tests";
 import { cppAttempt, runCases, runPython } from "@/lib/run";
 import { completeTasks } from "@/lib/plan";
@@ -53,6 +53,8 @@ export async function POST(req: NextRequest) {
     const claimed = { time: String(time ?? "").trim(), space: String(space ?? "").trim() };
     let complexity = null;
     if (r.ok) {
+      // History first: it picks up the old solved.py / solved.cpp before this overwrites it.
+      await saveSubmission(path, { at: new Date().toISOString(), lang: cpp ? "cpp" : "python", code, ...(claimed.time && { time: claimed.time }), ...(claimed.space && { space: claimed.space }) });
       await write(`${path}/${cpp ? "solved.cpp" : "solved.py"}`, code); // snapshot of your passing code, shown in the cheat sheet
       await completeTasks(path);
     }

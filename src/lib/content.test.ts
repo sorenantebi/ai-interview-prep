@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 process.env.CONTENT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "content-test-"));
-const { safePath, write, read, problems, setProgress, progress } = await import("./content.ts");
+const { safePath, write, read, problems, setProgress, progress, submissions, saveSubmission } = await import("./content.ts");
 const { files } = await import("./claude.ts");
 
 test("safePath blocks escapes from content/", () => {
@@ -29,6 +29,16 @@ test("progress round-trips", async () => {
   assert.equal((await progress())["leetcode/01 T/a"].status, "solved");
   await setProgress("leetcode/01 T/a", null);
   assert.equal((await progress())["leetcode/01 T/a"], undefined);
+});
+
+test("passing answers are kept, including the solved.py from before the history", async () => {
+  const p = "leetcode/01 T/h";
+  await write(`${p}/solved.py`, "old");
+  await saveSubmission(p, { at: "2026-11-05T10:00:00Z", lang: "python", code: "new" });
+  await saveSubmission(p, { at: "2026-11-06T10:00:00Z", lang: "python", code: "new" }); // same code: not added twice
+  assert.deepEqual((await submissions(p)).map((s) => [s.at, s.code]), [["", "old"], ["2026-11-05T10:00:00Z", "new"]]);
+  await write(`${p}/solved.py`, "new"); // what Submit does next: the old answer stays in the history
+  assert.deepEqual((await submissions(p)).map((s) => s.code), ["old", "new"]);
 });
 
 test("files() splits model output into named files", () => {

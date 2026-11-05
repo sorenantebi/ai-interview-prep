@@ -66,6 +66,7 @@ content/**/attempt.py
 content/**/solved.py
 content/**/attempt.cpp
 content/**/solved.cpp
+content/**/submissions.json
 content/**/complexity.json
 content/**/complexity.cpp.json
 content/**/notes.md

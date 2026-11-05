@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Workspace from "@/components/Workspace";
-import { areaStats, localDate, parse, progress, read, write } from "@/lib/content";
+import { areaStats, localDate, parse, progress, read, submissions, write } from "@/lib/content";
 import { orderQuery, sequence, type Order } from "@/lib/order";
 import { problemHref } from "@/components/ProblemList";
 import { codeBlock, parseExamples, starterFrom, strokesOf, type Cases } from "@/lib/starter";
@@ -55,6 +55,7 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
       cases={mine?.cases?.length ? mine.cases : examples.cases}
       examples={examples.cases}
       notes={notes ?? ""}
+      submissions={await submissions(path)}
       drawing={strokesOf(drawing)}
       status={prog[path]?.status}
       review={prog[path]?.review}

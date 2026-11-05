@@ -115,6 +115,27 @@ export async function setProgress(problemPath: string, status: "solved" | "attem
   await write("progress.json", JSON.stringify(p, null, 2));
 }
 
+/** A passing Submit: your code then, and the complexity you stated (if any). `at` is "" for a solve from before this history. */
+export type Submission = { at: string; lang: "python" | "cpp"; code: string; time?: string; space?: string };
+
+/** Your passing answers, oldest first (submissions.json), plus solved.py / solved.cpp from before the history existed. */
+export async function submissions(problemPath: string): Promise<Submission[]> {
+  let list: Submission[] = [];
+  try { list = JSON.parse((await read(`${problemPath}/submissions.json`)) ?? "[]"); } catch {}
+  for (const lang of ["python", "cpp"] as const) {
+    const code = await read(`${problemPath}/solved.${lang === "cpp" ? "cpp" : "py"}`);
+    if (code !== null && !list.some((s) => s.lang === lang && s.code === code)) list.unshift({ at: "", lang, code });
+  }
+  return list;
+}
+
+/** Adds a passing answer to submissions.json; the same code passing again isn't added twice. */
+export async function saveSubmission(problemPath: string, s: Submission) {
+  const list = await submissions(problemPath);
+  if (list.some((x) => x.lang === s.lang && x.code === s.code)) return;
+  await write(`${problemPath}/submissions.json`, JSON.stringify([...list, s], null, 1));
+}
+
 /** Days until the next review for each step of the spaced-repetition ladder. */
 export const INTERVALS = [1, 3, 7, 14, 30, 60, 120];
 export type ReviewAction = "enable" | "disable" | "again" | "hard" | "good" | "easy" | "set";

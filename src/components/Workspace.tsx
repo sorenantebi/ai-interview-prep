@@ -9,10 +9,10 @@ import ReviewControls from "./ReviewControls";
 import { isDark } from "./ThemeToggle";
 import SketchPad, { type Stroke } from "./SketchPad";
 import { api, putFile } from "@/lib/client";
-import type { Review } from "@/lib/content";
+import type { Review, Submission } from "@/lib/content";
 import type { CaseResult } from "@/lib/run";
 
-type Tab = "question" | "solution" | "notes" | "tests";
+type Tab = "question" | "solution" | "submissions" | "notes" | "tests";
 type Lang = "python" | "cpp";
 const LANG_LABEL: Record<Lang, string> = { python: "Python", cpp: "C++" };
 type Run = { results?: CaseResult[]; error?: string };
@@ -147,7 +147,7 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
 export default function Workspace(props: {
   path: string; question: string; solution: string; video?: string; fresh?: boolean; // fresh: a review, start from the starter
   langs: Lang[]; attempts: Record<Lang, string | null>; starters: Record<Lang, string>; // the languages this problem offers
-  names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; status?: string; review?: Review; today: string;
+  names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; submissions: Submission[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
   topics: string[];
 }) {
@@ -166,6 +166,7 @@ export default function Workspace(props: {
   const code = codes[lang];
   const setCode = (v: string) => setCodes((c) => ({ ...c, [lang]: v }));
   const [notes, setNotes] = useState(props.notes);
+  const [history, setHistory] = useState(props.submissions);
   const [cases, setCases] = useState(props.cases);
   const [run, setRun] = useState<Run | null>(null);
   type Verdict = { time: string; space: string; timeOk: boolean | null; spaceOk: boolean | null; why: string; claimed?: { time: string; space: string }; error?: string };
@@ -253,6 +254,8 @@ export default function Workspace(props: {
     try {
       const r = await api("/api/run", { path, code, lang, mode: "submit", regenerate, time: myTime, space: mySpace });
       setSubmit(r);
+      if (r.ok && !history.some((s) => s.lang === lang && s.code === code))
+        setHistory((h) => [...h, { at: new Date().toISOString(), lang, code, ...(myTime.trim() && { time: myTime.trim() }), ...(mySpace.trim() && { space: mySpace.trim() }) }]);
       setStatus((s) => (r.ok ? "solved" : s === "solved" ? s : "attempted"));
     } catch (e) {
       setSubmit({ ok: false, output: (e as Error).message });
@@ -338,7 +341,7 @@ export default function Workspace(props: {
       <div ref={row} className="flex min-h-0 flex-1 max-lg:flex-col max-lg:gap-3">
         <section className="card flex min-h-0 flex-col lg:w-[var(--left)] lg:shrink-0" style={{ "--left": `${layout.left}%` } as React.CSSProperties}>
           <div className="flex gap-1 border-b border-border p-2" role="tablist">
-            {(["question", "solution", "notes", "tests"] as Tab[]).map((t) => (
+            {(["question", "solution", "submissions", "notes", "tests"] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`px-3 py-1 font-mono text-xs capitalize ${tab === t ? "bg-fg text-panel" : "text-muted hover:text-fg"}`}>
                 {t}
               </button>
@@ -364,6 +367,20 @@ export default function Workspace(props: {
                 )}
                 <Markdown>{props.solution || "_No solution file._"}</Markdown>
               </>
+            )}
+            {tab === "submissions" && (
+              <div className="space-y-5">
+                {history.length === 0 && <p className="text-sm text-muted">No passing submissions yet. Every answer that passes Submit is kept here.</p>}
+                {[...history].reverse().map((s, i) => (
+                  <div key={i}>
+                    <p className="mb-1 font-mono text-xs text-muted">
+                      {s.at ? new Date(s.at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Earlier"} · {LANG_LABEL[s.lang]}
+                      {(s.time || s.space) && ` · time ${s.time || "?"} · space ${s.space || "?"}`}
+                    </p>
+                    <Markdown>{"```" + s.lang + "\n" + s.code.replace(/\n$/, "") + "\n```"}</Markdown>
+                  </div>
+                ))}
+              </div>
             )}
             {/* Kept mounted so the drawing and its pending save survive switching tabs. */}
             <div className={`space-y-4 ${tab === "notes" ? "" : "hidden"}`}>

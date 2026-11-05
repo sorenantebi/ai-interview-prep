@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { difficultyOf, interviewMinutes } from "@/lib/interview";
-import { areaStats, logActivity, read, safePath } from "@/lib/content";
+import { areaStats, logActivity, progress, read, safePath, submissions } from "@/lib/content";
 import { shuffle } from "@/lib/order";
 import { claude, files, prompt } from "@/lib/claude";
 import { testsProblem } from "@/lib/run";
@@ -60,14 +60,24 @@ export async function POST(req: NextRequest) {
         if (b.sessionId) return NextResponse.json(await claude(b.message, { sessionId: b.sessionId }));
         // Claude picks the same "obvious" problem for the same prompt, so the randomness comes from here: no theme → a
         // random problem from your list; a theme → Claude picks from the list in a fresh random order.
-        const all = (await areaStats(b.kind === "system-design" ? "system-design" : "leetcode")).flatMap((g) => g.problems);
+        const prog = await progress();
+        const isSolved = (p: string) => prog[p]?.status === "solved";
+        // Your solved problems only when you ask for them (the option, or a theme like "one I've solved").
+        const all = (await areaStats(b.kind === "system-design" ? "system-design" : "leetcode")).flatMap((g) => g.problems).filter((p) => !b.solvedOnly || isSolved(p.path));
+        if (!all.length) throw new Error("You haven't solved any problems here yet.");
         const path: string | undefined = b.problemPath || (b.theme ? undefined : all[Math.floor(Math.random() * all.length)]?.path);
         const problem = path
           ? ((await read(`${path}/question.md`)) ?? "")
-          : `choose (theme: ${b.theme}). Pick from this list, which is in random order: take the first one that fits the theme.\n` +
-            shuffle(all.map((p) => `- ${p.title} (${p.difficulty ?? "?"})`), Date.now()).join("\n");
+          : `choose (theme: ${b.theme}). Pick from this list, which is in random order: take the first one that fits the theme. ` +
+            `"(solved)" marks problems the candidate has solved before; only use that if the theme asks for it.\n` +
+            shuffle(all.map((p) => `- ${p.title} (${p.difficulty ?? "?"})${isSolved(p.path) ? " (solved)" : ""}`), Date.now()).join("\n");
+        // The candidate's past passing answers to this problem, for the feedback (the interviewer keeps them to itself).
+        const past = path && b.kind !== "system-design" ? await submissions(path) : [];
+        const history = past.length
+          ? past.map((x) => `${x.at ? x.at.slice(0, 10) : "earlier"} (${x.lang}${x.time || x.space ? `, said time ${x.time || "?"} / space ${x.space || "?"}` : ""}):\n\`\`\`${x.lang}\n${x.code}\n\`\`\``).join("\n\n")
+          : "none";
         const minutes = interviewMinutes(b.kind, path ? difficultyOf(problem) : undefined);
-        const input = (await prompt(b.kind === "system-design" ? "interview-system-design" : "interview-coding", { problem, minutes: String(minutes) })) + "\n\nBegin the interview now.";
+        const input = (await prompt(b.kind === "system-design" ? "interview-system-design" : "interview-coding", { problem, minutes: String(minutes), history })) + "\n\nBegin the interview now.";
         return NextResponse.json({ ...(await claude(input)), minutes }); // the page starts its clock when this first reply arrives
       }
       default:

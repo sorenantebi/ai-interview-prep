@@ -106,6 +106,7 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
   const [kind, setKind] = useState(initialKind === "system-design" ? "system-design" : "coding");
   const [problem, setProblem] = useState(initialProblem);
   const [theme, setTheme] = useState("");
+  const [solvedOnly, setSolvedOnly] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -144,11 +145,15 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
     const starter = kind === "coding" && problem ? await fetch(`/api/files?path=${encodeURIComponent(`${problem}/starter.py`)}`).then((r) => r.json()).then((d) => d.content ?? "", () => "") : "";
     setCode(starter);
     sentCode.current = starter;
-    call({ kind, problemPath: problem || undefined, theme });
+    call({ kind, problemPath: problem || undefined, theme, solvedOnly: !problem && solvedOnly });
   };
   // Your message, plus the doc's code whenever it changed since the interviewer last saw it.
   const send = (text: string) => {
     if (!text.trim() || !sessionId) return;
+    if (/^end interview$/i.test(text.trim())) {
+      text = "END INTERVIEW"; // the exact words the interviewer prompt waits for
+      timerCommand({ action: "pause" }); // the interview is over: stop the clock
+    }
     setInput("");
     const changed = kind === "coding" && code.trim() && code !== sentCode.current;
     sentCode.current = code;
@@ -189,6 +194,12 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
             <input className="input" value={theme} onChange={(e) => setTheme(e.target.value)} placeholder={kind === "coding" ? "e.g. graphs, medium-hard" : "e.g. real-time systems at Meta"} />
           </label>
         )}
+        {!problem && (
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={solvedOnly} onChange={(e) => setSolvedOnly(e.target.checked)} />
+            Only problems I&apos;ve solved
+          </label>
+        )}
         <div className="flex items-center gap-3">
           <button className="btn-primary" onClick={start} disabled={busy}>{busy ? "Starting…" : `Start ${kind === "coding" ? "coding" : "system design"} interview`}</button>
           <Link href={`/files?path=${encodeURIComponent(`prompts/interview-${kind}.md`)}`} className="text-xs text-muted hover:text-fg">Edit interviewer prompt</Link>
@@ -221,7 +232,7 @@ function Interview({ tree, initialKind, initialProblem }: { tree: TreeNode[]; in
       />
       <div className="flex flex-wrap gap-2">
         <button className="btn-primary" onClick={() => send(input)} disabled={busy || !input.trim()}>Send</button>
-        <button className="btn" onClick={() => { timerCommand({ action: "pause" }); send("END INTERVIEW"); }} disabled={busy}>End & get feedback</button>
+        <button className="btn" onClick={() => send("END INTERVIEW")} disabled={busy}>End & get feedback</button>
         <button className="btn" onClick={save} disabled={busy || !msgs.length}>{saved ? "Save again" : "Save transcript"}</button>
         <button className="btn" onClick={() => { timerCommand({ action: "reset" }); setSessionId(null); setMsgs([]); }} disabled={busy}>New interview</button>
         {saved && <Link href={`/files?path=${encodeURIComponent(saved)}`} className="self-center text-sm text-easy underline">Saved to {saved}</Link>}
