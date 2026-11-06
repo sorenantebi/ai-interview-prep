@@ -7,10 +7,10 @@ These are the instructions the app sends to Claude Code (`claude -p`). Edit them
 | File | Used by |
 |---|---|
 | `_leetcode-format.md` | Shared file format for the two LeetCode prompts below |
-| `add-leetcode-from-link.md` | AI → Add LeetCode from link |
-| `generate-leetcode.md` | AI → Generate LeetCode problem |
-| `generate-ml-coding.md` | AI → Generate ML coding problem (its file format is `ml-coding/_template/`) |
-| `system-design.md` | AI → Add system design |
+| `add-leetcode-from-link.md` | mock → Add LeetCode from link |
+| `generate-leetcode.md` | mock → Generate LeetCode problem |
+| `generate-ml-coding.md` | mock → Generate ML coding problem (its file format is `ml-coding/_template/`) |
+| `system-design.md` | mock → Add system design |
 | `generate-tests.md` | Problem page → Submit (first submit, or "regenerate them") and `scripts/generate-tests.ts` |
 | `hint.md` | Problem page → Hint |
 | `complexity.md` | Problem page → Complexity, and the check after a passing Submit |
@@ -19,4 +19,4 @@ These are the instructions the app sends to Claude Code (`claude -p`). Edit them
 | `interview-system-design.md` | Mock interview (system design, including ML) |
 | `generate-deck.md` | Anki → Generate with Claude (a new deck, or more cards for one) |
 | `generate-repo-debugging.md` | `scripts/generate-repo-problems.ts` (a whole multi-file problem: repo, tests, hidden tests, solution) |
-| `repo-assistant.md` | Repo Debugging → AI assistant (reads the files, never edits them) |
+| `repo-assistant.md` | AI Assisted → AI assistant (reads the files, never edits them) |

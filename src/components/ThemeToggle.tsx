@@ -16,7 +16,7 @@ export default function ThemeToggle() {
     window.dispatchEvent(new Event("prep-theme")); // lets the code editor switch its colours too
   }
   return (
-    <button onClick={toggle} className="whitespace-nowrap bg-panel px-3 py-1.5 text-lg hover:bg-fg hover:text-panel" aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} title={dark ? "Light mode" : "Dark mode"}>
+    <button onClick={toggle} className="flex h-8 cursor-pointer items-center whitespace-nowrap bg-panel px-3 text-[15px] hover:bg-fg hover:text-panel" aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} title={dark ? "Light mode" : "Dark mode"}>
       {dark === null ? "◐" : dark ? "☀" : "☾"}
     </button>
   );

@@ -7,7 +7,7 @@ import { AREA, runRepo, saveWork, workingRepo } from "@/lib/repo";
 const fence = (files: Record<string, string>) => Object.entries(files).map(([f, c]) => `=== ${f} ===\n\`\`\`python\n${c}\n\`\`\``).join("\n\n");
 
 /**
- * Repo Debugging. Actions, each with { path } (the problem folder):
+ * AI Assisted (repo problems). Actions, each with { path } (the problem folder):
  * save { files } · run { files } (the visible tests) · submit { files } (plus the hidden tests; passing marks it solved) ·
  * reset (back to the original repo) · assistant { message, files, changed?, sessionId? } (the AI chat: reads files, never edits)
  * `files` is every file of the project as you have it now (added ones included, deleted ones left out).

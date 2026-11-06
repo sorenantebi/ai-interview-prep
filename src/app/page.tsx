@@ -109,7 +109,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const tiles = [
     { label: "LeetCode solved", value: `${sum(lc, "solved")} / ${sum(lc, "total")}`, href: "/leetcode" },
     { label: "ML coding solved", value: `${sum(ml, "solved")} / ${sum(ml, "total")}`, href: "/ml-coding" },
-    { label: "Repo debugging solved", value: `${sum(rd, "solved")} / ${sum(rd, "total")}`, href: "/repo-debugging" },
+    { label: "AI assisted solved", value: `${sum(rd, "solved")} / ${sum(rd, "total")}`, href: "/repo-debugging" },
     { label: "System design done", value: `${sum(sd, "solved")} / ${sum(sd, "total")}`, href: "/system-design" },
     { label: "Saved interviews", value: String(interviews.length), href: "/files?path=interviews" },
   ];

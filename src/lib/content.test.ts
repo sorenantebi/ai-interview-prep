@@ -39,6 +39,8 @@ test("passing answers are kept, including the solved.py from before the history"
   assert.deepEqual((await submissions(p)).map((s) => [s.at, s.code]), [["", "old"], ["2026-11-05T10:00:00Z", "new"]]);
   await write(`${p}/solved.py`, "new"); // what Submit does next: the old answer stays in the history
   assert.deepEqual((await submissions(p)).map((s) => s.code), ["old", "new"]);
+  await saveSubmission(p, { at: "2026-11-07T10:00:00Z", lang: "python", code: "newer" }); // only the last 2 are kept
+  assert.deepEqual((await submissions(p)).map((s) => s.code), ["new", "newer"]);
 });
 
 test("files() splits model output into named files", () => {

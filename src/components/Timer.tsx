@@ -69,16 +69,25 @@ export default function Timer() {
   const resume = () => setState((s) => ({ ...s, startedAt: Date.now() }));
   const reset = () => setState(IDLE);
 
-  const box = "whitespace-nowrap px-3.5 py-1.5 text-lg";
+  const left = state.kind === "countdown" && state.duration > 0 ? Math.max(0, Math.min(1, shown / state.duration)) : null; // countdown progress
   return (
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`${box} font-mono tabular-nums ${done ? "animate-pulse bg-hard text-white" : active ? "bg-fg text-panel" : "bg-panel hover:bg-fg hover:text-panel"}`}
+        className={`relative flex h-8 cursor-pointer items-center gap-2 overflow-hidden whitespace-nowrap px-3 font-mono text-sm tabular-nums transition-colors ${
+          done ? "animate-pulse bg-hard text-white" : active ? "bg-fg text-panel" : open ? "bg-fg text-panel" : "bg-panel hover:bg-fg hover:text-panel"
+        }`}
         aria-expanded={open}
-        aria-label="Timer"
+        aria-label={active ? `Timer ${fmt(shown)}${running ? "" : ", paused"}` : "Timer"}
+        title={active ? (running ? "Timer running · click for controls" : "Timer paused · click to resume or reset") : "Start a countdown or stopwatch"}
       >
-        ⏱ {done ? "time's up" : active ? fmt(shown) : "timer"}
+        <svg viewBox="0 0 16 16" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
+          <circle cx="8" cy="9" r="5.5" />
+          <path d="M8 9V6.5M6.5 1.5h3M12.2 4.3l1-1" />
+        </svg>
+        <span className="min-w-[3.25rem] text-left">{done ? "time's up" : active ? fmt(shown) : "timer"}</span>
+        {active && !done && <span className={`h-1.5 w-1.5 rounded-full ${running ? "animate-pulse bg-accent" : "bg-muted"}`} aria-hidden />}
+        {left !== null && !done && <span className="absolute bottom-0 left-0 h-0.5 bg-accent transition-[width] duration-500" style={{ width: `${left * 100}%` }} aria-hidden />}
       </button>
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 w-80 space-y-4 border border-fg bg-panel p-4 text-sm shadow-lg">

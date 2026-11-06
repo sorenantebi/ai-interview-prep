@@ -6,20 +6,20 @@ import Timer from "./Timer";
 import ThemeToggle from "./ThemeToggle";
 
 const links = [
-  ["/", "Dashboard"],
-  ["/plan", "Plan"],
-  ["/leetcode", "LeetCode"],
-  ["/ml-coding", "ML Coding"],
-  ["/repo-debugging", "Repo Debugging"],
-  ["/system-design", "System Design"],
-  ["/anki", "Anki"],
-  ["/ai", "AI & Interviews"],
-  ["/jobs", "Jobs"],
-  ["/repos", "Repos"],
-  ["/files", "Files"],
+  ["/", "dashboard"],
+  ["/plan", "plan"],
+  ["/leetcode", "leetcode"],
+  ["/ml-coding", "ml coding"],
+  ["/repo-debugging", "ai assisted"],
+  ["/system-design", "system design"],
+  ["/anki", "anki"],
+  ["/ai", "mock"],
+  ["/jobs", "jobs"],
+  ["/repos", "github"],
+  ["/files", "files"],
 ];
 
-const box = "whitespace-nowrap px-2.5 py-1 text-[15px]";
+const box = "inline-flex h-8 items-center whitespace-nowrap px-2.5 text-[15px]"; // one height for every box in the bar (Timer and ThemeToggle use h-8 too)
 
 /** Top bar of square boxes; the current section is inverted. */
 export default function Nav({ authEnabled }: { authEnabled: boolean }) {

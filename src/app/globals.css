@@ -62,10 +62,10 @@ body {
 }
 
 .btn {
-  @apply inline-flex items-center gap-1.5 border border-border bg-panel px-3 py-1.5 text-sm text-fg hover:border-fg disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-border bg-panel px-3 py-1.5 text-sm text-fg hover:border-fg cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
 }
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 border border-fg bg-fg px-3 py-1.5 text-sm font-medium text-panel hover:opacity-85 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-fg bg-fg px-3 py-1.5 text-sm font-medium text-panel hover:opacity-85 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50;
 }
 .input {
   @apply w-full border border-border bg-panel px-3 py-1.5 text-sm text-fg outline-none focus:border-fg;

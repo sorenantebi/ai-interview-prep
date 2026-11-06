@@ -5,7 +5,7 @@ import type { Problem, Progress } from "@/lib/content";
 export const problemHref = (p: string) => "/" + p.split("/").map(encodeURIComponent).join("/");
 
 export default function ProblemList({ problems, progress }: { problems: Problem[]; progress: Progress }) {
-  if (!problems.length) return <p className="p-4 text-sm text-muted">No problems yet. Add one on the AI page.</p>;
+  if (!problems.length) return <p className="p-4 text-sm text-muted">No problems yet. Add one on the mock page.</p>;
   return (
     <ul className="divide-y divide-border">
       {problems.map((p) => {

@@ -14,7 +14,7 @@ export default async function RepoDebuggingPage({ searchParams }: { searchParams
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="page-title">Repo Debugging</h1>
+          <h1 className="page-title">AI Assisted</h1>
           <p className="mt-1 max-w-3xl text-sm text-muted">
             The newer interview formats: a small, unfamiliar codebase instead of a blank function. Fix bugs behind failing tests
             (Stripe-style bug squash), extend a codebase with a feature, or do Meta&apos;s AI-enabled round (fix a bug → build the

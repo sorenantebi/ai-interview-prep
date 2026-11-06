@@ -22,7 +22,7 @@ export async function tree(rel = ""): Promise<TreeNode[]> {
       .map(async (e) => {
         const p = path.posix.join(rel, e.name);
         if (!e.isDirectory()) return { name: e.name, path: p, dir: false };
-        // Cloned repos can be huge: the Files tree lists them but you browse them on the Repos page.
+        // Cloned repos can be huge: the Files tree lists them but you browse them on the GitHub page.
         return { name: e.name, path: p, dir: true, children: rel === "repos" ? [] : await tree(p) };
       }),
   );
@@ -118,7 +118,9 @@ export async function setProgress(problemPath: string, status: "solved" | "attem
 /** A passing Submit: your code then, and the complexity you stated (if any). `at` is "" for a solve from before this history. */
 export type Submission = { at: string; lang: "python" | "cpp"; code: string; time?: string; space?: string };
 
-/** Your passing answers, oldest first (submissions.json), plus solved.py / solved.cpp from before the history existed. */
+const KEEP = 2; // passing answers kept per problem
+
+/** Your last 2 passing answers, oldest first (submissions.json), counting solved.py / solved.cpp from before the history existed. */
 export async function submissions(problemPath: string): Promise<Submission[]> {
   let list: Submission[] = [];
   try { list = JSON.parse((await read(`${problemPath}/submissions.json`)) ?? "[]"); } catch {}
@@ -126,14 +128,14 @@ export async function submissions(problemPath: string): Promise<Submission[]> {
     const code = await read(`${problemPath}/solved.${lang === "cpp" ? "cpp" : "py"}`);
     if (code !== null && !list.some((s) => s.lang === lang && s.code === code)) list.unshift({ at: "", lang, code });
   }
-  return list;
+  return list.slice(-KEEP);
 }
 
-/** Adds a passing answer to submissions.json; the same code passing again isn't added twice. */
+/** Adds a passing answer to submissions.json, dropping all but the last 2; the same code passing again isn't added twice. */
 export async function saveSubmission(problemPath: string, s: Submission) {
   const list = await submissions(problemPath);
   if (list.some((x) => x.lang === s.lang && x.code === s.code)) return;
-  await write(`${problemPath}/submissions.json`, JSON.stringify([...list, s], null, 1));
+  await write(`${problemPath}/submissions.json`, JSON.stringify([...list, s].slice(-KEEP), null, 1));
 }
 
 /** Days until the next review for each step of the spaced-repetition ladder. */

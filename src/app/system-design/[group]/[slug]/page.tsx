@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Markdown from "@/components/Markdown";
 import ExcalidrawView, { parseScene } from "@/components/ExcalidrawView";
 import SDNotes from "@/components/SDNotes";
+import SDSplit from "@/components/SDSplit";
 import Difficulty from "@/components/Difficulty";
 import SolvedToggle from "@/components/SolvedToggle";
 import { hiDiagrams, parse, progress, read } from "@/lib/content";
@@ -30,7 +31,7 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
   const status = (await progress())[path]?.status;
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-6">
+    <div className="mx-auto max-w-[1600px] space-y-6">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <Link href="/system-design" className="text-muted hover:text-fg">← System Design · {group.replace(/^\d+\s*/, "")}</Link>
         <Difficulty level={data.difficulty} />
@@ -39,8 +40,8 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
         <SolvedToggle path={path} status={status} label="Mark done" />
       </div>
       {/* The problem on the left, your notes and canvas beside it (sticky, so they stay in view while you read). */}
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        <div className="min-w-0 space-y-6">
+      <SDSplit
+        left={<>
           {vid && (
             <div className="card aspect-video overflow-hidden">
               <iframe
@@ -77,11 +78,9 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
           <p className="text-xs text-muted">
             Edit these files under <Link className="underline" href={`/files?path=${encodeURIComponent(path)}`}>Files</Link>.
           </p>
-        </div>
-        <div className="min-w-0 lg:sticky lg:top-20 lg:h-[calc(100vh-10rem)]">
-          <SDNotes path={path} notes={notes ?? ""} scene={parseScene(notesDrawing)} />
-        </div>
-      </div>
+        </>}
+        right={<SDNotes path={path} notes={notes ?? ""} scene={parseScene(notesDrawing)} />}
+      />
     </div>
   );
 }

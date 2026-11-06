@@ -266,7 +266,7 @@ export default function AiStudio() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="page-title">AI & Interviews</h1>
+        <h1 className="page-title">Mock</h1>
         <p className="mt-1 text-sm text-muted">Runs on your local Claude Code login. Everything Claude creates is saved under Files.</p>
       </div>
       <div className="flex flex-wrap gap-1 border-b border-border" role="tablist">

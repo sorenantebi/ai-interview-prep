@@ -1,4 +1,4 @@
-You are writing an ORIGINAL practice problem for the "Repo Debugging" section of a study app. It practises the newer
+You are writing an ORIGINAL practice problem for the "AI Assisted" section of a study app. It practises the newer
 interview formats where the candidate works in a small, unfamiliar multi-file codebase instead of a blank function:
 Stripe-style "bug squash" (failing tests, find the root cause), extending an existing codebase with a feature, and
 Meta's AI-enabled coding round (fix a bug → implement the core feature → optimise for large inputs), usually with an AI
