@@ -1,0 +1,158 @@
+[
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Easy",
+  "idea": "An inventory service: reserving stock lets orders go through when exactly zero is left, and restocking a product resets its reserved count."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Easy",
+  "idea": "A bank ledger in integer cents: interest and fee calculations come out wrong for some accounts (int vs float division, rounding), and the monthly statement total ignores the last transaction."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "A meeting-room booking service: back-to-back bookings are rejected as overlapping and a booking ending at midnight is lost; booking times are datetime objects."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "An in-memory LRU cache used by a product catalogue API: get() doesn't refresh recency, and the default tags list is shared between cache entries (mutable default argument)."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Easy",
+  "idea": "A CSV sales-report generator (csv module on strings): grouping by region is case-sensitive so 'EU' and 'eu' are split, and the report's top seller is the lowest instead of highest."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "A sliding-window API rate limiter keyed by user: requests exactly at the window edge are counted twice, and different users share one bucket because of a wrong dict key."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Easy",
+  "idea": "A paginated REST-style handler over a list of records: page 1 skips the first page_size items, and the has_next flag is wrong on the last full page."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "An event scheduler that sorts and filters events: dates stored as 'D/M/YYYY' strings are compared as strings so ordering is wrong, and filtering 'upcoming' events drops the ones today."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "A retry helper with exponential backoff used by a payments client (the sleep function is injected so tests don't wait): the delay grows wrong, retries exceed max_attempts by one, and a non-retryable error is silently swallowed and returns None."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Hard",
+  "idea": "A package dependency resolver (install order via DFS): diamond dependencies are falsely reported as cycles (visited vs on-stack confusion), and the install order puts a package before one of its dependencies."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Medium",
+  "idea": "A pricing service with a memoised price lookup: the cache key ignores the currency so EUR prices leak into USD answers, and a percentage discount is applied twice when a coupon is combined with a sale."
+ },
+ {
+  "group": "01 Bug Fixing",
+  "kind": "bug-fix",
+  "difficulty": "Hard",
+  "idea": "A tiny expression evaluator for spreadsheet-style formulas (tokenizer, parser, evaluator in separate files): subtraction is right-associative, negative numbers after an operator fail to parse, and cell references in lowercase aren't resolved."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A todo-list library (models, storage, query helpers): add priorities with stable sorting by priority then due date, and filtering by multiple tags (all-of / any-of)."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A library lending system: add a reservation queue (holds) so a returned book goes to the first person waiting, with hold expiry after 3 days."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A shopping cart with line items and tax: add discount codes (percentage, fixed amount, buy-one-get-one on a SKU) with rules for which ones stack."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A URL shortener (id encoding, storage, service): add custom aliases with validation and link expiry with an injected clock."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A parking-lot system with spot types: add EV charging spots and hourly pricing with a daily cap per vehicle type."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Medium",
+  "idea": "A web-server access-log analyzer (parsing, aggregation): add per-endpoint p50/p95/p99 latency and an error-rate report sorted by worst endpoint."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Hard",
+  "idea": "A task runner that executes jobs in insertion order: add job dependencies with a valid execution order, cycle detection with a clear error naming the cycle, and skipping dependents of failed jobs."
+ },
+ {
+  "group": "02 Extend a Codebase",
+  "kind": "extend",
+  "difficulty": "Hard",
+  "idea": "An in-memory key-value store with get/set/delete: add nested transactions (begin, rollback, commit) where rollback undoes only the innermost transaction."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Hard",
+  "idea": "A maze solver: a grid parser, a Maze model and a solver stub. Stage 1 fix a parser bug with row/column order. Stage 2 implement the shortest path through a maze with keys (lowercase) and doors (uppercase) and print the path. Stage 3 large mazes must be fast (BFS over position+keys bitmask)."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Hard",
+  "idea": "A friend-recommendation service over a social graph loaded from edge lists. Stage 1 fix the loader so friendships are mutual. Stage 2 recommend the top-k non-friends ranked by mutual friends (ties by id). Stage 3 make it fast for 10^5 users."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Hard",
+  "idea": "A word-game helper: Stage 1 fix the bitmask helper for letters. Stage 2 find the maximum total length of words with all distinct characters (no letter repeated across chosen words). Stage 3 make it fast on large word lists (dedupe masks, prune)."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Medium",
+  "idea": "A card game engine (deck, card parsing, rules): Stage 1 fix the card-value parser for face cards. Stage 2 find whether any three cards in a hand sum to 15 and return them. Stage 3 count all such triples fast for large hands (counting by value)."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Hard",
+  "idea": "A delivery-route planner over a road network: Stage 1 fix the distance unit bug in the graph builder. Stage 2 implement the shortest delivery time between two depots. Stage 3 make it fast for large networks (Dijkstra with a heap instead of a linear scan)."
+ },
+ {
+  "group": "03 Multi-Stage (AI-enabled)",
+  "kind": "multi-stage",
+  "difficulty": "Hard",
+  "idea": "A search autocomplete service: Stage 1 fix query normalisation (case and whitespace). Stage 2 return the top-k completions for a prefix by frequency, ties alphabetical. Stage 3 make it fast for 10^5 phrases and many queries (a trie with cached top-k)."
+ }
+]

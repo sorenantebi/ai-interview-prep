@@ -81,7 +81,11 @@ content/**/my_tests.py
 /.next-test/
 /.venv/
 content/cards.json
+content/anki.json
 content/decks/
 # Hello Interview's diagrams (their work): download with node scripts/fetch-hld.ts
 content/system-design/**/hld.*
 content/system-design/**/final-design.*
+
+# your edits to Repo Debugging problems
+content/repo-debugging/**/work.json

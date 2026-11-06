@@ -125,6 +125,18 @@ export function dueToday(d: Deck, sched: Schedule, today: string) {
   return { due, fresh: newToday, total: d.cards.length };
 }
 
+/** Your daily-review choices: Anki review on or off, and the decks left out of it (a new deck is in by default). */
+export type AnkiSettings = { daily: boolean; skip: string[] };
+
+export async function ankiSettings(): Promise<AnkiSettings> {
+  try { return { daily: true, skip: [], ...JSON.parse((await read("anki.json")) ?? "{}") }; } catch { return { daily: true, skip: [] }; }
+}
+
+export const saveAnkiSettings = (s: AnkiSettings) => write("anki.json", JSON.stringify(s, null, 1));
+
+/** The decks in today's review: none when daily review is off. */
+export const reviewDecks = (all: Deck[], s: AnkiSettings) => (s.daily ? all.filter((d) => !s.skip.includes(d.file)) : []);
+
 let saving: Promise<unknown> = Promise.resolve();
 
 /** Grades one card and saves its next review. Grades are saved one at a time, so two quick ones can't overwrite each other. */

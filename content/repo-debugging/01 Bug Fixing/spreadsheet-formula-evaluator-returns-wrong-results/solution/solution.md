@@ -1,0 +1,13 @@
+# Spreadsheet Formula Evaluator Returns Wrong Results - Solution
+
+## Root causes / approach
+**1. Right-associative subtraction: `formula/parser.py`, `Parser.parse_expression`.** After parsing one term, the method matched a single `+`/`-` and then called itself recursively for the right-hand side. That builds `a - (b - c)` for `a - b - c`, so `10 - 4 - 3` gave 9 instead of 3. Addition hid the problem because it is associative, which is why only subtraction chains looked wrong. `parse_term` already used the correct loop. Fix: use the same loop in `parse_expression`, folding to the left: `node = BinOp(op, node, parse_term())` while a `+` or `-` follows.
+
+**2. Negative literals after an operator are rejected: `formula/tokenizer.py`, `_SIGN_CONTEXT`.** The tokenizer decides whether a `-` is a sign or a subtraction by looking at the previous token. Only "start of input", `LPAREN` and `COMMA` counted as sign context. After an `OP` token (`3 * -2`, `5 - -3`) the `-` was emitted as a separate operator token, and the parser, which has no unary minus, raised `ParseError`. Fix: add `"OP"` to the sign context. `5-3` still works because the previous token is a NUMBER, and so does `(5)-3`, where it is a RPAREN.
+
+**3. Lowercase cell references return wrong values: `formula/sheet.py`, `Sheet._lookup`.** `set()` and `value()` normalise references with `_key()` (upper-case), but the callback the evaluator uses for references inside formulas passed the raw name straight to `_compute`. `a1` was therefore looked up as a missing key, and since empty cells count as 0 the result was silently wrong (`a1 + b1` gave 0 instead of 14). `Sheet.value("a1")` worked, which makes the bug easy to overlook. It also meant circular references written in lowercase were never detected. Fix: `return self._compute(_key(name))`. Normalising the `REF` token in the tokenizer would also be acceptable, but the sheet owns the key format.
+
+## How to find it
+- Start with `test_subtraction_is_left_associative` in `tests/test_parser.py`. It compares trees without involving the other modules. Print `parse("10 - 4 - 3")` and you see the nested right operand. Then compare `parse_expression` with `parse_term`.
+- `test_negative_after_operator` in `tests/test_tokenizer.py` shows the token kinds for `3 * -2`. Two consecutive OP tokens point to the rule that decides when `-` is a sign, which is `_starts_negative` and `_SIGN_CONTEXT`.
+- For the lowercase reference test, print `sheet.evaluate("a1")` and `sheet.evaluate("A1")`, then `sheet.value("a1")`. If the direct call works but the formula path does not, compare how `value()` and `_lookup()` derive the key. The silent `0.0` for a missing cell is what hides the error.

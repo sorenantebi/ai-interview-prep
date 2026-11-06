@@ -35,7 +35,7 @@ export default function SDNotes({ path, notes, scene }: { path: string; notes: s
   };
 
   return (
-    <section className="card">
+    <section className="card flex h-full flex-col">
       <div className="flex items-baseline justify-between border-b border-border px-4 py-3">
         <h2 className="font-medium">My notes</h2>
         <span className="font-mono text-[11px] text-muted">{saved || "saved to notes.md and notes.excalidraw · shown in the dashboard"}</span>
@@ -50,7 +50,8 @@ export default function SDNotes({ path, notes, scene }: { path: string; notes: s
           aria-label="Your notes"
         />
       </div>
-      <div className="h-[560px] border-t border-border">
+      {/* Fills the rest of the panel beside the problem on wide screens; a fixed height when stacked. */}
+      <div className="h-[560px] border-t border-border lg:h-auto lg:min-h-[320px] lg:flex-1">
         <Excalidraw
           initialData={{ elements: (scene?.elements ?? []) as never, appState: { viewBackgroundColor: "#ffffff" }, files: ((scene as { files?: unknown } | null)?.files ?? {}) as never }}
           onChange={onChange as never}

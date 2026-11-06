@@ -12,7 +12,7 @@ import SystemDesignSheet, { type SDEntry } from "@/components/SystemDesignSheet"
 import { parseScene } from "@/components/ExcalidrawView";
 import ReviewControls from "@/components/ReviewControls";
 import { problemHref } from "@/components/ProblemList";
-import { decks, dueToday, schedule } from "@/lib/cards";
+import { ankiSettings, decks, dueToday, reviewDecks, schedule } from "@/lib/cards";
 import { activityDays, areaStats, complexity, localDate, progress, read, safePath, streaks, hiDiagrams } from "@/lib/content";
 import { strokesOf } from "@/lib/starter";
 import fs from "node:fs/promises";
@@ -42,12 +42,13 @@ async function yourCode(path: string, lang: Lang) {
 }
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
-  const [lc, ml, sd, prog, interviews] = await Promise.all([
+  const [lc, ml, sd, prog, interviews, rd] = await Promise.all([
     areaStats("leetcode"),
     areaStats("ml-coding").catch(() => []),
     areaStats("system-design"),
     progress(),
     fs.readdir(safePath("interviews")).then((f) => f.filter((n) => n.endsWith(".md")), () => []),
+    areaStats("repo-debugging").catch(() => []),
   ]);
   const sum = (g: typeof lc, k: "total" | "solved") => g.reduce((a, x) => a + x[k], 0);
   const today = localDate(new Date());
@@ -99,8 +100,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     .sort((a, b) => a[1].review!.due.localeCompare(b[1].review!.due));
   const recent = Object.entries(prog).sort((a, b) => b[1].at.localeCompare(a[1].at)).slice(0, 8);
 
-  const [allDecks, sched] = await Promise.all([decks(), schedule()]);
-  const cardsToday = allDecks.map((d) => ({ d, ...dueToday(d, sched, today) })).filter((r) => r.due.length + r.fresh.length);
+  const [allDecks, sched, ankiSet] = await Promise.all([decks(), schedule(), ankiSettings()]);
+  const cardsToday = reviewDecks(allDecks, ankiSet).map((d) => ({ d, ...dueToday(d, sched, today) })).filter((r) => r.due.length + r.fresh.length);
 
   let todos: Todo[] = [];
   try { todos = JSON.parse((await read("todos.json")) ?? "[]"); } catch {}
@@ -108,6 +109,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const tiles = [
     { label: "LeetCode solved", value: `${sum(lc, "solved")} / ${sum(lc, "total")}`, href: "/leetcode" },
     { label: "ML coding solved", value: `${sum(ml, "solved")} / ${sum(ml, "total")}`, href: "/ml-coding" },
+    { label: "Repo debugging solved", value: `${sum(rd, "solved")} / ${sum(rd, "total")}`, href: "/repo-debugging" },
     { label: "System design done", value: `${sum(sd, "solved")} / ${sum(sd, "total")}`, href: "/system-design" },
     { label: "Saved interviews", value: String(interviews.length), href: "/files?path=interviews" },
   ];

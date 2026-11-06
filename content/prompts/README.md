@@ -18,3 +18,5 @@ These are the instructions the app sends to Claude Code (`claude -p`). Edit them
 | `interview-coding.md` | Mock interview (coding) |
 | `interview-system-design.md` | Mock interview (system design, including ML) |
 | `generate-deck.md` | Anki → Generate with Claude (a new deck, or more cards for one) |
+| `generate-repo-debugging.md` | `scripts/generate-repo-problems.ts` (a whole multi-file problem: repo, tests, hidden tests, solution) |
+| `repo-assistant.md` | Repo Debugging → AI assistant (reads the files, never edits them) |

@@ -30,13 +30,13 @@ function verdict(run: Run): [string, string] {
 }
 
 /** A drag handle between panels (also works with arrow keys; double-click resets). */
-function Divider({ dir, onMove, onStep, onReset }: { dir: "x" | "y"; onMove: (e: React.PointerEvent) => void; onStep: (delta: number) => void; onReset: () => void }) {
+export function Divider({ dir, onMove, onStep, onReset, label }: { dir: "x" | "y"; onMove: (e: React.PointerEvent) => void; onStep: (delta: number) => void; onReset: () => void; label?: string }) {
   const x = dir === "x";
   return (
     <div
       role="separator"
       aria-orientation={x ? "vertical" : "horizontal"}
-      aria-label={x ? "Drag to resize the question and editor" : "Drag to resize the results panel"}
+      aria-label={label ?? (x ? "Drag to resize the question and editor" : "Drag to resize the results panel")}
       tabIndex={0}
       title="Drag to resize · double-click to reset"
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault(); }}

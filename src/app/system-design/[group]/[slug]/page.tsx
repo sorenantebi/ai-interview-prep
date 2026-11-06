@@ -30,7 +30,7 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
   const status = (await progress())[path]?.status;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-[1400px] space-y-6">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <Link href="/system-design" className="text-muted hover:text-fg">← System Design · {group.replace(/^\d+\s*/, "")}</Link>
         <Difficulty level={data.difficulty} />
@@ -38,43 +38,50 @@ export default async function SystemDesignProblem({ params }: { params: Promise<
         <Link href={`/ai?tab=interview&kind=system-design&problem=${encodeURIComponent(path)}`} className="btn-primary">Mock interview</Link>
         <SolvedToggle path={path} status={status} label="Mark done" />
       </div>
-      {vid && (
-        <div className="card aspect-video overflow-hidden">
-          <iframe
-            className="h-full w-full"
-            src={`https://www.youtube-nocookie.com/embed/${vid}`}
-            title={`${data.problem ?? "System design"} video walkthrough`}
-            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            allowFullScreen
-          />
+      {/* The problem on the left, your notes and canvas beside it (sticky, so they stay in view while you read). */}
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <div className="min-w-0 space-y-6">
+          {vid && (
+            <div className="card aspect-video overflow-hidden">
+              <iframe
+                className="h-full w-full"
+                src={`https://www.youtube-nocookie.com/embed/${vid}`}
+                title={`${data.problem ?? "System design"} video walkthrough`}
+                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+              />
+            </div>
+          )}
+          <article className="card p-6"><Markdown>{question}</Markdown></article>
+          {solution && (
+            <details className="card group">
+              <summary className="cursor-pointer select-none px-6 py-4 font-medium">Show solution / summary</summary>
+              <div className="space-y-6 border-t border-border p-6">
+                {diagrams.map(([label, scene]) => scene && (
+                  <figure key={label} className="space-y-2">
+                    <figcaption className="tag">{label}{typeof scene === "string" && " · Hello Interview"}</figcaption>
+                    <div className="overflow-x-auto border border-border">
+                      {typeof scene === "string" ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={scene} alt={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px] bg-white" />
+                      ) : (
+                        <ExcalidrawView scene={scene} title={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px]" />
+                      )}
+                    </div>
+                  </figure>
+                ))}
+                <Markdown>{solution}</Markdown>
+              </div>
+            </details>
+          )}
+          <p className="text-xs text-muted">
+            Edit these files under <Link className="underline" href={`/files?path=${encodeURIComponent(path)}`}>Files</Link>.
+          </p>
         </div>
-      )}
-      <article className="card p-6"><Markdown>{question}</Markdown></article>
-      {solution && (
-        <details className="card group">
-          <summary className="cursor-pointer select-none px-6 py-4 font-medium">Show solution / summary</summary>
-          <div className="space-y-6 border-t border-border p-6">
-            {diagrams.map(([label, scene]) => scene && (
-              <figure key={label} className="space-y-2">
-                <figcaption className="tag">{label}{typeof scene === "string" && " · Hello Interview"}</figcaption>
-                <div className="overflow-x-auto border border-border">
-                  {typeof scene === "string" ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={scene} alt={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px] bg-white" />
-                  ) : (
-                    <ExcalidrawView scene={scene} title={`${data.problem ?? "System design"}: ${label}`} className="w-full min-w-[640px]" />
-                  )}
-                </div>
-              </figure>
-            ))}
-            <Markdown>{solution}</Markdown>
-          </div>
-        </details>
-      )}
-      <SDNotes path={path} notes={notes ?? ""} scene={parseScene(notesDrawing)} />
-      <p className="text-xs text-muted">
-        Edit these files under <Link className="underline" href={`/files?path=${encodeURIComponent(path)}`}>Files</Link>.
-      </p>
+        <div className="min-w-0 lg:sticky lg:top-20 lg:h-[calc(100vh-10rem)]">
+          <SDNotes path={path} notes={notes ?? ""} scene={parseScene(notesDrawing)} />
+        </div>
+      </div>
     </div>
   );
 }

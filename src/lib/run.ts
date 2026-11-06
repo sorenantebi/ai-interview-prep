@@ -10,12 +10,17 @@ const VENV = path.join(process.cwd(), ".venv", WIN ? "Scripts/python.exe" : "bin
 export const python = () => process.env.PYTHON_BIN ?? (existsSync(VENV) ? VENV : WIN ? "python" : "python3");
 
 // Runs the user's own code locally. shortcut: no sandbox, fine for a single-user local app; containerise before hosting.
-export async function runPython(files: Record<string, string>, entry: string): Promise<{ ok: boolean; output: string }> {
+export async function runPython(files: Record<string, string>, entry: string, seconds?: number): Promise<{ ok: boolean; output: string }> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "prep-run-"));
   // Importing torch alone can take several seconds on a cold start; C++ answers compile first.
-  const limit = Object.values(files).some((f) => /^\s*(import|from) torch\b/m.test(f)) || "attempt.cpp" in files ? 30 : 10;
+  const limit = seconds ?? (Object.values(files).some((f) => /^\s*(import|from) torch\b/m.test(f)) || "attempt.cpp" in files ? 30 : 10);
   try {
-    for (const [name, content] of Object.entries(files)) await fs.writeFile(path.join(dir, name), content);
+    for (const [name, content] of Object.entries(files)) {
+      const file = path.join(dir, name);
+      if (!file.startsWith(dir + path.sep)) throw new Error(`Bad file name ${name}`);
+      await fs.mkdir(path.dirname(file), { recursive: true }); // repo problems have folders
+      await fs.writeFile(file, content);
+    }
     return await new Promise((resolve) => {
       execFile(python(), [entry], { cwd: dir, timeout: limit * 1000, maxBuffer: 1 << 20 }, (err, stdout, stderr) => {
         const killed = err && "killed" in err && err.killed;

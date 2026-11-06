@@ -10,6 +10,7 @@ const links = [
   ["/plan", "Plan"],
   ["/leetcode", "LeetCode"],
   ["/ml-coding", "ML Coding"],
+  ["/repo-debugging", "Repo Debugging"],
   ["/system-design", "System Design"],
   ["/anki", "Anki"],
   ["/ai", "AI & Interviews"],

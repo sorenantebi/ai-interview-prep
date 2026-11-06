@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { localDate, logActivity, remove, safePath, write } from "@/lib/content";
-import { deck, deckPath, deckToMd, gradeCard, newDeck, parseDeck, preview, type Grade } from "@/lib/cards";
+import { ankiSettings, deck, deckFile, deckPath, deckToMd, gradeCard, newDeck, parseDeck, preview, saveAnkiSettings, type Grade } from "@/lib/cards";
 import { importApkg, importTxt } from "@/lib/anki";
 import { claude, files, prompt } from "@/lib/claude";
 
@@ -29,6 +29,7 @@ async function upload(req: NextRequest) {
 /**
  * Multipart: import a deck file. JSON actions:
  * grade { deck, id, grade 1-4 } -> the card's next button labels · save { deck, name, cards } · create { name } · delete { deck } · generate { topic, count, deck? }
+ * · settings { daily?: boolean, deck?, include?: boolean }: daily review on/off, a deck in or out of it
  */
 export async function POST(req: NextRequest) {
   if (req.headers.get("content-type")?.startsWith("multipart/form-data")) {
@@ -57,6 +58,16 @@ export async function POST(req: NextRequest) {
         deckPath(b.deck);
         await remove(deckPath(b.deck)); // its schedule stays in cards.json, harmless
         return NextResponse.json({ ok: true });
+      }
+      case "settings": {
+        const st = await ankiSettings();
+        if (typeof b.daily === "boolean") st.daily = b.daily;
+        if (typeof b.deck === "string" && typeof b.include === "boolean") {
+          if (b.deck !== deckFile(b.deck)) throw new Error("Bad deck name");
+          st.skip = b.include ? st.skip.filter((f) => f !== b.deck) : [...new Set([...st.skip, b.deck])];
+        }
+        await saveAnkiSettings(st);
+        return NextResponse.json(st);
       }
       case "generate": {
         const count = Math.min(50, Math.max(1, Number(b.count) || 15));

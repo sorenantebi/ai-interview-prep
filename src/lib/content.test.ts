@@ -389,3 +389,27 @@ test("anki: field HTML becomes Markdown, cloze notes hide their answers", async 
   assert.deepEqual(noteToCard(["{{c1::RAII}} ties resources to {{c2::scope::when}}", "extra"]), { front: "[…] ties resources to [when]", back: "**RAII** ties resources to **scope**\n\nextra" });
   assert.deepEqual(noteToCard(["Q", "A"]), { front: "Q", back: "A" });
 });
+
+test("repo problems: Run uses tests/, Submit adds the hidden tests, and a problem is checked against its solution", async () => {
+  const { runRepo, repoProblem, saveWork, workingRepo } = await import("./repo.ts");
+  const p = "repo-debugging/01 T/adder";
+  await write(`${p}/question.md`, "# Adder\n");
+  await write(`${p}/repo/calc/ops.py`, "def add(a, b):\n    return a - b\n");
+  await write(`${p}/repo/calc/old.py`, "OLD = True\n");
+  await write(`${p}/repo/tests/test_ops.py`, "from calc.ops import add\n\ndef test_add():\n    assert add(2, 2) == 4\n");
+  await write(`${p}/hidden_tests.py`, "from calc.ops import add\n\ndef test_negative():\n    assert add(-1, -1) == -2\n");
+  await write(`${p}/solution/calc/ops.py`, "def add(a, b):\n    return a + b\n");
+  assert.equal(await repoProblem(p), null);
+  const { files: original } = await workingRepo(p);
+  // Fix the bug, add a file and delete one: the working repo follows, the original stays as it was.
+  await saveWork(p, { "calc/ops.py": "def add(a, b):\n    return a + b\n", "calc/extra.py": "X = 1\n", "tests/test_ops.py": original["tests/test_ops.py"] });
+  await saveWork(p, { "calc/ops.py": "def add(a, b):\n    return a + b\n", "tests/test_ops.py": original["tests/test_ops.py"], "calc/extra.py": "X = 2\n" });
+  const { files } = await workingRepo(p);
+  assert.deepEqual(Object.keys(files).sort(), ["calc/extra.py", "calc/ops.py", "tests/test_ops.py"]);
+  assert.equal(files["calc/extra.py"], "X = 2\n");
+  const run = await runRepo(p, files, false);
+  assert.ok(run.ok && /1\/1 passed/.test(run.output) && !/Hidden/.test(run.output), run.output);
+  const submit = await runRepo(p, files, true);
+  assert.ok(submit.ok && /Hidden tests: 1\/1 passed/.test(submit.output), submit.output);
+  await assert.rejects(saveWork(p, { "../escape.py": "x" }));
+});
