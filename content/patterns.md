@@ -90,13 +90,77 @@ for i, t in enumerate(temps):
 - **Upper bound on timestamps** (Time Based Key-Value Store)
 - **Partition the smaller array** (Median of Two Sorted Arrays)
 
+first true
 ```python
+could do this
 lo, hi = 1, max(piles)
 while lo < hi:
     mid = (lo + hi) // 2
     if ok(mid): hi = mid
     else: lo = mid + 1
 return lo
+
+def first_true(l, r, pred):      # search in [l, r], pred is F...F T...T
+    ans = r + 1                  # answer if nothing is true
+    while l <= r:
+        m = l + (r - l) // 2
+        if pred(m):
+            ans = m              # m is a candidate, look for an earlier one
+            r = m - 1
+        else:
+            l = m + 1
+    return ans
+
+def last_true(l, r, pred):       # search in [l, r], pred is T...T F...F
+    ans = l - 1                  # answer if nothing is true
+    while l <= r:
+        m = l + (r - l) // 2
+        if pred(m):
+            ans = m              # m is a candidate, look for a later one
+            l = m + 1
+        else:
+            r = m - 1
+    return ans
+
+def lower_bound(a, x):           # first i with a[i] >= x
+    l, r = 0, len(a) - 1
+    while l <= r:
+        m = l + (r - l) // 2
+        if a[m] >= x: r = m - 1
+        else:         l = m + 1
+    return l                     # len(a) if every element is < x
+
+def upper_bound(a, x):           # first i with a[i] > x
+    l, r = 0, len(a) - 1
+    while l <= r:
+        m = l + (r - l) // 2
+        if a[m] > x: r = m - 1
+        else:        l = m + 1
+    return l
+
+def minimize(lo, hi, feasible):
+    l, r = lo, hi
+    ans = -1                     # stays -1 if nothing is feasible
+    while l <= r:
+        m = l + (r - l) // 2
+        if feasible(m):
+            ans = m
+            r = m - 1            # try smaller
+        else:
+            l = m + 1
+    return ans
+
+def maximize(lo, hi, feasible):
+    l, r = lo, hi
+    ans = -1
+    while l <= r:
+        m = l + (r - l) // 2
+        if feasible(m):
+            ans = m
+            l = m + 1            # try larger
+        else:
+            r = m - 1
+    return ans
 ```
 
 ## Linked List
@@ -354,4 +418,14 @@ if you do the operations separately, its n + m
 for x in a:
 
 for y in b:
+```
+
+## Python stuff
+
+**Use when:** …
+
+
+
+```python
+haystack.find(needle) --> index of first occurrence
 ```

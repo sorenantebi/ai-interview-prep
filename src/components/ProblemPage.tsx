@@ -15,8 +15,8 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
   const { group, slug } = await params;
   const q = await searchParams;
   const path = `${area}/${decodeURIComponent(group)}/${decodeURIComponent(slug)}`;
-  const [question, solution, attempt, notes, starterFile, saved, drawing, attemptCpp, starterCpp] = await Promise.all(
-    ["question.md", "solution.md", "attempt.py", "notes.md", "starter.py", "testcases.json", "drawing.json", "attempt.cpp", "starter.cpp"].map((f) => read(`${path}/${f}`)),
+  const [question, solution, attempt, notes, starterFile, saved, drawing, attemptCpp, starterCpp, learn] = await Promise.all(
+    ["question.md", "solution.md", "attempt.py", "notes.md", "starter.py", "testcases.json", "drawing.json", "attempt.cpp", "starter.cpp", "learn.md"].map((f) => read(`${path}/${f}`)),
   );
   if (question === null) notFound();
   const prog = await progress();
@@ -45,6 +45,7 @@ export default async function ProblemPage({ area, params, searchParams }: Proble
     <Workspace
       path={path}
       question={order.random ? question.replace(/\*\*Topic:\*\*[^·\n]*·\s*/, "") : question} // shuffle mode hides the topic: it gives the pattern away
+      learn={learn ?? undefined}
       solution={solution ?? ""}
       video={String(parse(question).data.video ?? "").match(/(?:v=|youtu\.be\/)([\w-]{11})/)?.[1]}
       langs={[...langs]}

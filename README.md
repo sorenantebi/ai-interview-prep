@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **LeetCode** | NeetCode 250, plus Union-Find, Segment Tree and Line Sweep topics, on a roadmap flowchart, or one scrollable list by topic. Prev/next and shuffle mode (topic hidden). Solve in **Python or C++** (LeetCode's C++ starters, NeetCode's C++ solutions, the same hidden tests). |
-| **ML Coding** | 85 NumPy, pandas and PyTorch exercises for ML interviews (NumPy and pandas basics, tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. Have Claude generate more, or add your own from `content/ml-coding/_template/`. |
+| **ML Coding** | 85 NumPy, pandas and PyTorch exercises for ML interviews (NumPy and pandas basics, tensors, training steps, ML from scratch), on the same problem page with Run and hidden-test Submit. Each has a **Learn** tab for when you don't know the topic yet: the idea in plain words, Example 1 worked by hand, every tool you need with a small runnable demo, common mistakes and three hints you open one at a time. Have Claude generate more, or add your own from `content/ml-coding/_template/`. |
 | **AI Assisted** | The newer interview formats on small multi-file Python repos: fix bugs behind failing tests (Stripe-style bug squash), extend an unfamiliar codebase, or Meta's AI-enabled round (fix a bug → build the feature → make it fast). File tree and editor, Run the visible tests, Submit to hidden ones, and an AI assistant panel that reads your files but can't edit them. |
 | **Problem page** | LeetCode starter code, a Google-Doc-style editor (no autocomplete), **Run** your own inputs against NeetCode's solution, **Submit** to hidden tests (works without Claude), optionally stating your time and space complexity, which Claude checks against your code. Hints and a complexity check from Claude. Move a problem to any topic. |
 | **System design** | 32 problems with solutions, your Excalidraw diagrams, 17 Hello Interview videos, and your own notes canvas. |
@@ -89,6 +89,7 @@ content/
 | `node scripts/add-problems.ts <list.json>` | Add LeetCode problems in bulk, like Add from link (Claude writes them, then their hidden tests). `scripts/new-problems.json` is the list used for the NeetCode 250 |
 | `node scripts/fetch-videos.ts` | Add NeetCode's YouTube video to each LeetCode problem (shown in the Solution tab) |
 | `node scripts/fetch-cpp.ts` | Re-download LeetCode's C++ starters and NeetCode's C++ solutions |
+| `node scripts/generate-learn.ts [ml-coding/<topic>]` | Write the Learn tab (`learn.md`) of ML Coding problems that don't have one, with Claude. A page is kept only if all its sections are there, every Python demo runs and it contains no line of the solution |
 | `node scripts/generate-repo-problems.ts <list.json>` | Generate AI Assisted problems with Claude, keeping only those whose original repo fails the tests and whose solution passes. `scripts/repo-problems.json` is the list used |
 | `npm run setup-python` | Install numpy, pandas, torch and Jupyter into `.venv` for ML Coding and notebooks |
 | `node scripts/check-problems.ts <dir>` | Check problems (Python or C++): examples run, hidden tests pass with the reference and fail with the starter |

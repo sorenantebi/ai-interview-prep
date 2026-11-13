@@ -26,4 +26,7 @@ Rules that keep **Run** working:
 Check it from the terminal: `node scripts/check-problems.ts "content/ml-coding/<NN Topic>"`.
 It runs the examples against your reference, and checks that the reference passes `tests.py` and the empty starter fails it.
 
-Or skip all of this: **mock → Generate ML coding problem** writes the four files for you.
+Optional: a `learn.md` next to them becomes the problem's **Learn** tab (a lesson for when you don't know the topic).
+`node scripts/generate-learn.ts "ml-coding/<NN Topic>/<problem-name>"` writes one with Claude.
+
+Or skip all of this: **mock → Generate ML coding problem** writes the four files (and the Learn tab) for you.

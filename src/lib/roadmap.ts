@@ -8,7 +8,7 @@ export const LAYOUT: Record<string, [number, number]> = {
   Intervals: [0, 5], Greedy: [1.5, 5], "Advanced Graphs": [3, 5], Graphs: [4.5, 5], "1-D Dynamic Programming": [6, 5],
   "2-D Dynamic Programming": [4.5, 6], "Bit Manipulation": [6, 6],
   "Math & Geometry": [5.25, 7],
-  "Union Find": [2.25, 6], "Segment Tree": [2.25, 7], "Line Sweep": [0.5, 6.5], // beyond the NeetCode roadmap
+  "Union Find": [2.25, 6], "Segment Tree": [2.25, 7], "Line Sweep": [0.5, 6.5], "String Manipulation": [5.5, 1], // beyond the NeetCode roadmap
 };
 export const EDGES: [string, string][] = [
   ["Arrays & Hashing", "Two Pointers"], ["Arrays & Hashing", "Stack"],
@@ -20,5 +20,5 @@ export const EDGES: [string, string][] = [
   ["Graphs", "Advanced Graphs"], ["Graphs", "2-D Dynamic Programming"],
   ["1-D Dynamic Programming", "2-D Dynamic Programming"], ["1-D Dynamic Programming", "Bit Manipulation"],
   ["2-D Dynamic Programming", "Math & Geometry"], ["Bit Manipulation", "Math & Geometry"],
-  ["Advanced Graphs", "Union Find"], ["Union Find", "Segment Tree"], ["Intervals", "Line Sweep"],
+  ["Advanced Graphs", "Union Find"], ["Union Find", "Segment Tree"], ["Intervals", "Line Sweep"], ["Arrays & Hashing", "String Manipulation"],
 ];

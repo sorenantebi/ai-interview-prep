@@ -12,7 +12,7 @@ import { api, putFile } from "@/lib/client";
 import type { Review, Submission } from "@/lib/content";
 import type { CaseResult } from "@/lib/run";
 
-type Tab = "question" | "solution" | "submissions" | "notes" | "tests";
+type Tab = "question" | "learn" | "solution" | "submissions" | "notes" | "tests";
 type Lang = "python" | "cpp";
 const LANG_LABEL: Record<Lang, string> = { python: "Python", cpp: "C++" };
 type Run = { results?: CaseResult[]; error?: string };
@@ -49,6 +49,26 @@ export function Divider({ dir, onMove, onStep, onReset, label }: { dir: "x" | "y
       className={`group flex shrink-0 touch-none select-none items-center justify-center outline-none ${x ? "w-3 cursor-col-resize max-lg:hidden" : "h-3 cursor-row-resize"}`}
     >
       <div className={`bg-border transition-colors group-hover:bg-accent group-focus-visible:bg-accent group-active:bg-accent ${x ? "h-10 w-1" : "h-1 w-10"}`} />
+    </div>
+  );
+}
+
+/** The lesson, with each "### Hint N" under "## Hints" folded so you open one at a time. */
+function Learn({ md }: { md: string }) {
+  const [lesson, hints = ""] = md.split(/^## Hints\s*$/m);
+  return (
+    <div className="space-y-4">
+      <Markdown>{lesson}</Markdown>
+      <Markdown>## Hints</Markdown>
+      {hints.split(/^### /m).filter((h) => h.trim()).map((h, i) => {
+        const [title, ...body] = h.split("\n");
+        return (
+          <details key={i} className="border border-border">
+            <summary className="cursor-pointer select-none px-3 py-2 font-mono text-xs">{title.trim()}</summary>
+            <div className="border-t border-border p-3"><Markdown>{body.join("\n")}</Markdown></div>
+          </details>
+        );
+      })}
     </div>
   );
 }
@@ -145,7 +165,8 @@ function TestsPanel(props: { names: string[]; cases: string[][]; examples: strin
 }
 
 export default function Workspace(props: {
-  path: string; question: string; solution: string; video?: string; fresh?: boolean; // fresh: a review, start from the starter
+  path: string; question: string; learn?: string; solution: string; video?: string; // learn: ML Coding lesson (learn.md)
+  fresh?: boolean; // fresh: a review, start from the starter
   langs: Lang[]; attempts: Record<Lang, string | null>; starters: Record<Lang, string>; // the languages this problem offers
   names: string[]; cases: string[][]; examples: string[][]; notes: string; drawing: Stroke[]; submissions: Submission[]; status?: string; review?: Review; today: string;
   nav: { prev: string | null; next: string | null; pos: number; total: number; random: boolean; unsolved: boolean };
@@ -341,7 +362,7 @@ export default function Workspace(props: {
       <div ref={row} className="flex min-h-0 flex-1 max-lg:flex-col max-lg:gap-3">
         <section className="card flex min-h-0 flex-col lg:w-[var(--left)] lg:shrink-0" style={{ "--left": `${layout.left}%` } as React.CSSProperties}>
           <div className="flex gap-1 border-b border-border p-2" role="tablist">
-            {(["question", "solution", "submissions", "notes", "tests"] as Tab[]).map((t) => (
+            {(["question", ...(props.learn ? ["learn"] : []), "solution", "submissions", "notes", "tests"] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`px-3 py-1 font-mono text-xs capitalize ${tab === t ? "bg-fg text-panel" : "text-muted hover:text-fg"}`}>
                 {t}
               </button>
@@ -352,6 +373,7 @@ export default function Workspace(props: {
               <TestsPanel names={props.names} cases={cases} examples={props.examples} onChange={setCases} run={run} busy={!!busy} onRun={runCases} />
             )}
             {tab === "question" && <Markdown>{props.question}</Markdown>}
+            {tab === "learn" && props.learn && <Learn md={props.learn} />}
             {tab === "solution" && (
               <>
                 {props.video && (

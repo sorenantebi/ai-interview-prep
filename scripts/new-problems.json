@@ -676,5 +676,65 @@
   "group": "03 Sliding Window",
   "video": "V-ecDfY5xEw",
   "neetcode": "https://neetcode.io/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit"
+ },
+ {
+  "url": "https://leetcode.com/problems/string-to-integer-atoi/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/reverse-words-in-a-string/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/zigzag-conversion/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/text-justification/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/integer-to-english-words/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/basic-calculator-ii/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/compare-version-numbers/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/string-compression/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
+ },
+ {
+  "url": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/",
+  "group": "22 String Manipulation",
+  "video": null,
+  "neetcode": null
  }
 ]

@@ -8,6 +8,7 @@ import { generateTests } from "@/lib/hidden-tests";
 import { codeBlock } from "@/lib/starter";
 import { addFromLink, saveProblem, topicName, unfence } from "@/lib/add-problem";
 import { checkComplexity } from "@/lib/complexity";
+import { writeLearn } from "@/lib/learn";
 
 /** Writes the hidden tests now, so Submit never waits on Claude; if that fails the problem is still kept, and Submit tries again. */
 const testsWarning = (dir: string) =>
@@ -40,7 +41,10 @@ export async function POST(req: NextRequest) {
         // Only keep a problem whose tests accept the reference solution and reject the empty starter.
         const bad = await testsProblem({ reference: codeBlock(f["solution.md"] ?? ""), starter: unfence(f["starter.py"]), tests: unfence(f["tests.py"]) });
         if (bad) throw new Error(`Nothing was saved, try again. ${bad}`);
-        return NextResponse.json({ path: await saveProblem(text, "ml-coding", b.group, ["starter.py", "tests.py"]) });
+        const dir = await saveProblem(text, "ml-coding", b.group, ["starter.py", "tests.py"]);
+        // The Learn tab; the problem is kept without it if the lesson doesn't check out.
+        const learnError = await writeLearn(dir).then(() => null, (e: Error) => e.message);
+        return NextResponse.json({ path: dir, warning: learnError && `Saved without a Learn tab: ${learnError.slice(0, 300)}` });
       }
       case "system-design": {
         safePath(`system-design/${b.group}`);

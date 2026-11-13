@@ -43,6 +43,16 @@ test("passing answers are kept, including the solved.py from before the history"
   assert.deepEqual((await submissions(p)).map((s) => s.code), ["new", "newer"]);
 });
 
+test("a learn page needs every section, runnable demos and none of the solution's code", async () => {
+  const { learnProblem } = await import("./learn.ts");
+  const solution = "```python\nimport numpy as np\ndef f(x):\n    return np.where(x < 0, 0.0, x) * scale_factor\n```";
+  const page = (demo: string) => `# Learn: F\n## The idea\n## Work it by hand\n## Tools you'll need\n\`\`\`python\n${demo}\n\`\`\`\n## Common mistakes\n## Hints\n### Hint 1\n### Hint 2\n### Hint 3\n`;
+  assert.equal(await learnProblem(page("print(1 + 1)  # 2"), solution), null);
+  assert.match((await learnProblem(page("print(1)").replace("## Common mistakes\n", ""), solution))!, /Missing sections: ## Common mistakes/);
+  assert.match((await learnProblem(page("raise ValueError('x')"), solution))!, /Python block 1 fails/);
+  assert.match((await learnProblem(page("# return np.where(x < 0, 0.0, x) * scale_factor"), solution))!, /line of the solution/);
+});
+
 test("files() splits model output into named files", () => {
   const out = files("noise\n=== FILE: question.md ===\n# Q\n\n=== FILE: solution.md ===\n```python\nx = [[1]]\n```\n=== END ===\ntrailing");
   assert.deepEqual(Object.keys(out), ["question.md", "solution.md"]);
