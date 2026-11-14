@@ -53,14 +53,35 @@ export function Divider({ dir, onMove, onStep, onReset, label }: { dir: "x" | "y
   );
 }
 
-/** The question with its "**Topic:** … · **Difficulty:** …" line replaced by a button that shows it. */
-function QuestionHidingMeta({ md, onShow }: { md: string; onShow: () => void }) {
-  const [before, after] = md.split(/^\*\*(?:Topic|Difficulty):\*\*.*$/m); // shuffle mode has already dropped "Topic:"
-  if (after === undefined) return <Markdown>{md}</Markdown>;
+/**
+ * The question with the values of its "**Topic:** … · **Difficulty:** …" line as spoilers: blurred until you click one,
+ * and clicking again blurs them again (both toggle together, with the topic in the header).
+ */
+function QuestionWithSpoilers({ md, shown, onToggle }: { md: string; shown: boolean; onToggle: () => void }) {
+  const line = md.match(/^\*\*(?:Topic|Difficulty):\*\*.*$/m)?.[0]; // shuffle mode has already dropped "Topic:"
+  if (!line) return <Markdown>{md}</Markdown>;
+  const [before, after] = md.split(line);
+  const pairs = [...line.matchAll(/\*\*(\w+):\*\*\s*([^·]+)/g)].map((m) => [m[1], m[2].trim()]);
   return (
     <>
       <Markdown>{before}</Markdown>
-      <button onClick={onShow} className="my-3 cursor-pointer border border-dashed border-border px-2 py-1 font-mono text-xs text-muted hover:border-fg hover:text-fg">show topic & difficulty</button>
+      <p className="my-3 text-[15px]">
+        {pairs.map(([label, value], i) => (
+          <span key={label}>
+            {i > 0 && " · "}
+            <strong>{label}:</strong>{" "}
+            <button
+              onClick={onToggle}
+              aria-pressed={shown}
+              aria-label={shown ? `${label}: ${value} (click to hide)` : `${label} hidden, click to show`}
+              title={shown ? "Click to hide" : "Click to show"}
+              className={`cursor-pointer px-1 transition-[filter,background-color] ${shown ? "" : "select-none bg-border blur-[5px] hover:blur-[4px]"}`}
+            >
+              {value}
+            </button>
+          </span>
+        ))}
+      </p>
       <Markdown>{after}</Markdown>
     </>
   );
@@ -186,9 +207,10 @@ export default function Workspace(props: {
   topics: string[];
 }) {
   const { path } = props;
-  // LeetCode keeps the topic and difficulty hidden until you click, so they don't give the pattern away.
+  // LeetCode blurs the topic and difficulty like spoilers, so they don't give the pattern away; a click toggles them.
+  const spoilers = path.startsWith("leetcode/");
   const [showMeta, setShowMeta] = useState(false);
-  const hidden = path.startsWith("leetcode/") && !showMeta;
+  const hidden = spoilers && !showMeta;
   const [tab, setTab] = useState<Tab>((useSearchParams().get("tab") as Tab) ?? "question");
   const [lang, setLang] = useState<Lang>(props.langs[0]);
   useEffect(() => {
@@ -341,14 +363,14 @@ export default function Workspace(props: {
   }
 
   const [area, group] = path.split("/");
-  const topicName = hidden ? "topic" : group.replace(/^\d+\s*/, "");
+  const topicName = group.replace(/^\d+\s*/, "");
   return (
     <div className="flex h-[calc(100vh-7.5rem)] flex-col gap-3 max-lg:h-auto">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {props.nav.random ? (
           <Link href={`/${area}`} className="text-muted hover:text-fg">← exit shuffle</Link>
         ) : (
-          <Link href={`/${area}?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {topicName}</Link>
+          <Link href={`/${area}?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← <span className={hidden ? "blur-[4px]" : ""}>{topicName}</span></Link>
         )}
         <select
           className="border border-border bg-panel px-1.5 py-1 font-mono text-xs text-muted hover:text-fg"
@@ -389,7 +411,7 @@ export default function Workspace(props: {
             {tab === "tests" && (
               <TestsPanel names={props.names} cases={cases} examples={props.examples} onChange={setCases} run={run} busy={!!busy} onRun={runCases} />
             )}
-            {tab === "question" && (hidden ? <QuestionHidingMeta md={props.question} onShow={() => setShowMeta(true)} /> : <Markdown>{props.question}</Markdown>)}
+            {tab === "question" && (spoilers ? <QuestionWithSpoilers md={props.question} shown={showMeta} onToggle={() => setShowMeta((v) => !v)} /> : <Markdown>{props.question}</Markdown>)}
             {tab === "learn" && props.learn && <Learn md={props.learn} />}
             {tab === "solution" && (
               <>
