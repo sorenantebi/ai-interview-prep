@@ -11,8 +11,8 @@ const split = (md: string) => {
 };
 const join = (intro: string, sections: Section[]) => intro.trimEnd() + "\n\n" + sections.map((s) => `## ${s.title}\n\n${s.body.trim()}\n`).join("\n");
 
-/** patterns.md as one card per "## Topic"; each card can be edited in place (title, text and code). */
-export default function Patterns({ markdown }: { markdown: string }) {
+/** A markdown file (patterns.md by default) as one card per "## Topic"; each card can be edited in place (title, text and code). */
+export default function Patterns({ markdown, file = "patterns.md" }: { markdown: string; file?: string }) {
   const parsed = split(markdown);
   const [sections, setSections] = useState(parsed.sections);
   const [editing, setEditing] = useState<number | null>(null);
@@ -22,7 +22,7 @@ export default function Patterns({ markdown }: { markdown: string }) {
 
   async function persist(next: Section[]) {
     try {
-      await putFile("patterns.md", join(parsed.intro, next));
+      await putFile(file, join(parsed.intro, next));
       setSections(next);
       setEditing(null);
       setIsNew(false);

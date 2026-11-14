@@ -55,11 +55,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const hasPdf = await fs.access(safePath(ML_PDF)).then(() => true, () => false);
   const tabs = [
     { view: "", label: "LeetCode · Python" }, { view: "leetcode-cpp", label: "LeetCode · C++" }, { view: "ml-coding", label: "ML coding" }, { view: "system-design", label: "System design" },
-    { view: "patterns", label: "Patterns" }, ...(hasPdf ? [{ view: "ml-cheat-sheet", label: "ML cheat sheet" }] : []),
+    { view: "patterns", label: "Patterns" }, { view: "numpy-pandas", label: "NumPy & pandas" }, ...(hasPdf ? [{ view: "ml-cheat-sheet", label: "ML cheat sheet" }] : []),
   ];
   const requested = (await searchParams).view ?? "";
   const tab = tabs.some((t) => t.view === requested) ? requested : "";
   const patterns = tab === "patterns" ? await read("patterns.md") : null;
+  const npSheet = tab === "numpy-pandas" ? await read("numpy-pandas.md") : null;
   const [plan, activity] = await Promise.all([readPlan(), activityDays()]);
   const streak = streaks(activity, today);
   const solvedPaths = Object.keys(prog).filter((k) => prog[k].status === "solved");
@@ -165,6 +166,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         {tab === "ml-coding" && <CheatSheet groups={cheat} today={today} complexity={false} />}
         {tab === "system-design" && <SystemDesignSheet groups={sdSheet} />}
         {tab === "patterns" && <Patterns markdown={patterns ?? ""} />}
+        {tab === "numpy-pandas" && <Patterns markdown={npSheet ?? ""} file="numpy-pandas.md" />}
         {tab === "ml-cheat-sheet" && <PdfPages title="ML cheat sheet" src={`/api/files/raw?path=${encodeURIComponent(ML_PDF)}`} />}
       </DashboardTabs>
       <section>

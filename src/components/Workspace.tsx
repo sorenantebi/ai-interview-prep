@@ -53,6 +53,19 @@ export function Divider({ dir, onMove, onStep, onReset, label }: { dir: "x" | "y
   );
 }
 
+/** The question with its "**Topic:** … · **Difficulty:** …" line replaced by a button that shows it. */
+function QuestionHidingMeta({ md, onShow }: { md: string; onShow: () => void }) {
+  const [before, after] = md.split(/^\*\*(?:Topic|Difficulty):\*\*.*$/m); // shuffle mode has already dropped "Topic:"
+  if (after === undefined) return <Markdown>{md}</Markdown>;
+  return (
+    <>
+      <Markdown>{before}</Markdown>
+      <button onClick={onShow} className="my-3 cursor-pointer border border-dashed border-border px-2 py-1 font-mono text-xs text-muted hover:border-fg hover:text-fg">show topic & difficulty</button>
+      <Markdown>{after}</Markdown>
+    </>
+  );
+}
+
 /** The lesson, with each "### Hint N" under "## Hints" folded so you open one at a time. */
 function Learn({ md }: { md: string }) {
   const [lesson, hints = ""] = md.split(/^## Hints\s*$/m);
@@ -173,6 +186,9 @@ export default function Workspace(props: {
   topics: string[];
 }) {
   const { path } = props;
+  // LeetCode keeps the topic and difficulty hidden until you click, so they don't give the pattern away.
+  const [showMeta, setShowMeta] = useState(false);
+  const hidden = path.startsWith("leetcode/") && !showMeta;
   const [tab, setTab] = useState<Tab>((useSearchParams().get("tab") as Tab) ?? "question");
   const [lang, setLang] = useState<Lang>(props.langs[0]);
   useEffect(() => {
@@ -325,13 +341,14 @@ export default function Workspace(props: {
   }
 
   const [area, group] = path.split("/");
+  const topicName = hidden ? "topic" : group.replace(/^\d+\s*/, "");
   return (
     <div className="flex h-[calc(100vh-7.5rem)] flex-col gap-3 max-lg:h-auto">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         {props.nav.random ? (
           <Link href={`/${area}`} className="text-muted hover:text-fg">← exit shuffle</Link>
         ) : (
-          <Link href={`/${area}?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {group.replace(/^\d+\s*/, "")}</Link>
+          <Link href={`/${area}?topic=${encodeURIComponent(group)}`} className="text-muted hover:text-fg">← {topicName}</Link>
         )}
         <select
           className="border border-border bg-panel px-1.5 py-1 font-mono text-xs text-muted hover:text-fg"
@@ -340,7 +357,7 @@ export default function Workspace(props: {
           aria-label="Move this problem to another topic"
           title="Change this problem's topic"
         >
-          <option value="">topic: {group.replace(/^\d+\s*/, "")} ▾</option>
+          <option value="">{hidden ? "topic ▾" : `topic: ${topicName} ▾`}</option>
           {props.topics.filter((t) => t !== group).map((t) => <option key={t} value={t}>move to {t.replace(/^\d+\s*/, "")}</option>)}
           <option value="+">move to a new topic…</option>
         </select>
@@ -372,7 +389,7 @@ export default function Workspace(props: {
             {tab === "tests" && (
               <TestsPanel names={props.names} cases={cases} examples={props.examples} onChange={setCases} run={run} busy={!!busy} onRun={runCases} />
             )}
-            {tab === "question" && <Markdown>{props.question}</Markdown>}
+            {tab === "question" && (hidden ? <QuestionHidingMeta md={props.question} onShow={() => setShowMeta(true)} /> : <Markdown>{props.question}</Markdown>)}
             {tab === "learn" && props.learn && <Learn md={props.learn} />}
             {tab === "solution" && (
               <>
