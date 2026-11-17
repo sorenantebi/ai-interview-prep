@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=T-8DgGQ7wUo
 topic: "Search & Analytics"
 difficulty: Hard
 problem: "Metrics Monitoring"

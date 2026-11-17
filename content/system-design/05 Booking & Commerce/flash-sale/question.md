@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=U2Acfwcah80
 topic: "Booking & Commerce"
 difficulty: Hard
 problem: "Flash Sale"

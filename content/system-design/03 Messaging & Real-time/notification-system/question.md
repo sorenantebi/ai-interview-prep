@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=bBTPZ9NdSk8
 topic: "Messaging & Real-time"
 difficulty: Medium
 problem: "Notification System"

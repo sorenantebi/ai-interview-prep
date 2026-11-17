@@ -26,7 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <main className="mx-auto max-w-[1400px] px-4 py-8 md:px-8">{children}</main>
         <footer className="mx-auto max-w-[1400px] px-4 pb-8 font-mono text-[11px] text-muted md:px-8">
           LeetCode solutions © NeetCode (<a className="underline hover:text-fg" href="https://github.com/neetcode-gh/leetcode" target="_blank" rel="noreferrer">neetcode-gh/leetcode</a>, MIT License) ·
-          problems and starter code © LeetCode · system design videos © Hello Interview · not affiliated with any of them
+          problems and starter code © LeetCode · system design videos © Hello Interview and other YouTube creators · not affiliated with any of them
         </footer>
         <Notepad />
         <Cat />

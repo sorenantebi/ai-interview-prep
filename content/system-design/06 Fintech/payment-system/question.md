@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=olfaBgJrUBI
 topic: "Fintech"
 difficulty: Hard
 problem: "Payment System"

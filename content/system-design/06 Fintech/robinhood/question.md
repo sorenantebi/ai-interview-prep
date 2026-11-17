@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=Zvr-ffhvw0Y
 topic: "Fintech"
 difficulty: Hard
 problem: "Robinhood"

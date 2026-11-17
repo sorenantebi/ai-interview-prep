@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=7CBR2uLtqqk
 topic: "Booking & Commerce"
 difficulty: Medium
 problem: "Price Tracking Service"

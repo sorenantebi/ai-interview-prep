@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=A7ISCoZab2I
 topic: "Messaging & Real-time"
 difficulty: Medium
 problem: "Online Chess"

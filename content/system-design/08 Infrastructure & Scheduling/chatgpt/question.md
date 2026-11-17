@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=I9-PUPYZyiw
 topic: "Infrastructure & Scheduling"
 difficulty: Hard
 problem: "ChatGPT"

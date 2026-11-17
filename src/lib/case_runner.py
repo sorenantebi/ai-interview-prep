@@ -270,6 +270,9 @@ def run_case(ns, values):
         x = build_tree(values[0]) if pair[0] == "serialize" else values[0]
         back = getattr(holder(), pair[1])(getattr(holder(), pair[0])(x))
         return tree_values(back) if pair[0] == "serialize" else to_out(back)
+    if "def guess(" in STARTER:  # Guess Number Higher or Lower: LeetCode predefines guess(); the last input is the pick
+        pick = values[-1]
+        ns["guess"] = lambda num: -1 if num > pick else 1 if num < pick else 0
     args, tree, by_value = [], None, False
     for i, ann in enumerate(anns):
         v = values[i] if i < len(values) else None

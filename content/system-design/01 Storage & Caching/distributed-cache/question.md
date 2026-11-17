@@ -1,4 +1,5 @@
 ---
+video: https://www.youtube.com/watch?v=iuqZvajTOyA
 topic: "Storage & Caching"
 difficulty: Hard
 problem: "Distributed Cache"
